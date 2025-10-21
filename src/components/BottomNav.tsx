@@ -14,7 +14,7 @@ export const BottomNav = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50">
+    <nav className="absolute bottom-0 left-0 right-0 bg-background border-t border-border z-50">
       <div className="container max-w-md mx-auto">
         <div className="grid grid-cols-4 gap-1 px-2 py-2">
           {navItems.map((item) => {
