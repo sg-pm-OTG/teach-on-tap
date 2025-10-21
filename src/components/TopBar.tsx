@@ -10,9 +10,9 @@ export const TopBar = () => {
       <div className="container max-w-md mx-auto flex items-center justify-between h-16 px-4">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 gradient-accent rounded-xl flex items-center justify-center shadow-md">
-            <span className="text-primary-foreground font-bold text-lg">E</span>
+            <span className="text-primary-foreground font-bold text-lg">F</span>
           </div>
-          <span className="font-semibold text-lg text-primary">EduTrack</span>
+          <span className="font-semibold text-lg text-primary">FOP Companion</span>
         </div>
 
         <div className="flex items-center gap-2">
