@@ -55,11 +55,11 @@ All colors MUST be HSL.
     --gradient-secondary: linear-gradient(135deg, hsl(180 70% 45%) 0%, hsl(180 60% 60%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(215 80% 30%) 0%, hsl(180 70% 45%) 100%);
 
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(215 80% 30% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(215 80% 30% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(215 80% 30% / 0.1);
-    --shadow-glow: 0 0 20px hsl(180 70% 45% / 0.3);
+    /* Shadows - removed */
+    --shadow-sm: 0 0 0 transparent;
+    --shadow-md: 0 0 0 transparent;
+    --shadow-lg: 0 0 0 transparent;
+    --shadow-glow: 0 0 0 transparent;
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

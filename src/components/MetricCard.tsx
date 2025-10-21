@@ -39,7 +39,7 @@ export const MetricCard = ({
           )}
         </div>
         {icon && (
-          <div className="w-10 h-10 rounded-lg gradient-secondary flex items-center justify-center shadow-md flex-shrink-0 ml-2">
+          <div className="w-10 h-10 rounded-lg gradient-secondary flex items-center justify-center flex-shrink-0 ml-2">
             {icon}
           </div>
         )}

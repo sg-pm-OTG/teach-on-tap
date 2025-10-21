@@ -12,7 +12,7 @@ const Home = () => {
     <div className="min-h-screen bg-background pb-20">
       <TopBar />
 
-      <main className="container max-w-md mx-auto px-4 py-6 space-y-6">
+      <main className="container max-w-md mx-auto px-4 py-6 space-y-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 144px)' }}>
         {/* Greeting */}
         <div className="animate-slide-in-left">
           <h1 className="text-2xl font-bold text-foreground mb-1">Welcome back, Sarah</h1>
@@ -40,7 +40,7 @@ const Home = () => {
         {/* AI Feedback Summary */}
         <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl p-5 border-2 border-border animate-slide-in-up">
           <div className="flex items-start gap-3 mb-3">
-            <div className="w-10 h-10 rounded-lg gradient-accent flex items-center justify-center shadow-md flex-shrink-0">
+            <div className="w-10 h-10 rounded-lg gradient-accent flex items-center justify-center flex-shrink-0">
               <MessageSquare className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>

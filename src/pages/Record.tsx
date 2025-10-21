@@ -72,14 +72,14 @@ const Record = () => {
             {!isRecording ? (
               <button
                 onClick={handleRecord}
-                className="w-32 h-32 rounded-full gradient-accent shadow-glow hover:scale-105 active:scale-95 transition-all flex items-center justify-center group"
+                className="w-32 h-32 rounded-full gradient-accent hover:scale-105 active:scale-95 transition-all flex items-center justify-center group"
               >
                 <Mic className="h-12 w-12 text-primary-foreground group-hover:scale-110 transition-transform" />
               </button>
             ) : (
               <button
                 onClick={handleStop}
-                className="w-32 h-32 rounded-full bg-destructive shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center group"
+                className="w-32 h-32 rounded-full bg-destructive hover:scale-105 active:scale-95 transition-all flex items-center justify-center group"
               >
                 <Square className="h-10 w-10 text-destructive-foreground fill-current group-hover:scale-110 transition-transform" />
               </button>

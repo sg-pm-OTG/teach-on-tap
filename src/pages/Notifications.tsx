@@ -56,7 +56,7 @@ const Notifications = () => {
     <div className="min-h-screen bg-background pb-20">
       <TopBar />
 
-      <main className="container max-w-md mx-auto px-4 py-6 space-y-4">
+      <main className="container max-w-md mx-auto px-4 py-6 space-y-4 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 144px)' }}>
         {/* Header */}
         <div className="animate-slide-in-left">
           <h1 className="text-2xl font-bold text-foreground mb-1">Notifications</h1>

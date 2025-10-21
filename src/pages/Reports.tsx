@@ -25,7 +25,7 @@ const Reports = () => {
     <div className="min-h-screen bg-background pb-20">
       <TopBar />
 
-      <main className="container max-w-md mx-auto px-4 py-6 space-y-6">
+      <main className="container max-w-md mx-auto px-4 py-6 space-y-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 144px)' }}>
         {/* Header */}
         <div className="flex items-center justify-between animate-slide-in-left">
           <div>
@@ -107,7 +107,7 @@ const Reports = () => {
         {/* AI Feedback */}
         <Card className="p-5 border-2 border-secondary/20 bg-secondary/5 animate-slide-in-up">
           <div className="flex items-start gap-3 mb-3">
-            <div className="w-10 h-10 rounded-lg gradient-secondary flex items-center justify-center shadow-md flex-shrink-0">
+            <div className="w-10 h-10 rounded-lg gradient-secondary flex items-center justify-center flex-shrink-0">
               <MessageSquare className="h-5 w-5 text-secondary-foreground" />
             </div>
             <div className="flex-1">

@@ -32,9 +32,8 @@ const Processing = () => {
 
       <main className="container max-w-md mx-auto px-4 py-8">
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] space-y-8">
-          {/* Processing Animation */}
           <div className="relative">
-            <div className="w-32 h-32 rounded-full gradient-accent animate-pulse-slow flex items-center justify-center shadow-glow">
+            <div className="w-32 h-32 rounded-full gradient-accent animate-pulse-slow flex items-center justify-center">
               <Loader2 className="h-16 w-16 text-primary-foreground animate-spin" />
             </div>
           </div>
