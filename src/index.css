@@ -149,6 +149,13 @@ All colors MUST be HSL.
     background: var(--gradient-accent);
   }
 
+  .gradient-text {
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
   /* Shadow utilities */
   .shadow-glow {
     box-shadow: var(--shadow-glow);

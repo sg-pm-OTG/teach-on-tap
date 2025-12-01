@@ -4,9 +4,11 @@ import { MetricCard } from "@/components/MetricCard";
 import { Button } from "@/components/ui/button";
 import { Mic, Upload, FileText, TrendingUp, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useProfile } from "@/hooks/useProfile";
 
 const Home = () => {
   const navigate = useNavigate();
+  const { profile } = useProfile();
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -15,7 +17,9 @@ const Home = () => {
       <main className="container max-w-md mx-auto px-4 py-6 space-y-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 144px)' }}>
         {/* Greeting */}
         <div className="animate-slide-in-left">
-          <h1 className="text-2xl font-bold text-foreground mb-1">Welcome back, Sarah</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-1">
+            Welcome back, {profile?.name || "Teacher"}
+          </h1>
           <p className="text-muted-foreground">Ready to track your teaching excellence?</p>
         </div>
 
