@@ -133,12 +133,6 @@ const Reports = () => {
             </div>
           </div>
         </Card>
-
-        {/* Download Button */}
-        <Button variant="default" size="touch" className="w-full">
-          <Download className="h-5 w-5" />
-          Download PDF Report
-        </Button>
       </main>
 
       <BottomNav />
