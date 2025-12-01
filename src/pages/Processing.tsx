@@ -36,10 +36,10 @@ const Processing = () => {
   }, [processingComplete, surveyComplete, navigate]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <TopBar />
 
-      <main className="container max-w-md mx-auto px-4 py-6">
+      <main className="container max-w-md mx-auto px-4 py-6 flex-1 overflow-y-auto">
         {/* Compact Processing Indicator */}
         <div className="mb-6 p-4 bg-card rounded-xl border border-border">
           <div className="flex items-center gap-4">
