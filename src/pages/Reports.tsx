@@ -2,7 +2,7 @@ import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { CircularProgress } from "@/components/CircularProgress";
-import { Download, TrendingUp, MessageSquare } from "lucide-react";
+import { TrendingUp, MessageSquare } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 const Reports = () => {
@@ -27,14 +27,9 @@ const Reports = () => {
 
       <main className="container max-w-md mx-auto px-4 py-6 space-y-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 144px)' }}>
         {/* Header */}
-        <div className="flex items-center justify-between animate-slide-in-left">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Session Report</h1>
-            <p className="text-sm text-muted-foreground">November 18, 2024</p>
-          </div>
-          <Button variant="outline" size="icon">
-            <Download className="h-5 w-5" />
-          </Button>
+        <div className="animate-slide-in-left">
+          <h1 className="text-2xl font-bold text-foreground">Session Report</h1>
+          <p className="text-sm text-muted-foreground">November 18, 2024</p>
         </div>
 
         {/* Overall Score */}
