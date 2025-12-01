@@ -47,6 +47,51 @@ export type Database = {
         }
         Relationships: []
       }
+      session_surveys: {
+        Row: {
+          activity_involvement: string[] | null
+          confidence_change: string | null
+          created_at: string
+          design_difficulty: string | null
+          engagement_other: string | null
+          engagement_types: string[]
+          id: string
+          non_engagement_other: string | null
+          non_engagement_reasons: string[] | null
+          practice_difficulty: string | null
+          time_spent: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_involvement?: string[] | null
+          confidence_change?: string | null
+          created_at?: string
+          design_difficulty?: string | null
+          engagement_other?: string | null
+          engagement_types: string[]
+          id?: string
+          non_engagement_other?: string | null
+          non_engagement_reasons?: string[] | null
+          practice_difficulty?: string | null
+          time_spent?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_involvement?: string[] | null
+          confidence_change?: string | null
+          created_at?: string
+          design_difficulty?: string | null
+          engagement_other?: string | null
+          engagement_types?: string[]
+          id?: string
+          non_engagement_other?: string | null
+          non_engagement_reasons?: string[] | null
+          practice_difficulty?: string | null
+          time_spent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
