@@ -22,10 +22,10 @@ const Reports = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background flex flex-col">
       <TopBar />
 
-      <main className="container max-w-md mx-auto px-4 py-6 space-y-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 144px)' }}>
+      <main className="flex-1 container max-w-md mx-auto px-4 py-6 space-y-6 overflow-y-auto pb-24">
         {/* Header */}
         <div className="animate-slide-in-left">
           <h1 className="text-2xl font-bold text-foreground">Session Report</h1>
