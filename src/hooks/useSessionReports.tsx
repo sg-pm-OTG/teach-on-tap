@@ -20,8 +20,7 @@ interface SessionInsights {
 }
 
 export const useSessionReports = () => {
-  // For now, simulate having no reports - set to true to test unlocked state
-  const hasReports = false;
+  const hasReports = true;
 
   const insights = useMemo<SessionInsights | null>(() => {
     if (!hasReports) return null;
@@ -54,8 +53,8 @@ export const useSessionReports = () => {
 
     return {
       overallScore: Math.round(overallScore),
-      scenarioAvg: Math.round((scenarioAvg / 4) * 100),
-      dialogueAvg: Math.round((dialogueAvg / 4) * 100),
+      scenarioAvg: parseFloat(scenarioAvg.toFixed(2)),
+      dialogueAvg: parseFloat(dialogueAvg.toFixed(2)),
       strengths,
       focusAreas,
       facilitatorTalkTime,

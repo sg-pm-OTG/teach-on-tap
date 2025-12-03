@@ -5,28 +5,27 @@ import { Button } from "@/components/ui/button";
 import { Mic, Upload, FileText, TrendingUp, Users, BarChart3, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
+import { useSessionReports } from "@/hooks/useSessionReports";
 import { SessionSummaryCard } from "@/components/home/SessionSummaryCard";
 import { AIInsightCard } from "@/components/home/AIInsightCard";
 
 const Home = () => {
   const navigate = useNavigate();
   const { profile } = useProfile();
+  const { insights } = useSessionReports();
 
-  // Sample data for display (scores on 0-4 scale)
-  const sampleInsights = {
-    overallScore: 72,
-    scenarioAvg: 2.33,
-    dialogueAvg: 2.43,
-    facilitatorTalkTime: 38,
-    strengths: [
-      { label: "Active Engagement", score: 3 },
-      { label: "Purposeful Talk", score: 3 },
-    ],
-    focusAreas: [
-      { label: "Open Questions", score: 2 },
-      { label: "Productive Struggle", score: 2 },
-    ],
+  const defaultInsights = {
+    overallScore: 0,
+    scenarioAvg: 0,
+    dialogueAvg: 0,
+    facilitatorTalkTime: 0,
+    strengths: [] as { label: string; score: number }[],
+    focusAreas: [] as { label: string; score: number }[],
+    latestSessionDate: "",
+    latestSessionTitle: "",
   };
+
+  const data = insights || defaultInsights;
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -47,7 +46,7 @@ const Home = () => {
         <div className="grid grid-cols-2 gap-4">
           <MetricCard
             title="Overall Score"
-            value={`${sampleInsights.overallScore}%`}
+            value={`${data.overallScore}%`}
             subtitle="+5% from previous"
             trend="up"
             icon={<TrendingUp className="h-5 w-5 text-secondary-foreground" />}
@@ -61,7 +60,7 @@ const Home = () => {
           />
           <MetricCard
             title="Talk Time"
-            value={`${sampleInsights.facilitatorTalkTime}%`}
+            value={`${data.facilitatorTalkTime}%`}
             subtitle="Facilitator"
             trend="neutral"
             icon={<Clock className="h-5 w-5 text-secondary-foreground" />}
@@ -79,19 +78,19 @@ const Home = () => {
         <div className="space-y-3">
           <h2 className="text-lg font-semibold text-foreground">Latest Session</h2>
           <SessionSummaryCard
-            sessionTitle="FOP Training Session"
-            sessionDate="November 18, 2024"
-            scenarioScore={sampleInsights.scenarioAvg}
-            dialogueScore={sampleInsights.dialogueAvg}
-            strengths={sampleInsights.strengths}
-            focusAreas={sampleInsights.focusAreas}
+            sessionTitle={data.latestSessionTitle || "FOP Training Session"}
+            sessionDate={data.latestSessionDate || "November 18, 2024"}
+            scenarioScore={data.scenarioAvg}
+            dialogueScore={data.dialogueAvg}
+            strengths={data.strengths}
+            focusAreas={data.focusAreas}
           />
         </div>
 
         {/* AI Insight */}
         <AIInsightCard
-          strengths={sampleInsights.strengths}
-          focusAreas={sampleInsights.focusAreas}
+          strengths={data.strengths}
+          focusAreas={data.focusAreas}
         />
 
         {/* Quick Actions */}
