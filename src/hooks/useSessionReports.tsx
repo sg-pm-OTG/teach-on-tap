@@ -14,7 +14,7 @@ interface SessionInsights {
   dialogueAvg: number;
   strengths: { label: string; score: number }[];
   focusAreas: { label: string; score: number }[];
-  facilitatorTalkTime: number;
+  facilitatorTalkTimeMinutes: number;
   latestSessionDate: string;
   latestSessionTitle: string;
 }
@@ -29,7 +29,7 @@ export const useSessionReports = () => {
       scenarioScores.reduce((sum, s) => sum + s.score, 0) / scenarioScores.length;
     const dialogueAvg =
       dialogueScores.reduce((sum, s) => sum + s.score, 0) / dialogueScores.length;
-    const overallScore = ((scenarioAvg + dialogueAvg) / 2 / 4) * 100;
+    const overallScore = (scenarioAvg + dialogueAvg) / 2;
 
     const allScores = [
       ...scenarioScores.map((s) => ({ ...s, source: "scenario" })),
@@ -49,15 +49,15 @@ export const useSessionReports = () => {
       .map((s) => ({ label: s.label, score: s.score }));
 
     const facilitator = talkTimeData.find((t) => t.speaker === "Facilitator");
-    const facilitatorTalkTime = facilitator?.percentage ?? 0;
+    const facilitatorTalkTimeMinutes = Math.round((facilitator?.seconds ?? 0) / 60);
 
     return {
-      overallScore: Math.round(overallScore),
+      overallScore: parseFloat(overallScore.toFixed(1)),
       scenarioAvg: parseFloat(scenarioAvg.toFixed(2)),
       dialogueAvg: parseFloat(dialogueAvg.toFixed(2)),
       strengths,
       focusAreas,
-      facilitatorTalkTime,
+      facilitatorTalkTimeMinutes,
       latestSessionDate: sessionDetails.date,
       latestSessionTitle: sessionDetails.title,
     };
