@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 
 interface CircularProgressProps {
   value: number;
+  maxValue?: number;
   size?: number;
   strokeWidth?: number;
   label?: string;
@@ -11,6 +12,7 @@ interface CircularProgressProps {
 
 export const CircularProgress = ({
   value,
+  maxValue = 4,
   size = 80,
   strokeWidth = 8,
   label,
@@ -19,7 +21,8 @@ export const CircularProgress = ({
 }: CircularProgressProps) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (value / 100) * circumference;
+  const percentage = (value / maxValue) * 100;
+  const offset = circumference - (percentage / 100) * circumference;
 
   const colorMap = {
     primary: "hsl(215 80% 30%)",
@@ -55,8 +58,9 @@ export const CircularProgress = ({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-xl font-bold text-foreground">{value}%</span>
-        {label && <span className="text-xs text-muted-foreground mt-0.5">{label}</span>}
+        <span className="text-lg font-bold text-foreground">{value.toFixed(1)}</span>
+        <span className="text-[10px] text-muted-foreground">/{maxValue}</span>
+        {label && <span className="text-[9px] text-muted-foreground mt-0.5">{label}</span>}
       </div>
     </div>
   );
