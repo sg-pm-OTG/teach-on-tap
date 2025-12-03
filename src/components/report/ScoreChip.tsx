@@ -8,6 +8,8 @@ interface ScoreChipProps {
 
 const getScoreColor = (score: number) => {
   switch (score) {
+    case 4:
+      return "bg-blue-100 text-blue-700 border-blue-200";
     case 3:
       return "bg-emerald-100 text-emerald-700 border-emerald-200";
     case 2:
@@ -21,6 +23,8 @@ const getScoreColor = (score: number) => {
 
 const getScoreLabel = (score: number) => {
   switch (score) {
+    case 4:
+      return "Effective";
     case 3:
       return "Visible";
     case 2:
@@ -32,7 +36,7 @@ const getScoreLabel = (score: number) => {
   }
 };
 
-export const ScoreChip = ({ label, score, maxScore = 3 }: ScoreChipProps) => {
+export const ScoreChip = ({ label, score, maxScore = 4 }: ScoreChipProps) => {
   return (
     <div className="flex-shrink-0 bg-card rounded-xl p-3 border border-border min-w-[140px]">
       <p className="text-xs text-muted-foreground mb-1 truncate">{label}</p>

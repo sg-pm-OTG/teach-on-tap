@@ -5,9 +5,10 @@ import { SpeakerCard } from "@/components/report/SpeakerCard";
 import { ThemeCard } from "@/components/report/ThemeCard";
 import { ConclusionCard } from "@/components/report/ConclusionCard";
 import { TalkTimeBar } from "@/components/report/TalkTimeBar";
-import { ChartPlaceholder } from "@/components/report/ChartPlaceholder";
+import { TalkTimePieChart } from "@/components/report/TalkTimePieChart";
+import { InteractionGrid } from "@/components/report/InteractionGrid";
 import { ScenarioCard } from "@/components/report/ScenarioCard";
-import { ScoreChip } from "@/components/report/ScoreChip";
+import { ScoreRadarChart } from "@/components/report/ScoreRadarChart";
 import { CollapsibleSection } from "@/components/report/CollapsibleSection";
 import { OpportunityCallout } from "@/components/report/OpportunityCallout";
 import { SectionDivider } from "@/components/report/SectionDivider";
@@ -17,6 +18,8 @@ import {
   themes,
   conclusions,
   talkTimeData,
+  speakerInteractions,
+  speakerLabels,
   scenarioContent,
   scenarioScores,
   scenarioAnalysis,
@@ -46,7 +49,6 @@ const Reports = () => {
               date={sessionDetails.date}
               participants={sessionDetails.participants}
               activityType={sessionDetails.activityType}
-              userName={sessionDetails.userName}
             />
           </div>
 
@@ -54,7 +56,7 @@ const Reports = () => {
 
           {/* Speaker Summary */}
           <div className="space-y-2 animate-slide-in-up">
-            {displayedSpeakers.map((speaker, index) => (
+            {displayedSpeakers.map((speaker) => (
               <SpeakerCard
                 key={speaker.id}
                 id={speaker.id}
@@ -96,24 +98,31 @@ const Reports = () => {
 
           <SectionDivider title="Structural Analysis" />
 
-          {/* Talk Time Distribution */}
-          <div className="space-y-4 animate-slide-in-up">
-            <ChartPlaceholder
-              type="pie"
-              title="Talk Time Distribution"
-              description="Visual breakdown of speaking time"
+          {/* Talk Time Distribution - Pie Chart */}
+          <div className="animate-slide-in-up">
+            <TalkTimePieChart data={talkTimeData} />
+          </div>
+
+          {/* Talk Time Bars */}
+          <div className="bg-card rounded-xl border border-border p-4 space-y-3 animate-slide-in-up">
+            <h4 className="font-medium text-sm text-foreground mb-3">Speaker Talk Time Details</h4>
+            {talkTimeData.map((item) => (
+              <TalkTimeBar
+                key={item.speaker}
+                speaker={item.speaker}
+                percentage={item.percentage}
+                seconds={item.seconds}
+                color={item.color}
+              />
+            ))}
+          </div>
+
+          {/* Speaker Interaction Heat Map */}
+          <div className="animate-slide-in-up">
+            <InteractionGrid
+              interactions={speakerInteractions}
+              labels={speakerLabels}
             />
-            <div className="bg-card rounded-xl border border-border p-4 space-y-3">
-              <h4 className="font-medium text-sm text-foreground mb-3">Speaker Percentages</h4>
-              {talkTimeData.map((item) => (
-                <TalkTimeBar
-                  key={item.speaker}
-                  speaker={item.speaker}
-                  percentage={item.percentage}
-                  color={item.color}
-                />
-              ))}
-            </div>
           </div>
 
           <SectionDivider title="Emergent Scenario" />
@@ -126,14 +135,14 @@ const Reports = () => {
             />
           </div>
 
-          {/* Scenario Score Chips - Horizontal Scroll */}
+          {/* Scenario Scores - Radar Chart */}
           <div className="animate-slide-in-up">
-            <h4 className="font-medium text-sm text-foreground mb-3">Scenario Scores</h4>
-            <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-              {scenarioScores.map((item) => (
-                <ScoreChip key={item.label} label={item.label} score={item.score} />
-              ))}
-            </div>
+            <ScoreRadarChart
+              data={scenarioScores}
+              title="Scenario Quality Scores"
+              maxScore={4}
+              color="#F97316"
+            />
           </div>
 
           {/* Scenario Detailed Analysis */}
@@ -148,14 +157,14 @@ const Reports = () => {
 
           <SectionDivider title="Generative Dialogue" />
 
-          {/* Dialogue Score Chips */}
+          {/* Dialogue Scores - Radar Chart */}
           <div className="animate-slide-in-up">
-            <h4 className="font-medium text-sm text-foreground mb-3">Dialogue Scores</h4>
-            <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-              {dialogueScores.map((item) => (
-                <ScoreChip key={item.label} label={item.label} score={item.score} />
-              ))}
-            </div>
+            <ScoreRadarChart
+              data={dialogueScores}
+              title="Dialogue Quality Scores"
+              maxScore={4}
+              color="#0D9488"
+            />
           </div>
 
           {/* Dialogue Detailed Analysis */}

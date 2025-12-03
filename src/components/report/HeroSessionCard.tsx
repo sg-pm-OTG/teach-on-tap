@@ -1,4 +1,4 @@
-import { MapPin, Calendar, Users, BookOpen, User } from "lucide-react";
+import { MapPin, Calendar, Users, BookOpen } from "lucide-react";
 
 interface HeroSessionCardProps {
   title: string;
@@ -6,16 +6,14 @@ interface HeroSessionCardProps {
   date: string;
   participants: number;
   activityType: string;
-  userName: string;
 }
 
-export const HeroSessionCard = ({ title, useSite, date, participants, activityType, userName }: HeroSessionCardProps) => {
+export const HeroSessionCard = ({ title, useSite, date, participants, activityType }: HeroSessionCardProps) => {
   const details = [
     { icon: MapPin, label: "Use Site", value: useSite },
     { icon: Calendar, label: "Date", value: date },
     { icon: Users, label: "Participants", value: `${participants} Participants` },
     { icon: BookOpen, label: "Activity", value: activityType },
-    { icon: User, label: "User", value: userName },
   ];
 
   return (
