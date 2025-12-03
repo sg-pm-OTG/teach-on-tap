@@ -36,6 +36,7 @@ export const SessionSummaryCard = ({
         <div className="flex gap-3 flex-shrink-0">
           <CircularProgress
             value={scenarioScore}
+            maxValue={4}
             size={60}
             strokeWidth={6}
             label="Scenario"
@@ -43,6 +44,7 @@ export const SessionSummaryCard = ({
           />
           <CircularProgress
             value={dialogueScore}
+            maxValue={4}
             size={60}
             strokeWidth={6}
             label="Dialogue"

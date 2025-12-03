@@ -12,11 +12,11 @@ const Home = () => {
   const navigate = useNavigate();
   const { profile } = useProfile();
 
-  // Sample data for display
+  // Sample data for display (scores on 0-4 scale)
   const sampleInsights = {
     overallScore: 72,
-    scenarioAvg: 71,
-    dialogueAvg: 73,
+    scenarioAvg: 2.33,
+    dialogueAvg: 2.43,
     facilitatorTalkTime: 38,
     strengths: [
       { label: "Active Engagement", score: 3 },
