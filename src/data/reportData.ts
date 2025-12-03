@@ -6,19 +6,18 @@ export const sessionDetails = {
   date: "October 11, 2025",
   participants: 13,
   activityType: "Classroom lesson",
-  userName: "User",
 };
 
 export const speakers = [
-  { id: "Speaker 1", description: "Facilitator leading the session." },
-  { id: "Speaker 2", description: "Regularly contributes practical suggestions and personal classroom experiences." },
-  { id: "Speaker 3", description: "Actively engages with questions about behaviour management strategies." },
-  { id: "Speaker 4", description: "Offers insights from a primary school context." },
-  { id: "Speaker 5", description: "Shares experiences from secondary education, often providing contrast." },
-  { id: "Speaker 6", description: "Brings up the emotional side of dealing with disruptions." },
-  { id: "Speaker 7", description: "Focuses on long-term approaches and building relationships with students." },
-  { id: "Speaker 8", description: "Asks clarifying questions and seeks deeper understanding of issues raised." },
-  { id: "Speaker 9", description: "Provides administrative or institutional perspective when relevant." },
+  { id: "Facilitator", description: "Primary facilitator; presents scenario, guides dialogue, debriefs, summarizes ideas." },
+  { id: "Participant 1", description: "Regularly contributes practical suggestions and personal classroom experiences." },
+  { id: "Participant 2", description: "Actively engages with questions about behaviour management strategies." },
+  { id: "Participant 3", description: "Offers insights from a primary school context." },
+  { id: "Participant 4", description: "Shares experiences from secondary education, often providing contrast." },
+  { id: "Participant 5", description: "Brings up the emotional side of dealing with disruptions." },
+  { id: "Participant 6", description: "Focuses on long-term approaches and building relationships with students." },
+  { id: "Participant 7", description: "Asks clarifying questions and seeks deeper understanding of issues raised." },
+  { id: "Participant 8", description: "Provides administrative or institutional perspective when relevant." },
 ];
 
 export const themes = [
@@ -78,16 +77,32 @@ export const conclusions = [
 ];
 
 export const talkTimeData = [
-  { speaker: "Speaker 1", percentage: 32, color: "bg-teal-500" },
-  { speaker: "Speaker 2", percentage: 15, color: "bg-blue-500" },
-  { speaker: "Speaker 3", percentage: 12, color: "bg-purple-500" },
-  { speaker: "Speaker 4", percentage: 10, color: "bg-pink-500" },
-  { speaker: "Speaker 5", percentage: 9, color: "bg-orange-500" },
-  { speaker: "Speaker 6", percentage: 8, color: "bg-emerald-500" },
-  { speaker: "Speaker 7", percentage: 7, color: "bg-indigo-500" },
-  { speaker: "Speaker 8", percentage: 4, color: "bg-rose-500" },
-  { speaker: "Speaker 9", percentage: 3, color: "bg-cyan-500" },
+  { speaker: "Facilitator", percentage: 37.7, seconds: 1800, color: "bg-teal-500" },
+  { speaker: "Participant 1", percentage: 15.2, seconds: 726, color: "bg-blue-500" },
+  { speaker: "Participant 2", percentage: 12.1, seconds: 578, color: "bg-purple-500" },
+  { speaker: "Participant 3", percentage: 9.8, seconds: 468, color: "bg-pink-500" },
+  { speaker: "Participant 4", percentage: 8.5, seconds: 406, color: "bg-orange-500" },
+  { speaker: "Participant 5", percentage: 6.3, seconds: 301, color: "bg-emerald-500" },
+  { speaker: "Participant 6", percentage: 5.1, seconds: 244, color: "bg-indigo-500" },
+  { speaker: "Participant 7", percentage: 3.2, seconds: 153, color: "bg-rose-500" },
+  { speaker: "Participant 8", percentage: 2.1, seconds: 100, color: "bg-cyan-500" },
 ];
+
+// Speaker interaction data for heat map (interaction counts between speakers)
+export const speakerInteractions = [
+  // [Facilitator, P1, P2, P3, P4, P5, P6, P7, P8]
+  [0, 12, 10, 8, 7, 5, 4, 3, 2],   // Facilitator
+  [12, 0, 6, 4, 3, 2, 2, 1, 1],    // Participant 1
+  [10, 6, 0, 5, 4, 3, 2, 1, 1],    // Participant 2
+  [8, 4, 5, 0, 3, 2, 2, 1, 0],     // Participant 3
+  [7, 3, 4, 3, 0, 2, 1, 1, 1],     // Participant 4
+  [5, 2, 3, 2, 2, 0, 2, 1, 0],     // Participant 5
+  [4, 2, 2, 2, 1, 2, 0, 1, 0],     // Participant 6
+  [3, 1, 1, 1, 1, 1, 1, 0, 0],     // Participant 7
+  [2, 1, 1, 0, 1, 0, 0, 0, 0],     // Participant 8
+];
+
+export const speakerLabels = ["F", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"];
 
 export const scenarioContent = {
   title: "Anne-Marie's FOP 2 session",
@@ -164,7 +179,7 @@ export const dialogueAnalysis = [
     score: 2,
     content: "The facilitator posed several open-ended questions that sparked discussion. However, there were opportunities to dig deeper with follow-up probing questions.",
     opportunity: {
-      speaker: "Speaker 3",
+      speaker: "Participant 2",
       quote: "I usually just ignore it and hope it stops",
       observation: "This comment revealed a common but potentially ineffective strategy.",
       opportunity: "Follow up with 'What happens when ignoring doesn't work? What alternatives have you considered?'",
@@ -180,7 +195,7 @@ export const dialogueAnalysis = [
     score: 2,
     content: "Participants worked together to generate solutions, though the collaboration could be more structured to ensure all voices are heard equally.",
     opportunity: {
-      speaker: "Speaker 6",
+      speaker: "Participant 5",
       quote: "It's frustrating when one person derails everything you planned",
       observation: "This emotional response indicates personal connection to the scenario.",
       opportunity: "Invite the group to co-develop strategies: 'How might we support each other in similar situations?'",

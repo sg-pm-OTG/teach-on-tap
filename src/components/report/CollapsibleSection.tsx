@@ -15,14 +15,21 @@ interface CollapsibleSectionProps {
 }
 
 const getScoreBadge = (score: number) => {
-  const colors = {
+  const colors: Record<number, string> = {
+    4: "bg-blue-100 text-blue-700",
     3: "bg-emerald-100 text-emerald-700",
     2: "bg-amber-100 text-amber-700",
     1: "bg-orange-100 text-orange-700",
     0: "bg-gray-100 text-gray-600",
   };
-  const labels = { 3: "Visible", 2: "Developing", 1: "Weak", 0: "Not Evident" };
-  return { color: colors[score as keyof typeof colors] || colors[0], label: labels[score as keyof typeof labels] || labels[0] };
+  const labels: Record<number, string> = {
+    4: "Effective",
+    3: "Visible",
+    2: "Developing",
+    1: "Weak",
+    0: "Not Evident",
+  };
+  return { color: colors[score] || colors[0], label: labels[score] || labels[0] };
 };
 
 export const CollapsibleSection = ({ title, score, children, defaultOpen = false }: CollapsibleSectionProps) => {
