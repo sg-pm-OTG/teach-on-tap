@@ -1,13 +1,7 @@
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import {
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  Radar,
-  ResponsiveContainer,
-} from "recharts";
+import { CircularProgress } from "@/components/CircularProgress";
 
 interface SessionSummaryCardProps {
   sessionTitle: string;
@@ -28,11 +22,6 @@ export const SessionSummaryCard = ({
 }: SessionSummaryCardProps) => {
   const navigate = useNavigate();
 
-  const radarData = [
-    { subject: "Scenario", value: scenarioScore, fullMark: 100 },
-    { subject: "Dialogue", value: dialogueScore, fullMark: 100 },
-  ];
-
   return (
     <div className="bg-card border-2 border-border rounded-2xl p-5 animate-slide-in-up">
       <div className="flex items-center justify-between mb-4">
@@ -43,24 +32,22 @@ export const SessionSummaryCard = ({
       </div>
 
       <div className="flex gap-4">
-        {/* Mini Radar Chart */}
-        <div className="w-28 h-28 flex-shrink-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <RadarChart data={radarData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
-              <PolarGrid stroke="hsl(var(--border))" />
-              <PolarAngleAxis
-                dataKey="subject"
-                tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-              />
-              <Radar
-                name="Score"
-                dataKey="value"
-                stroke="hsl(var(--primary))"
-                fill="hsl(var(--primary))"
-                fillOpacity={0.3}
-              />
-            </RadarChart>
-          </ResponsiveContainer>
+        {/* Circular Progress Rings */}
+        <div className="flex gap-3 flex-shrink-0">
+          <CircularProgress
+            value={scenarioScore}
+            size={60}
+            strokeWidth={6}
+            label="Scenario"
+            color="primary"
+          />
+          <CircularProgress
+            value={dialogueScore}
+            size={60}
+            strokeWidth={6}
+            label="Dialogue"
+            color="secondary"
+          />
         </div>
 
         {/* Strengths & Focus Areas */}
