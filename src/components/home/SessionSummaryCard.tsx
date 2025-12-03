@@ -53,12 +53,12 @@ export const SessionSummaryCard = ({
         </div>
 
         {/* Strengths & Focus Areas */}
-        <div className="flex-1 space-y-3">
+        <div className="flex-1 min-w-0 space-y-3">
           <div>
             <p className="text-xs font-medium text-success mb-1">Strengths</p>
             <div className="space-y-1">
               {strengths.slice(0, 2).map((s, i) => (
-                <p key={i} className="text-xs text-foreground truncate">
+                <p key={i} className="text-xs text-foreground leading-tight">
                   • {s.label}
                 </p>
               ))}
@@ -68,7 +68,7 @@ export const SessionSummaryCard = ({
             <p className="text-xs font-medium text-amber-500 mb-1">Focus Areas</p>
             <div className="space-y-1">
               {focusAreas.slice(0, 2).map((s, i) => (
-                <p key={i} className="text-xs text-foreground truncate">
+                <p key={i} className="text-xs text-foreground leading-tight">
                   • {s.label}
                 </p>
               ))}
