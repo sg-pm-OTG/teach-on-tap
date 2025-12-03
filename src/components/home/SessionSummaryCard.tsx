@@ -33,20 +33,20 @@ export const SessionSummaryCard = ({
 
       <div className="flex gap-4">
         {/* Circular Progress Rings */}
-        <div className="flex gap-3 flex-shrink-0">
+        <div className="flex gap-4 flex-shrink-0">
           <CircularProgress
             value={scenarioScore}
             maxValue={4}
-            size={60}
-            strokeWidth={6}
+            size={70}
+            strokeWidth={5}
             label="Scenario"
             color="primary"
           />
           <CircularProgress
             value={dialogueScore}
             maxValue={4}
-            size={60}
-            strokeWidth={6}
+            size={70}
+            strokeWidth={5}
             label="Dialogue"
             color="secondary"
           />
