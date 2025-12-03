@@ -2,13 +2,18 @@ import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { MetricCard } from "@/components/MetricCard";
 import { Button } from "@/components/ui/button";
-import { Mic, Upload, FileText, TrendingUp, MessageSquare } from "lucide-react";
+import { Mic, Upload, FileText, TrendingUp, Users, BarChart3, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
+import { useSessionReports } from "@/hooks/useSessionReports";
+import { LockedPreview } from "@/components/home/LockedPreview";
+import { SessionSummaryCard } from "@/components/home/SessionSummaryCard";
+import { AIInsightCard } from "@/components/home/AIInsightCard";
 
 const Home = () => {
   const navigate = useNavigate();
   const { profile } = useProfile();
+  const { hasReports, insights } = useSessionReports();
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -18,47 +23,71 @@ const Home = () => {
         {/* Greeting */}
         <div className="animate-slide-in-left">
           <h1 className="text-2xl font-bold text-foreground mb-1">
-            Welcome back, {profile?.name || "Teacher"}
+            {hasReports ? `Welcome back, ${profile?.name || "Teacher"}` : `Welcome, ${profile?.name || "Teacher"}!`}
           </h1>
-          <p className="text-muted-foreground">Ready to track your teaching excellence?</p>
-        </div>
-
-        {/* Metrics Snapshot */}
-        <div className="grid grid-cols-2 gap-4">
-          <MetricCard
-            title="Last Score"
-            value="87%"
-            subtitle="+5% from previous"
-            trend="up"
-            icon={<TrendingUp className="h-5 w-5 text-secondary-foreground" />}
-          />
-          <MetricCard
-            title="Improvement"
-            value="12%"
-            subtitle="This month"
-            trend="up"
-            icon={<MessageSquare className="h-5 w-5 text-secondary-foreground" />}
-          />
-        </div>
-
-        {/* AI Feedback Summary */}
-        <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl p-5 border-2 border-border animate-slide-in-up">
-          <div className="flex items-start gap-3 mb-3">
-            <div className="w-10 h-10 rounded-lg gradient-accent flex items-center justify-center flex-shrink-0">
-              <MessageSquare className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground mb-1">Latest AI Feedback</h3>
-              <p className="text-sm text-muted-foreground">From your session on Nov 18</p>
-            </div>
-          </div>
-          <p className="text-sm text-foreground leading-relaxed">
-            Excellent use of open-ended questions to encourage student thinking. Consider
-            reducing wait time slightly to maintain engagement momentum.
+          <p className="text-muted-foreground">
+            {hasReports ? "Ready to track your teaching excellence?" : "Start your teaching analytics journey"}
           </p>
         </div>
 
-        {/* Quick Actions */}
+        {hasReports && insights ? (
+          <>
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              <MetricCard
+                title="Overall Score"
+                value={`${insights.overallScore}%`}
+                subtitle="+5% from previous"
+                trend="up"
+                icon={<TrendingUp className="h-5 w-5 text-secondary-foreground" />}
+              />
+              <MetricCard
+                title="Sessions"
+                value="1"
+                subtitle="This month"
+                trend="neutral"
+                icon={<BarChart3 className="h-5 w-5 text-secondary-foreground" />}
+              />
+              <MetricCard
+                title="Talk Time"
+                value={`${insights.facilitatorTalkTime}%`}
+                subtitle="Facilitator"
+                trend="neutral"
+                icon={<Clock className="h-5 w-5 text-secondary-foreground" />}
+              />
+              <MetricCard
+                title="Engagement"
+                value="High"
+                subtitle="Based on analysis"
+                trend="up"
+                icon={<Users className="h-5 w-5 text-secondary-foreground" />}
+              />
+            </div>
+
+            {/* Latest Session Summary */}
+            <div className="space-y-3">
+              <h2 className="text-lg font-semibold text-foreground">Latest Session</h2>
+              <SessionSummaryCard
+                sessionTitle={insights.latestSessionTitle}
+                sessionDate={insights.latestSessionDate}
+                scenarioScore={insights.scenarioAvg}
+                dialogueScore={insights.dialogueAvg}
+                strengths={insights.strengths}
+                focusAreas={insights.focusAreas}
+              />
+            </div>
+
+            {/* AI Insight */}
+            <AIInsightCard
+              strengths={insights.strengths}
+              focusAreas={insights.focusAreas}
+            />
+          </>
+        ) : (
+          <LockedPreview />
+        )}
+
+        {/* Quick Actions - Always visible */}
         <div className="space-y-3">
           <h2 className="text-lg font-semibold text-foreground">Quick Actions</h2>
           
