@@ -17,6 +17,8 @@ interface SessionInsights {
   facilitatorTalkTimeMinutes: number;
   latestSessionDate: string;
   latestSessionTitle: string;
+  sessionCount: number;
+  finalReportGenerated: boolean;
 }
 
 export const useSessionReports = () => {
@@ -51,6 +53,10 @@ export const useSessionReports = () => {
     const facilitator = talkTimeData.find((t) => t.speaker === "Facilitator");
     const facilitatorTalkTimeMinutes = Math.round((facilitator?.seconds ?? 0) / 60);
 
+    // Mock data for POC
+    const sessionCount = 3;
+    const finalReportGenerated = false;
+
     return {
       overallScore: parseFloat(overallScore.toFixed(1)),
       scenarioAvg: parseFloat(scenarioAvg.toFixed(2)),
@@ -60,6 +66,8 @@ export const useSessionReports = () => {
       facilitatorTalkTimeMinutes,
       latestSessionDate: sessionDetails.date,
       latestSessionTitle: sessionDetails.title,
+      sessionCount,
+      finalReportGenerated,
     };
   }, [hasReports]);
 

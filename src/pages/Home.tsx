@@ -2,7 +2,7 @@ import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { MetricCard } from "@/components/MetricCard";
 import { Button } from "@/components/ui/button";
-import { Mic, Upload, FileText, TrendingUp, Users, BarChart3, Clock } from "lucide-react";
+import { Mic, Upload, FileText, TrendingUp, Users, BarChart3, Clock, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
 import { useSessionReports } from "@/hooks/useSessionReports";
@@ -23,9 +23,20 @@ const Home = () => {
     focusAreas: [] as { label: string; score: number }[],
     latestSessionDate: "",
     latestSessionTitle: "",
+    sessionCount: 0,
+    finalReportGenerated: false,
   };
 
   const data = insights || defaultInsights;
+
+  const getSessionsSubtitle = () => {
+    if (data.finalReportGenerated) return "Final Report generated";
+    if (data.sessionCount >= 5) return "Ready for Final Report";
+    if (data.sessionCount >= 3) return "Final Report available!";
+    return `${5 - data.sessionCount} more to unlock Final Report`;
+  };
+
+  const showFinalReportButton = data.sessionCount >= 3 && !data.finalReportGenerated;
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -47,15 +58,15 @@ const Home = () => {
           <MetricCard
             title="Overall Score"
             value={`${data.overallScore}/4`}
-            subtitle="+0.3 from previous"
+            subtitle="Latest session"
             trend="up"
             icon={<TrendingUp className="h-5 w-5 text-secondary-foreground" />}
           />
           <MetricCard
             title="Sessions"
-            value="3"
-            subtitle="This month"
-            trend="up"
+            value={`${data.sessionCount}/5`}
+            subtitle={getSessionsSubtitle()}
+            trend={data.sessionCount >= 3 ? "up" : "neutral"}
             icon={<BarChart3 className="h-5 w-5 text-secondary-foreground" />}
           />
           <MetricCard
@@ -125,6 +136,18 @@ const Home = () => {
             <FileText className="h-5 w-5" />
             <span>View All Reports</span>
           </Button>
+
+          {showFinalReportButton && (
+            <Button
+              variant="record"
+              size="touch"
+              className="w-full justify-start"
+              onClick={() => {/* TODO: Navigate to Final Report generation */}}
+            >
+              <Award className="h-5 w-5" />
+              <span>Generate Final Report</span>
+            </Button>
+          )}
         </div>
       </main>
 
