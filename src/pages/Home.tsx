@@ -18,7 +18,7 @@ const Home = () => {
     overallScore: 0,
     scenarioAvg: 0,
     dialogueAvg: 0,
-    facilitatorTalkTime: 0,
+    facilitatorTalkTimeMinutes: 0,
     strengths: [] as { label: string; score: number }[],
     focusAreas: [] as { label: string; score: number }[],
     latestSessionDate: "",
@@ -46,8 +46,8 @@ const Home = () => {
         <div className="grid grid-cols-2 gap-4">
           <MetricCard
             title="Overall Score"
-            value={`${data.overallScore}%`}
-            subtitle="+5% from previous"
+            value={`${data.overallScore}/4`}
+            subtitle="+0.3 from previous"
             trend="up"
             icon={<TrendingUp className="h-5 w-5 text-secondary-foreground" />}
           />
@@ -60,7 +60,7 @@ const Home = () => {
           />
           <MetricCard
             title="Talk Time"
-            value={`${data.facilitatorTalkTime}%`}
+            value={`${data.facilitatorTalkTimeMinutes}m`}
             subtitle="Facilitator"
             trend="neutral"
             icon={<Clock className="h-5 w-5 text-secondary-foreground" />}
