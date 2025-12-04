@@ -7,6 +7,7 @@ import { AuthProvider } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Record from "./pages/Record";
+import SessionDetails from "./pages/SessionDetails";
 import Processing from "./pages/Processing";
 import Reports from "./pages/Reports";
 import Notifications from "./pages/Notifications";
@@ -31,6 +32,7 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                 <Route path="/record" element={<ProtectedRoute><Record /></ProtectedRoute>} />
+                <Route path="/session-details" element={<ProtectedRoute><SessionDetails /></ProtectedRoute>} />
                 <Route path="/processing" element={<ProtectedRoute><Processing /></ProtectedRoute>} />
                 <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
                 <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />

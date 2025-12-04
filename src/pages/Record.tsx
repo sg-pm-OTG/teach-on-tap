@@ -28,9 +28,9 @@ const Record = () => {
     if ((window as any).recordingInterval) {
       clearInterval((window as any).recordingInterval);
     }
-    // Navigate to processing page
+    // Navigate to session details page
     setTimeout(() => {
-      navigate("/processing");
+      navigate("/session-details");
     }, 500);
   };
 
