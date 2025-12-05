@@ -13,6 +13,10 @@ import Reports from "./pages/Reports";
 import Notifications from "./pages/Notifications";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import PreSurveyIntro from "./pages/PreSurveyIntro";
+import PreSurveyQuestions from "./pages/PreSurveyQuestions";
+import PreSurveyResults from "./pages/PreSurveyResults";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +34,10 @@ const App = () => (
             <AuthProvider>
               <Routes>
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/pre-survey" element={<ProtectedRoute><PreSurveyIntro /></ProtectedRoute>} />
+                <Route path="/pre-survey/questions" element={<ProtectedRoute><PreSurveyQuestions /></ProtectedRoute>} />
+                <Route path="/pre-survey/results" element={<ProtectedRoute><PreSurveyResults /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                 <Route path="/record" element={<ProtectedRoute><Record /></ProtectedRoute>} />
                 <Route path="/session-details" element={<ProtectedRoute><SessionDetails /></ProtectedRoute>} />

@@ -25,7 +25,7 @@ export const TopBar = () => {
             <Bell className="h-5 w-5" />
             <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full" />
           </Button>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
             <User className="h-5 w-5" />
           </Button>
         </div>

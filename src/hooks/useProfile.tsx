@@ -9,6 +9,7 @@ interface Profile {
   date_of_birth: string;
   gender: "male" | "female" | "other" | "prefer_not_to_say";
   years_teaching_experience: number;
+  pre_survey_completed: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -16,13 +17,13 @@ interface Profile {
 export const useProfile = () => {
   const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) {
-        setLoading(false);
+        setIsLoading(false);
         return;
       }
 
@@ -38,12 +39,12 @@ export const useProfile = () => {
       } catch (err: any) {
         setError(err.message);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchProfile();
   }, [user]);
 
-  return { profile, loading, error };
+  return { profile, isLoading, loading: isLoading, error };
 };
