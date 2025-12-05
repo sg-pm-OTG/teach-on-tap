@@ -4,16 +4,19 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
 import { RecommendationCard } from "@/components/pre-survey/RecommendationCard";
 import { usePreSurvey } from "@/hooks/usePreSurvey";
-import { preSurveyCategories } from "@/data/preSurveyQuestions";
+import { useProfile } from "@/hooks/useProfile";
 
 const PreSurveyResults = () => {
   const navigate = useNavigate();
   const { results, loadResults, isLoadingResults } = usePreSurvey();
+  const { refetch: refetchProfile } = useProfile();
 
   useEffect(() => {
     if (!results) {
       loadResults();
     }
+    // Refetch profile to get updated pre_survey_completed status
+    refetchProfile();
   }, []);
 
   const groupedResults = results
