@@ -2,7 +2,7 @@ import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { MetricCard } from "@/components/MetricCard";
 import { Button } from "@/components/ui/button";
-import { Mic, Upload, FileText, TrendingUp, Users, BarChart3, Clock, Award } from "lucide-react";
+import { Mic, Upload, FileText, TrendingUp, BarChart3, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
 import { useSessionReports } from "@/hooks/useSessionReports";
@@ -68,20 +68,6 @@ const Home = () => {
             subtitle={getSessionsSubtitle()}
             trend={data.sessionCount >= 3 ? "up" : "neutral"}
             icon={<BarChart3 className="h-5 w-5 text-secondary-foreground" />}
-          />
-          <MetricCard
-            title="Talk Time"
-            value={`${data.facilitatorTalkTimeMinutes}m`}
-            subtitle="Facilitator"
-            trend="neutral"
-            icon={<Clock className="h-5 w-5 text-secondary-foreground" />}
-          />
-          <MetricCard
-            title="Engagement"
-            value="High"
-            subtitle="Based on analysis"
-            trend="up"
-            icon={<Users className="h-5 w-5 text-secondary-foreground" />}
           />
         </div>
 
