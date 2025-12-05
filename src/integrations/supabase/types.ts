@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      pre_survey_responses: {
+        Row: {
+          category_code: string
+          created_at: string
+          id: string
+          question_index: number
+          response_value: number
+          user_id: string
+        }
+        Insert: {
+          category_code: string
+          created_at?: string
+          id?: string
+          question_index: number
+          response_value: number
+          user_id: string
+        }
+        Update: {
+          category_code?: string
+          created_at?: string
+          id?: string
+          question_index?: number
+          response_value?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pre_survey_results: {
+        Row: {
+          category_code: string
+          category_name: string
+          completed_at: string
+          id: string
+          max_score: number
+          national_average: number
+          recommendation: string | null
+          user_id: string
+          user_score: number
+        }
+        Insert: {
+          category_code: string
+          category_name: string
+          completed_at?: string
+          id?: string
+          max_score: number
+          national_average: number
+          recommendation?: string | null
+          user_id: string
+          user_score: number
+        }
+        Update: {
+          category_code?: string
+          category_name?: string
+          completed_at?: string
+          id?: string
+          max_score?: number
+          national_average?: number
+          recommendation?: string | null
+          user_id?: string
+          user_score?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -21,6 +84,7 @@ export type Database = {
           gender: Database["public"]["Enums"]["gender"]
           id: string
           name: string
+          pre_survey_completed: boolean
           updated_at: string
           user_id: string
           years_teaching_experience: number
@@ -31,6 +95,7 @@ export type Database = {
           gender: Database["public"]["Enums"]["gender"]
           id?: string
           name: string
+          pre_survey_completed?: boolean
           updated_at?: string
           user_id: string
           years_teaching_experience: number
@@ -41,6 +106,7 @@ export type Database = {
           gender?: Database["public"]["Enums"]["gender"]
           id?: string
           name?: string
+          pre_survey_completed?: boolean
           updated_at?: string
           user_id?: string
           years_teaching_experience?: number
@@ -101,6 +167,7 @@ export type Database = {
     }
     Enums: {
       gender: "male" | "female" | "other" | "prefer_not_to_say"
+      survey_type: "pre" | "post"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -229,6 +296,7 @@ export const Constants = {
   public: {
     Enums: {
       gender: ["male", "female", "other", "prefer_not_to_say"],
+      survey_type: ["pre", "post"],
     },
   },
 } as const
