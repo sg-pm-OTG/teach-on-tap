@@ -1,103 +1,123 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { PreSurveyProgress } from "@/components/pre-survey/PreSurveyProgress";
-import { ScaleQuestion } from "@/components/pre-survey/ScaleQuestion";
+import { CategoryQuestionGroup } from "@/components/pre-survey/CategoryQuestionGroup";
 import { usePreSurvey } from "@/hooks/usePreSurvey";
-import { preSurveyCategories, getTotalQuestions } from "@/data/preSurveyQuestions";
+import { preSurveyCategories } from "@/data/preSurveyQuestions";
+import { cn } from "@/lib/utils";
 
 const PreSurveyQuestions = () => {
   const navigate = useNavigate();
   const { setResponse, getResponse, submitSurvey, isSubmitting } = usePreSurvey();
   const [currentCategoryIndex, setCategoryIndex] = useState(0);
-  const [currentQuestionIndex, setQuestionIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [slideDirection, setSlideDirection] = useState<"left" | "right">("left");
+  const autoAdvanceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentCategory = preSurveyCategories[currentCategoryIndex];
-  const currentQuestion = currentCategory?.questions[currentQuestionIndex];
-  const totalQuestions = getTotalQuestions();
+  const totalCategories = preSurveyCategories.length;
+  const isLastCategory = currentCategoryIndex === totalCategories - 1;
+  const isFirstCategory = currentCategoryIndex === 0;
 
-  const currentQuestionNumber = useMemo(() => {
-    let count = 0;
-    for (let i = 0; i < currentCategoryIndex; i++) {
-      count += preSurveyCategories[i].questions.length;
+  // Build responses map for current category
+  const categoryResponses = new Map<number, number>();
+  currentCategory.questions.forEach((q) => {
+    const value = getResponse(q.categoryCode, q.questionIndex);
+    if (value !== undefined) {
+      categoryResponses.set(q.questionIndex, value);
     }
-    return count + currentQuestionIndex + 1;
-  }, [currentCategoryIndex, currentQuestionIndex]);
+  });
 
-  const currentValue = currentQuestion
-    ? getResponse(currentQuestion.categoryCode, currentQuestion.questionIndex)
-    : undefined;
+  const questionsAnswered = categoryResponses.size;
+  const allQuestionsAnswered = questionsAnswered === currentCategory.questions.length;
 
-  const handleValueChange = (value: number) => {
-    if (currentQuestion) {
-      setResponse(currentQuestion.categoryCode, currentQuestion.questionIndex, value);
+  // Auto-advance when all questions in category are answered
+  useEffect(() => {
+    if (allQuestionsAnswered && !isLastCategory && !isTransitioning) {
+      autoAdvanceTimerRef.current = setTimeout(() => {
+        goToNextCategory();
+      }, 600);
+    }
+
+    return () => {
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+      }
+    };
+  }, [allQuestionsAnswered, isLastCategory, isTransitioning, currentCategoryIndex]);
+
+  const handleResponse = (questionIndex: number, value: number) => {
+    const question = currentCategory.questions.find(q => q.questionIndex === questionIndex);
+    if (question) {
+      setResponse(question.categoryCode, questionIndex, value);
     }
   };
 
-  const canGoNext = currentValue !== undefined;
-  const isLastQuestion =
-    currentCategoryIndex === preSurveyCategories.length - 1 &&
-    currentQuestionIndex === currentCategory.questions.length - 1;
-
-  const handleNext = async () => {
-    if (isLastQuestion) {
-      const success = await submitSurvey();
-      if (success) {
-        navigate("/pre-survey/results");
-      }
-    } else if (currentQuestionIndex < currentCategory.questions.length - 1) {
-      setQuestionIndex(currentQuestionIndex + 1);
-    } else if (currentCategoryIndex < preSurveyCategories.length - 1) {
+  const goToNextCategory = () => {
+    if (isTransitioning) return;
+    setSlideDirection("left");
+    setIsTransitioning(true);
+    
+    setTimeout(() => {
       setCategoryIndex(currentCategoryIndex + 1);
-      setQuestionIndex(0);
-    }
+      setIsTransitioning(false);
+    }, 300);
   };
 
   const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
-      setQuestionIndex(currentQuestionIndex - 1);
-    } else if (currentCategoryIndex > 0) {
-      const prevCategory = preSurveyCategories[currentCategoryIndex - 1];
-      setCategoryIndex(currentCategoryIndex - 1);
-      setQuestionIndex(prevCategory.questions.length - 1);
+    if (isFirstCategory || isTransitioning) return;
+    
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current);
     }
+    
+    setSlideDirection("right");
+    setIsTransitioning(true);
+    
+    setTimeout(() => {
+      setCategoryIndex(currentCategoryIndex - 1);
+      setIsTransitioning(false);
+    }, 300);
   };
 
-  const isFirstQuestion = currentCategoryIndex === 0 && currentQuestionIndex === 0;
+  const handleSubmit = async () => {
+    const success = await submitSurvey();
+    if (success) {
+      navigate("/pre-survey/results");
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
       <div className="pt-10 pb-4 px-6 border-b border-border">
         <PreSurveyProgress
-          currentQuestion={currentQuestionNumber}
-          totalQuestions={totalQuestions}
+          currentCategory={currentCategoryIndex + 1}
+          totalCategories={totalCategories}
           currentSection={`Section ${currentCategory.section}: ${currentCategory.sectionName}`}
+          questionsAnswered={questionsAnswered}
+          questionsInCategory={currentCategory.questions.length}
         />
       </div>
 
-      {/* Content */}
-      <div className="flex-1 px-6 py-6 overflow-y-auto">
-        <div className="space-y-6">
-          <div>
-            <span className="text-xs text-primary font-medium uppercase tracking-wide">
-              {currentCategory.name}
-            </span>
-            <p className="text-xs text-muted-foreground mt-1">
-              Question {currentQuestionIndex + 1} of {currentCategory.questions.length}
-            </p>
-          </div>
-
-          {currentQuestion && (
-            <ScaleQuestion
-              questionText={currentQuestion.text}
-              scaleType={currentQuestion.scaleType}
-              scaleLabels={currentQuestion.scaleLabels}
-              value={currentValue}
-              onChange={handleValueChange}
-            />
+      {/* Content with slide animation */}
+      <div className="flex-1 overflow-hidden relative">
+        <div
+          className={cn(
+            "absolute inset-0 px-6 py-6 overflow-y-auto transition-all duration-300 ease-out",
+            isTransitioning && slideDirection === "left" && "translate-x-[-100%] opacity-0",
+            isTransitioning && slideDirection === "right" && "translate-x-[100%] opacity-0",
+            !isTransitioning && "translate-x-0 opacity-100"
           )}
+        >
+          <CategoryQuestionGroup
+            categoryName={currentCategory.name}
+            questions={currentCategory.questions}
+            responses={categoryResponses}
+            onResponse={handleResponse}
+          />
         </div>
       </div>
 
@@ -107,29 +127,29 @@ const PreSurveyQuestions = () => {
           <Button
             variant="outline"
             onClick={handlePrevious}
-            disabled={isFirstQuestion}
+            disabled={isFirstCategory || isTransitioning}
             className="flex-1"
           >
             <ChevronLeft className="w-4 h-4 mr-1" />
             Previous
           </Button>
-          <Button
-            onClick={handleNext}
-            disabled={!canGoNext || isSubmitting}
-            className="flex-1 gradient-accent text-primary-foreground"
-          >
-            {isSubmitting ? (
-              "Submitting..."
-            ) : isLastQuestion ? (
-              "Submit"
-            ) : (
-              <>
-                Next
-                <ChevronRight className="w-4 h-4 ml-1" />
-              </>
-            )}
-          </Button>
+          
+          {isLastCategory && (
+            <Button
+              onClick={handleSubmit}
+              disabled={!allQuestionsAnswered || isSubmitting}
+              className="flex-1 gradient-accent text-primary-foreground"
+            >
+              {isSubmitting ? "Submitting..." : "Submit"}
+            </Button>
+          )}
         </div>
+        
+        {!isLastCategory && (
+          <p className="text-xs text-muted-foreground text-center mt-3">
+            Answer all questions to continue automatically
+          </p>
+        )}
       </div>
     </div>
   );
