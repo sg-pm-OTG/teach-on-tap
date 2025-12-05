@@ -55,12 +55,8 @@ export const CategoryQuestionGroup = ({
                 </p>
               </div>
               
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs text-muted-foreground w-14 text-left">
-                  {question.scaleLabels.low}
-                </span>
-                
-                <div className="flex gap-1.5 flex-1 justify-center">
+              <div className="space-y-2">
+                <div className="flex justify-center gap-1.5">
                   {scaleOptions.map((option) => (
                     <button
                       key={option}
@@ -78,9 +74,14 @@ export const CategoryQuestionGroup = ({
                   ))}
                 </div>
                 
-                <span className="text-xs text-muted-foreground w-14 text-right">
-                  {question.scaleLabels.high}
-                </span>
+                <div className="flex justify-between px-1">
+                  <span className="text-[10px] text-muted-foreground">
+                    {question.scaleLabels.low}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {question.scaleLabels.high}
+                  </span>
+                </div>
               </div>
             </div>
           );
