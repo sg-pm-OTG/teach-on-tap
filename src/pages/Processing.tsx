@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 interface LocationState {
   sessionId: string;
+  isBaseline?: boolean;
   sessionDetails: {
     use_site: string;
     number_of_participants: number;
@@ -28,6 +29,7 @@ const Processing = () => {
   
   const state = location.state as LocationState | null;
   const sessionId = state?.sessionId;
+  const isBaseline = state?.isBaseline || false;
   const sessionDetails = state?.sessionDetails;
 
   // Update session status to processing and generate report
@@ -57,35 +59,38 @@ const Processing = () => {
           });
         }, 500);
 
-        // Generate mock report after "processing" completes
+        // Generate mock report after "processing" completes (skip for baseline)
         setTimeout(async () => {
           try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("User not authenticated");
 
-            // Generate mock report data
-            const reportData = generateMockReport(sessionDetails);
+            // Only generate report for non-baseline sessions
+            if (!isBaseline) {
+              // Generate mock report data
+              const reportData = generateMockReport(sessionDetails);
 
-            // Insert report into database
-            const { error: reportError } = await supabase
-              .from("session_reports")
-              .insert({
-                session_id: sessionId,
-                user_id: user.id,
-                scenario_scores: reportData.scenario_scores,
-                dialogue_scores: reportData.dialogue_scores,
-                scenario_analysis: reportData.scenario_analysis,
-                dialogue_analysis: reportData.dialogue_analysis,
-                talk_time_data: reportData.talk_time_data,
-                themes: reportData.themes,
-                conclusions: reportData.conclusions,
-                speaker_interactions: reportData.speaker_interactions,
-                speakers: reportData.speakers,
-                scenario_content: reportData.scenario_content,
-                final_summary: reportData.final_summary,
-              });
+              // Insert report into database
+              const { error: reportError } = await supabase
+                .from("session_reports")
+                .insert({
+                  session_id: sessionId,
+                  user_id: user.id,
+                  scenario_scores: reportData.scenario_scores,
+                  dialogue_scores: reportData.dialogue_scores,
+                  scenario_analysis: reportData.scenario_analysis,
+                  dialogue_analysis: reportData.dialogue_analysis,
+                  talk_time_data: reportData.talk_time_data,
+                  themes: reportData.themes,
+                  conclusions: reportData.conclusions,
+                  speaker_interactions: reportData.speaker_interactions,
+                  speakers: reportData.speakers,
+                  scenario_content: reportData.scenario_content,
+                  final_summary: reportData.final_summary,
+                });
 
-            if (reportError) throw reportError;
+              if (reportError) throw reportError;
+            }
 
             // Update session status to completed
             await supabase
@@ -115,16 +120,22 @@ const Processing = () => {
     };
 
     processSession();
-  }, [sessionId, sessionDetails, navigate]);
+  }, [sessionId, sessionDetails, isBaseline, navigate]);
 
   useEffect(() => {
-    // Navigate only when both processing and survey are complete
-    if (processingComplete && surveyComplete && reportGenerated) {
+    // For baseline: navigate home once processing is complete (no survey needed)
+    // For regular: navigate only when both processing and survey are complete
+    if (isBaseline && processingComplete) {
+      setTimeout(() => {
+        navigate("/");
+        toast.success("Baseline recording submitted successfully!");
+      }, 1000);
+    } else if (!isBaseline && processingComplete && surveyComplete && reportGenerated) {
       setTimeout(() => {
         navigate("/reports");
       }, 1000);
     }
-  }, [processingComplete, surveyComplete, reportGenerated, navigate]);
+  }, [processingComplete, surveyComplete, reportGenerated, isBaseline, navigate]);
 
   if (!sessionId) {
     return null;
@@ -143,7 +154,13 @@ const Processing = () => {
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-foreground mb-1">
-                {processingComplete ? "Analysis complete!" : "Processing your session..."}
+                {processingComplete 
+                  ? isBaseline 
+                    ? "Baseline recorded!" 
+                    : "Analysis complete!" 
+                  : isBaseline 
+                    ? "Saving your baseline..." 
+                    : "Processing your session..."}
               </h3>
               <div className="flex items-center gap-2">
                 <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
@@ -160,23 +177,34 @@ const Processing = () => {
           </div>
         </div>
 
-        {/* Survey Section */}
-        <div className="bg-card rounded-xl border border-border p-4">
-          <h2 className="text-xl font-bold text-foreground mb-4">
-            Weekly Progress Check
-          </h2>
-          <p className="text-sm text-muted-foreground mb-6">
-            While we analyze your session, please complete this quick survey about your FOP engagement this week.
-          </p>
-          
-          <SurveyContainer 
-            onComplete={() => setSurveyComplete(true)} 
-            sessionId={sessionId}
-          />
-        </div>
+        {/* Survey Section - Only show for non-baseline sessions */}
+        {!isBaseline && (
+          <div className="bg-card rounded-xl border border-border p-4">
+            <h2 className="text-xl font-bold text-foreground mb-4">
+              Weekly Progress Check
+            </h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              While we analyze your session, please complete this quick survey about your FOP engagement this week.
+            </p>
+            
+            <SurveyContainer 
+              onComplete={() => setSurveyComplete(true)} 
+              sessionId={sessionId}
+            />
+          </div>
+        )}
+
+        {/* Baseline info message */}
+        {isBaseline && !processingComplete && (
+          <div className="p-4 bg-muted/50 rounded-xl text-center">
+            <p className="text-sm text-muted-foreground">
+              This baseline recording will be saved for comparison after you complete the program.
+            </p>
+          </div>
+        )}
 
         {/* Waiting Message */}
-        {surveyComplete && !processingComplete && (
+        {!isBaseline && surveyComplete && !processingComplete && (
           <div className="mt-6 p-4 bg-muted/50 rounded-lg text-center animate-fade-in">
             <p className="text-sm text-muted-foreground">
               Survey submitted! Waiting for analysis to complete...

@@ -8,7 +8,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useSessionReports } from "@/hooks/useSessionReports";
 import { SessionSummaryCard } from "@/components/home/SessionSummaryCard";
 import { AIInsightCard } from "@/components/home/AIInsightCard";
-
+import JourneyMilestones from "@/components/home/JourneyMilestones";
 const Home = () => {
   const navigate = useNavigate();
   const { profile } = useProfile();
@@ -100,6 +100,9 @@ const Home = () => {
             focusAreas={insights.focusAreas}
           />
         )}
+
+        {/* Journey Milestones */}
+        <JourneyMilestones />
 
         {/* Quick Actions */}
         <div className="space-y-3">

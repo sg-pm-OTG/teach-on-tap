@@ -79,33 +79,48 @@ export type Database = {
       }
       profiles: {
         Row: {
+          baseline_completed: boolean
           created_at: string
           date_of_birth: string
+          final_report_status: string
           gender: Database["public"]["Enums"]["gender"]
           id: string
+          launch_huddle_attended: boolean
+          masterclass_attended: boolean
           name: string
+          post_survey_completed: boolean
           pre_survey_completed: boolean
           updated_at: string
           user_id: string
           years_teaching_experience: number
         }
         Insert: {
+          baseline_completed?: boolean
           created_at?: string
           date_of_birth: string
+          final_report_status?: string
           gender: Database["public"]["Enums"]["gender"]
           id?: string
+          launch_huddle_attended?: boolean
+          masterclass_attended?: boolean
           name: string
+          post_survey_completed?: boolean
           pre_survey_completed?: boolean
           updated_at?: string
           user_id: string
           years_teaching_experience: number
         }
         Update: {
+          baseline_completed?: boolean
           created_at?: string
           date_of_birth?: string
+          final_report_status?: string
           gender?: Database["public"]["Enums"]["gender"]
           id?: string
+          launch_huddle_attended?: boolean
+          masterclass_attended?: boolean
           name?: string
+          post_survey_completed?: boolean
           pre_survey_completed?: boolean
           updated_at?: string
           user_id?: string
@@ -237,6 +252,7 @@ export type Database = {
           created_at: string
           emergent_scenario: string | null
           id: string
+          is_baseline: boolean
           number_of_participants: number
           session_date: string
           session_type: string
@@ -250,6 +266,7 @@ export type Database = {
           created_at?: string
           emergent_scenario?: string | null
           id?: string
+          is_baseline?: boolean
           number_of_participants: number
           session_date: string
           session_type: string
@@ -263,6 +280,7 @@ export type Database = {
           created_at?: string
           emergent_scenario?: string | null
           id?: string
+          is_baseline?: boolean
           number_of_participants?: number
           session_date?: string
           session_type?: string
