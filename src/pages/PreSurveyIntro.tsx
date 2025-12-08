@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ClipboardList, Target, TrendingUp } from "lucide-react";
+import alcLogo from "@/assets/alc-logo.png";
 
 const PreSurveyIntro = () => {
   const navigate = useNavigate();
@@ -8,9 +9,14 @@ const PreSurveyIntro = () => {
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="pt-12 pb-6 px-6 text-center">
-        <div className="w-16 h-16 gradient-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <ClipboardList className="w-8 h-8 text-primary-foreground" />
+      <div className="pt-8 pb-6 px-6 text-center">
+        <img 
+          src={alcLogo} 
+          alt="Adult Learning Collaboratory" 
+          className="h-12 w-auto mx-auto mb-6"
+        />
+        <div className="w-14 h-14 gradient-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <ClipboardList className="w-7 h-7 text-primary-foreground" />
         </div>
         <h1 className="text-2xl font-bold text-foreground mb-2">
           Pre-Survey Assessment

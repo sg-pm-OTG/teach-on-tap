@@ -1,6 +1,7 @@
 import { Bell, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import alcLogo from "@/assets/alc-logo.png";
 
 export const TopBar = () => {
   const navigate = useNavigate();
@@ -8,11 +9,12 @@ export const TopBar = () => {
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
       <div className="container max-w-md mx-auto flex items-center justify-between h-16 px-4">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 gradient-accent rounded-xl flex items-center justify-center flex-shrink-0">
-            <span className="text-primary-foreground font-bold text-lg">F</span>
-          </div>
-          <span className="font-semibold text-lg text-primary">FOP Companion</span>
+        <div className="flex items-center">
+          <img 
+            src={alcLogo} 
+            alt="Adult Learning Collaboratory" 
+            className="h-10 w-auto"
+          />
         </div>
 
         <div className="flex items-center gap-2">

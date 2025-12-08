@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
+import alcLogo from "@/assets/alc-logo.png";
 
 const authSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -141,9 +142,13 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-md space-y-8">
-        {/* Logo/Title */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold gradient-text">FOP Companion</h1>
+        {/* Logo */}
+        <div className="text-center space-y-3">
+          <img 
+            src={alcLogo} 
+            alt="Adult Learning Collaboratory" 
+            className="h-20 w-auto mx-auto"
+          />
           <p className="text-muted-foreground">Track your teaching excellence</p>
         </div>
 
