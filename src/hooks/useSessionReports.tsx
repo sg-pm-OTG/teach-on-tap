@@ -1,12 +1,5 @@
-import { useMemo } from "react";
-import {
-  scenarioScores,
-  dialogueScores,
-  scenarioAnalysis,
-  dialogueAnalysis,
-  talkTimeData,
-  sessionDetails,
-} from "@/data/reportData";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SessionInsights {
   overallScore: number;
@@ -21,11 +14,64 @@ interface SessionInsights {
   finalReportGenerated: boolean;
 }
 
-export const useSessionReports = () => {
-  const hasReports = true;
+interface ScoreItem {
+  label: string;
+  score: number;
+}
 
-  const insights = useMemo<SessionInsights | null>(() => {
-    if (!hasReports) return null;
+interface TalkTimeItem {
+  speaker: string;
+  seconds: number;
+}
+
+export const useSessionReports = () => {
+  const { data: sessions, isLoading: sessionsLoading } = useQuery({
+    queryKey: ["sessions"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from("sessions")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("status", "completed")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const { data: latestReport, isLoading: reportLoading } = useQuery({
+    queryKey: ["latestReport"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data, error } = await supabase
+        .from("session_reports")
+        .select("*, sessions(*)")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const sessionCount = sessions?.length || 0;
+  const hasReports = sessionCount > 0 && !!latestReport;
+
+  const insights: SessionInsights | null = (() => {
+    if (!hasReports || !latestReport) return null;
+
+    const scenarioScores = latestReport.scenario_scores as unknown as ScoreItem[];
+    const dialogueScores = latestReport.dialogue_scores as unknown as ScoreItem[];
+    const talkTimeData = latestReport.talk_time_data as unknown as TalkTimeItem[];
+    const session = latestReport.sessions as { session_date: string; use_site: string } | null;
 
     const scenarioAvg =
       scenarioScores.reduce((sum, s) => sum + s.score, 0) / scenarioScores.length;
@@ -53,8 +99,7 @@ export const useSessionReports = () => {
     const facilitator = talkTimeData.find((t) => t.speaker === "Facilitator");
     const facilitatorTalkTimeMinutes = Math.round((facilitator?.seconds ?? 0) / 60);
 
-    // Mock data for POC
-    const sessionCount = 3;
+    // TODO: Track final report generation in database
     const finalReportGenerated = false;
 
     return {
@@ -64,12 +109,17 @@ export const useSessionReports = () => {
       strengths,
       focusAreas,
       facilitatorTalkTimeMinutes,
-      latestSessionDate: sessionDetails.date,
-      latestSessionTitle: sessionDetails.title,
+      latestSessionDate: session?.session_date || "",
+      latestSessionTitle: session?.use_site || "Session",
       sessionCount,
       finalReportGenerated,
     };
-  }, [hasReports]);
+  })();
 
-  return { hasReports, insights };
+  return { 
+    hasReports, 
+    insights, 
+    sessionCount,
+    isLoading: sessionsLoading || reportLoading 
+  };
 };

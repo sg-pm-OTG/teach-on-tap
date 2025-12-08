@@ -14,9 +14,10 @@ import {
 
 interface SurveyContainerProps {
   onComplete: () => void;
+  sessionId?: string;
 }
 
-export const SurveyContainer = ({ onComplete }: SurveyContainerProps) => {
+export const SurveyContainer = ({ onComplete, sessionId }: SurveyContainerProps) => {
   const {
     surveyData,
     currentStep,
@@ -26,7 +27,7 @@ export const SurveyContainer = ({ onComplete }: SurveyContainerProps) => {
     getTotalSteps,
     canProceed,
     submitSurvey,
-  } = useSurvey();
+  } = useSurvey(sessionId);
 
   const handleNext = async () => {
     const nextStep = getNextStep();

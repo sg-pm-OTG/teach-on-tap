@@ -21,6 +21,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, ArrowRight, Info } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const SESSION_TYPES = [
   "Classroom Lesson",
@@ -45,6 +47,7 @@ const SessionDetails = () => {
   const [emergentScenario, setEmergentScenario] = useState("");
   const [sessionType, setSessionType] = useState("");
   const [sessionDate, setSessionDate] = useState<Date>(new Date());
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isFormValid =
     useSite.trim() !== "" &&
@@ -52,18 +55,55 @@ const SessionDetails = () => {
     emergentScenario.trim() !== "" &&
     sessionType !== "";
 
-  const handleSubmit = () => {
-    if (!isFormValid) return;
+  const handleSubmit = async () => {
+    if (!isFormValid || isSubmitting) return;
 
-    const sessionDetails: SessionDetailsData = {
-      useSite,
-      numberOfParticipants,
-      emergentScenario,
-      sessionType,
-      sessionDate,
-    };
+    setIsSubmitting(true);
 
-    navigate("/processing", { state: { sessionDetails } });
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error("You must be logged in to submit a session");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Create session record in database
+      const { data: session, error } = await supabase
+        .from("sessions")
+        .insert({
+          user_id: user.id,
+          use_site: useSite.trim(),
+          number_of_participants: numberOfParticipants,
+          session_type: sessionType,
+          session_date: format(sessionDate, "yyyy-MM-dd"),
+          emergent_scenario: emergentScenario.trim() || null,
+          status: "pending",
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Navigate to processing page with session ID and details
+      navigate("/processing", {
+        state: {
+          sessionId: session.id,
+          sessionDetails: {
+            use_site: useSite.trim(),
+            number_of_participants: numberOfParticipants,
+            session_type: sessionType,
+            session_date: format(sessionDate, "yyyy-MM-dd"),
+            emergent_scenario: emergentScenario.trim() || null,
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error creating session:", error);
+      toast.error("Failed to create session. Please try again.");
+      setIsSubmitting(false);
+    }
   };
 
   const handleParticipantChange = (delta: number) => {
@@ -196,10 +236,10 @@ const SessionDetails = () => {
             size="lg"
             className="w-full mt-6"
             onClick={handleSubmit}
-            disabled={!isFormValid}
+            disabled={!isFormValid || isSubmitting}
           >
-            Submit for Analysis
-            <ArrowRight className="h-5 w-5 ml-2" />
+            {isSubmitting ? "Creating Session..." : "Submit for Analysis"}
+            {!isSubmitting && <ArrowRight className="h-5 w-5 ml-2" />}
           </Button>
         </div>
       </main>
