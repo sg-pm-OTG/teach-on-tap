@@ -9,36 +9,36 @@ All colors MUST be HSL.
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 215 28% 17%;
+    --foreground: 270 20% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 28% 17%;
+    --card-foreground: 270 20% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 28% 17%;
+    --popover-foreground: 270 20% 15%;
 
-    /* Deep Navy Blue Primary */
-    --primary: 215 80% 30%;
+    /* ALC Deep Purple Primary - #320073 */
+    --primary: 270 100% 23%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 215 70% 45%;
+    --primary-light: 270 80% 35%;
     
-    /* Vibrant Teal Accent */
-    --secondary: 180 70% 45%;
+    /* ALC Deep Orange Accent - #F16A3C */
+    --secondary: 17 87% 59%;
     --secondary-foreground: 0 0% 100%;
-    --secondary-light: 180 60% 60%;
+    --secondary-light: 17 80% 70%;
 
-    --muted: 215 20% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 270 15% 96%;
+    --muted-foreground: 270 10% 45%;
 
-    --accent: 180 70% 45%;
+    --accent: 17 87% 59%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 20% 90%;
-    --input: 215 20% 90%;
-    --ring: 215 80% 30%;
+    --border: 270 15% 90%;
+    --input: 270 15% 90%;
+    --ring: 270 100% 23%;
 
     --radius: 1rem;
 
@@ -50,10 +50,10 @@ All colors MUST be HSL.
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(215 80% 30%) 0%, hsl(215 70% 45%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(180 70% 45%) 0%, hsl(180 60% 60%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(215 80% 30%) 0%, hsl(180 70% 45%) 100%);
+    /* Gradients - Purple to Orange blend */
+    --gradient-primary: linear-gradient(135deg, hsl(270 100% 23%) 0%, hsl(270 80% 35%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(17 87% 59%) 0%, hsl(17 80% 70%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(270 100% 23%) 0%, hsl(17 87% 59%) 100%);
 
     /* Shadows - removed */
     --shadow-sm: 0 0 0 transparent;
@@ -67,35 +67,35 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 215 28% 12%;
+    --background: 270 25% 10%;
     --foreground: 0 0% 98%;
 
-    --card: 215 28% 16%;
+    --card: 270 25% 14%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 215 28% 16%;
+    --popover: 270 25% 14%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 215 70% 50%;
+    --primary: 270 90% 50%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 215 60% 65%;
+    --primary-light: 270 80% 60%;
 
-    --secondary: 180 60% 50%;
+    --secondary: 17 80% 55%;
     --secondary-foreground: 0 0% 100%;
-    --secondary-light: 180 50% 65%;
+    --secondary-light: 17 70% 65%;
 
-    --muted: 215 28% 20%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 270 20% 18%;
+    --muted-foreground: 270 15% 60%;
 
-    --accent: 180 60% 50%;
+    --accent: 17 80% 55%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 40%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 28% 20%;
-    --input: 215 28% 20%;
-    --ring: 215 70% 50%;
+    --border: 270 20% 20%;
+    --input: 270 20% 20%;
+    --ring: 270 90% 50%;
 
     --success: 140 60% 45%;
     --warning: 38 82% 50%;
