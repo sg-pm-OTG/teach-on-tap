@@ -4,12 +4,14 @@ import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Waveform } from "@/components/Waveform";
 import { Mic, Square, CheckCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Record = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const navigate = useNavigate();
+  const location = useLocation();
+  const presetBaseline = (location.state as { presetBaseline?: boolean })?.presetBaseline ?? false;
 
   const handleRecord = () => {
     if (!isRecording) {
@@ -28,9 +30,9 @@ const Record = () => {
     if ((window as any).recordingInterval) {
       clearInterval((window as any).recordingInterval);
     }
-    // Navigate to session details page
+    // Navigate to session details page, passing baseline flag if set
     setTimeout(() => {
-      navigate("/session-details");
+      navigate("/session-details", { state: { presetBaseline } });
     }, 500);
   };
 
