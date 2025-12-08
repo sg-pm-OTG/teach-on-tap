@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { MetricCard } from "@/components/MetricCard";
@@ -9,7 +10,10 @@ import { useSessionReports } from "@/hooks/useSessionReports";
 import { SessionSummaryCard } from "@/components/home/SessionSummaryCard";
 import { AIInsightCard } from "@/components/home/AIInsightCard";
 import JourneyMilestones from "@/components/home/JourneyMilestones";
+import JourneyProgressBar from "@/components/home/JourneyProgressBar";
+
 const Home = () => {
+  const journeyRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { profile } = useProfile();
   const { insights, sessionCount, isLoading } = useSessionReports();
@@ -23,6 +27,11 @@ const Home = () => {
 
   const showFinalReportButton = sessionCount >= 3;
   const hasData = sessionCount > 0 && insights;
+  const isActiveUser = sessionCount >= 1;
+
+  const scrollToJourney = () => {
+    journeyRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -38,6 +47,9 @@ const Home = () => {
             Ready to track your teaching excellence?
           </p>
         </div>
+
+        {/* Compact Journey Progress Bar - Show for active users */}
+        {isActiveUser && <JourneyProgressBar onViewClick={scrollToJourney} />}
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 gap-4">
@@ -56,6 +68,9 @@ const Home = () => {
             icon={<BarChart3 className="h-5 w-5 text-secondary-foreground" />}
           />
         </div>
+
+        {/* Journey Milestones - Show first for new users */}
+        {!isActiveUser && <JourneyMilestones />}
 
         {/* Latest Session Summary - Only show if has data */}
         {hasData ? (
@@ -100,9 +115,6 @@ const Home = () => {
             focusAreas={insights.focusAreas}
           />
         )}
-
-        {/* Journey Milestones */}
-        <JourneyMilestones />
 
         {/* Quick Actions */}
         <div className="space-y-3">
@@ -151,6 +163,13 @@ const Home = () => {
             </Button>
           )}
         </div>
+
+        {/* Journey Milestones - Show at bottom for active users */}
+        {isActiveUser && (
+          <div ref={journeyRef}>
+            <JourneyMilestones />
+          </div>
+        )}
       </main>
 
       <BottomNav />
