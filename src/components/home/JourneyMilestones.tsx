@@ -1,10 +1,12 @@
 import { Mic, GraduationCap, Video, ClipboardList, FileText, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import MilestoneCard from "./MilestoneCard";
 import { useJourneyProgress } from "@/hooks/useJourneyProgress";
 import { eventData } from "@/data/eventData";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const JourneyMilestones = () => {
+  const navigate = useNavigate();
   const { progress, isLoading } = useJourneyProgress();
 
   if (isLoading) {
@@ -29,6 +31,10 @@ const JourneyMilestones = () => {
       icon: Mic,
       status: progress.baseline,
       description: "Record your first teaching session before the masterclass",
+      actionLabel: progress.baseline === "current" ? "Record Baseline" : undefined,
+      onAction: progress.baseline === "current" 
+        ? () => navigate("/session-details", { state: { presetBaseline: true } })
+        : undefined,
     },
     {
       id: "masterclass",
@@ -96,6 +102,8 @@ const JourneyMilestones = () => {
             location={milestone.location}
             progress={milestone.progress}
             statusLabel={milestone.statusLabel}
+            actionLabel={milestone.actionLabel}
+            onAction={milestone.onAction}
           />
         ))}
       </div>

@@ -1,6 +1,7 @@
-import { LucideIcon, Check, Lock, MapPin, Calendar } from "lucide-react";
+import { LucideIcon, Check, Lock, MapPin, Calendar, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { MilestoneStatus } from "@/hooks/useJourneyProgress";
+import { Button } from "@/components/ui/button";
 
 interface MilestoneCardProps {
   label: string;
@@ -12,6 +13,8 @@ interface MilestoneCardProps {
   progress?: string;
   statusLabel?: string;
   isExpanded?: boolean;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
 const MilestoneCard = ({
@@ -24,6 +27,8 @@ const MilestoneCard = ({
   progress,
   statusLabel,
   isExpanded = false,
+  actionLabel,
+  onAction,
 }: MilestoneCardProps) => {
   const isComplete = status === "complete";
   const isCurrent = status === "current";
@@ -109,6 +114,19 @@ const MilestoneCard = ({
                 </div>
               )}
             </div>
+          )}
+
+          {/* Action button for current milestone */}
+          {isCurrent && actionLabel && onAction && (
+            <Button
+              variant="default"
+              size="sm"
+              className="mt-3 w-full"
+              onClick={onAction}
+            >
+              {actionLabel}
+              <ArrowRight className="h-4 w-4 ml-1" />
+            </Button>
           )}
         </div>
       </div>

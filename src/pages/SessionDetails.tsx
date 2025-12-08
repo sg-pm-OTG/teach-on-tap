@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { TopBar } from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,12 +44,15 @@ export interface SessionDetailsData {
 
 const SessionDetails = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const presetBaseline = (location.state as { presetBaseline?: boolean })?.presetBaseline ?? false;
+  
   const [useSite, setUseSite] = useState("");
   const [numberOfParticipants, setNumberOfParticipants] = useState(1);
   const [emergentScenario, setEmergentScenario] = useState("");
   const [sessionType, setSessionType] = useState("");
   const [sessionDate, setSessionDate] = useState<Date>(new Date());
-  const [isBaseline, setIsBaseline] = useState(false);
+  const [isBaseline, setIsBaseline] = useState(presetBaseline);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isFormValid =
