@@ -113,6 +113,68 @@ export type Database = {
         }
         Relationships: []
       }
+      session_reports: {
+        Row: {
+          conclusions: Json
+          created_at: string
+          dialogue_analysis: Json
+          dialogue_scores: Json
+          final_summary: Json
+          id: string
+          scenario_analysis: Json
+          scenario_content: Json
+          scenario_scores: Json
+          session_id: string
+          speaker_interactions: Json
+          speakers: Json
+          talk_time_data: Json
+          themes: Json
+          user_id: string
+        }
+        Insert: {
+          conclusions: Json
+          created_at?: string
+          dialogue_analysis: Json
+          dialogue_scores: Json
+          final_summary: Json
+          id?: string
+          scenario_analysis: Json
+          scenario_content: Json
+          scenario_scores: Json
+          session_id: string
+          speaker_interactions: Json
+          speakers: Json
+          talk_time_data: Json
+          themes: Json
+          user_id: string
+        }
+        Update: {
+          conclusions?: Json
+          created_at?: string
+          dialogue_analysis?: Json
+          dialogue_scores?: Json
+          final_summary?: Json
+          id?: string
+          scenario_analysis?: Json
+          scenario_content?: Json
+          scenario_scores?: Json
+          session_id?: string
+          speaker_interactions?: Json
+          speakers?: Json
+          talk_time_data?: Json
+          themes?: Json
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_reports_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       session_surveys: {
         Row: {
           activity_involvement: string[] | null
@@ -125,6 +187,7 @@ export type Database = {
           non_engagement_other: string | null
           non_engagement_reasons: string[] | null
           practice_difficulty: string | null
+          session_id: string | null
           time_spent: string | null
           user_id: string
         }
@@ -139,6 +202,7 @@ export type Database = {
           non_engagement_other?: string | null
           non_engagement_reasons?: string[] | null
           practice_difficulty?: string | null
+          session_id?: string | null
           time_spent?: string | null
           user_id: string
         }
@@ -153,7 +217,58 @@ export type Database = {
           non_engagement_other?: string | null
           non_engagement_reasons?: string[] | null
           practice_difficulty?: string | null
+          session_id?: string | null
           time_spent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_surveys_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sessions: {
+        Row: {
+          audio_file_url: string | null
+          created_at: string
+          emergent_scenario: string | null
+          id: string
+          number_of_participants: number
+          session_date: string
+          session_type: string
+          status: string
+          updated_at: string
+          use_site: string
+          user_id: string
+        }
+        Insert: {
+          audio_file_url?: string | null
+          created_at?: string
+          emergent_scenario?: string | null
+          id?: string
+          number_of_participants: number
+          session_date: string
+          session_type: string
+          status?: string
+          updated_at?: string
+          use_site: string
+          user_id: string
+        }
+        Update: {
+          audio_file_url?: string | null
+          created_at?: string
+          emergent_scenario?: string | null
+          id?: string
+          number_of_participants?: number
+          session_date?: string
+          session_type?: string
+          status?: string
+          updated_at?: string
+          use_site?: string
           user_id?: string
         }
         Relationships: []

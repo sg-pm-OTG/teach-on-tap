@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { SurveyData } from "@/types/survey";
 
-export const useSurvey = () => {
+export const useSurvey = (sessionId?: string) => {
   const [surveyData, setSurveyData] = useState<SurveyData>({
     engagementTypes: [],
   });
@@ -84,6 +84,7 @@ export const useSurvey = () => {
 
       const { error } = await supabase.from("session_surveys").insert({
         user_id: user.id,
+        session_id: sessionId || null,
         engagement_types: surveyData.engagementTypes,
         engagement_other: surveyData.engagementOther,
         activity_involvement: surveyData.activityInvolvement,

@@ -1,39 +1,134 @@
 import { useEffect, useState } from "react";
 import { TopBar } from "@/components/TopBar";
 import { Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { SurveyContainer } from "@/components/survey/SurveyContainer";
+import { supabase } from "@/integrations/supabase/client";
+import { generateMockReport } from "@/lib/mockReportGenerator";
+import { toast } from "sonner";
+
+interface LocationState {
+  sessionId: string;
+  sessionDetails: {
+    use_site: string;
+    number_of_participants: number;
+    session_type: string;
+    session_date: string;
+    emergent_scenario?: string;
+  };
+}
 
 const Processing = () => {
   const [progress, setProgress] = useState(0);
   const [processingComplete, setProcessingComplete] = useState(false);
   const [surveyComplete, setSurveyComplete] = useState(false);
+  const [reportGenerated, setReportGenerated] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  const state = location.state as LocationState | null;
+  const sessionId = state?.sessionId;
+  const sessionDetails = state?.sessionDetails;
 
+  // Update session status to processing and generate report
   useEffect(() => {
-    // Simulate processing progress
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setProcessingComplete(true);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 500);
+    const processSession = async () => {
+      if (!sessionId || !sessionDetails) {
+        toast.error("Session data not found");
+        navigate("/");
+        return;
+      }
 
-    return () => clearInterval(interval);
-  }, []);
+      try {
+        // Update session status to processing
+        await supabase
+          .from("sessions")
+          .update({ status: "processing" })
+          .eq("id", sessionId);
+
+        // Simulate processing progress
+        const interval = setInterval(() => {
+          setProgress((prev) => {
+            if (prev >= 100) {
+              clearInterval(interval);
+              return 100;
+            }
+            return prev + 10;
+          });
+        }, 500);
+
+        // Generate mock report after "processing" completes
+        setTimeout(async () => {
+          try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("User not authenticated");
+
+            // Generate mock report data
+            const reportData = generateMockReport(sessionDetails);
+
+            // Insert report into database
+            const { error: reportError } = await supabase
+              .from("session_reports")
+              .insert({
+                session_id: sessionId,
+                user_id: user.id,
+                scenario_scores: reportData.scenario_scores,
+                dialogue_scores: reportData.dialogue_scores,
+                scenario_analysis: reportData.scenario_analysis,
+                dialogue_analysis: reportData.dialogue_analysis,
+                talk_time_data: reportData.talk_time_data,
+                themes: reportData.themes,
+                conclusions: reportData.conclusions,
+                speaker_interactions: reportData.speaker_interactions,
+                speakers: reportData.speakers,
+                scenario_content: reportData.scenario_content,
+                final_summary: reportData.final_summary,
+              });
+
+            if (reportError) throw reportError;
+
+            // Update session status to completed
+            await supabase
+              .from("sessions")
+              .update({ status: "completed" })
+              .eq("id", sessionId);
+
+            setReportGenerated(true);
+            setProcessingComplete(true);
+          } catch (error) {
+            console.error("Error generating report:", error);
+            toast.error("Failed to generate report");
+            
+            // Update session status to failed
+            await supabase
+              .from("sessions")
+              .update({ status: "failed" })
+              .eq("id", sessionId);
+          }
+        }, 5000); // 5 seconds to simulate processing
+
+        return () => clearInterval(interval);
+      } catch (error) {
+        console.error("Error processing session:", error);
+        toast.error("Failed to process session");
+      }
+    };
+
+    processSession();
+  }, [sessionId, sessionDetails, navigate]);
 
   useEffect(() => {
     // Navigate only when both processing and survey are complete
-    if (processingComplete && surveyComplete) {
+    if (processingComplete && surveyComplete && reportGenerated) {
       setTimeout(() => {
         navigate("/reports");
       }, 1000);
     }
-  }, [processingComplete, surveyComplete, navigate]);
+  }, [processingComplete, surveyComplete, reportGenerated, navigate]);
+
+  if (!sessionId) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -74,7 +169,10 @@ const Processing = () => {
             While we analyze your session, please complete this quick survey about your FOP engagement this week.
           </p>
           
-          <SurveyContainer onComplete={() => setSurveyComplete(true)} />
+          <SurveyContainer 
+            onComplete={() => setSurveyComplete(true)} 
+            sessionId={sessionId}
+          />
         </div>
 
         {/* Waiting Message */}
