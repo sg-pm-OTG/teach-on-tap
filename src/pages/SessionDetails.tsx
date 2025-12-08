@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -38,6 +39,7 @@ export interface SessionDetailsData {
   emergentScenario: string;
   sessionType: string;
   sessionDate: Date;
+  isBaseline: boolean;
 }
 
 const SessionDetails = () => {
@@ -47,6 +49,7 @@ const SessionDetails = () => {
   const [emergentScenario, setEmergentScenario] = useState("");
   const [sessionType, setSessionType] = useState("");
   const [sessionDate, setSessionDate] = useState<Date>(new Date());
+  const [isBaseline, setIsBaseline] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isFormValid =
@@ -80,16 +83,26 @@ const SessionDetails = () => {
           session_date: format(sessionDate, "yyyy-MM-dd"),
           emergent_scenario: emergentScenario.trim() || null,
           status: "pending",
+          is_baseline: isBaseline,
         })
         .select()
         .single();
 
       if (error) throw error;
 
+      // If baseline, update profile to mark baseline completed
+      if (isBaseline) {
+        await supabase
+          .from("profiles")
+          .update({ baseline_completed: true })
+          .eq("user_id", user.id);
+      }
+
       // Navigate to processing page with session ID and details
       navigate("/processing", {
         state: {
           sessionId: session.id,
+          isBaseline,
           sessionDetails: {
             use_site: useSite.trim(),
             number_of_participants: numberOfParticipants,
@@ -123,6 +136,21 @@ const SessionDetails = () => {
         </div>
 
         <div className="space-y-5">
+          {/* Baseline Recording Toggle */}
+          <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
+            <div className="space-y-0.5">
+              <Label htmlFor="baseline" className="text-base font-medium">Baseline Recording</Label>
+              <p className="text-xs text-muted-foreground">
+                Check this if this is your first recording before the Master Class
+              </p>
+            </div>
+            <Switch
+              id="baseline"
+              checked={isBaseline}
+              onCheckedChange={setIsBaseline}
+            />
+          </div>
+
           {/* Use Site */}
           <div className="space-y-2">
             <Label htmlFor="useSite">Use Site</Label>
