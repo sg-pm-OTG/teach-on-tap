@@ -33,7 +33,7 @@ const JourneyMilestones = () => {
       description: "Record your first teaching session before the masterclass",
       actionLabel: progress.baseline === "current" ? "Record Baseline" : undefined,
       onAction: progress.baseline === "current" 
-        ? () => navigate("/session-details", { state: { presetBaseline: true } })
+        ? () => navigate("/record", { state: { presetBaseline: true } })
         : undefined,
     },
     {

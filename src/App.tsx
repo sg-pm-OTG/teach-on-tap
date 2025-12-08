@@ -17,6 +17,7 @@ import PreSurveyIntro from "./pages/PreSurveyIntro";
 import PreSurveyQuestions from "./pages/PreSurveyQuestions";
 import PreSurveyResults from "./pages/PreSurveyResults";
 import Profile from "./pages/Profile";
+import BaselineSuccess from "./pages/BaselineSuccess";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
                 <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                 <Route path="/record" element={<ProtectedRoute><Record /></ProtectedRoute>} />
                 <Route path="/session-details" element={<ProtectedRoute><SessionDetails /></ProtectedRoute>} />
+                <Route path="/baseline-success" element={<ProtectedRoute><BaselineSuccess /></ProtectedRoute>} />
                 <Route path="/processing" element={<ProtectedRoute><Processing /></ProtectedRoute>} />
                 <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
                 <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
