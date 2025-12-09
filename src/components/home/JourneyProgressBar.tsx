@@ -28,7 +28,7 @@ const JourneyProgressBar = ({ onViewClick }: JourneyProgressBarProps) => {
   return (
     <button
       onClick={onViewClick}
-      className="w-full bg-card rounded-xl border border-border p-4 text-left transition-colors hover:bg-accent/50 active:bg-accent"
+      className="w-full bg-card rounded-xl border-2 border-border p-4 text-left transition-all hover:border-primary/50 active:scale-[0.98]"
     >
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-medium text-muted-foreground">Your Journey</span>
