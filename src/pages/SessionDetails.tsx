@@ -93,31 +93,20 @@ const SessionDetails = () => {
 
       if (error) throw error;
 
-      // If baseline, update profile to mark baseline completed
-      if (isBaseline) {
-        await supabase
-          .from("profiles")
-          .update({ baseline_completed: true })
-          .eq("user_id", user.id);
-        
-        // Navigate to baseline success page (processing happens in background)
-        navigate("/baseline-success");
-      } else {
-        // Navigate to processing page with session ID and details for regular sessions
-        navigate("/processing", {
-          state: {
-            sessionId: session.id,
-            isBaseline,
-            sessionDetails: {
-              use_site: useSite.trim(),
-              number_of_participants: numberOfParticipants,
-              session_type: sessionType,
-              session_date: format(sessionDate, "yyyy-MM-dd"),
-              emergent_scenario: emergentScenario.trim() || null,
-            },
+      // Navigate to processing page for both baseline and regular sessions
+      navigate("/processing", {
+        state: {
+          sessionId: session.id,
+          isBaseline,
+          sessionDetails: {
+            use_site: useSite.trim(),
+            number_of_participants: numberOfParticipants,
+            session_type: sessionType,
+            session_date: format(sessionDate, "yyyy-MM-dd"),
+            emergent_scenario: emergentScenario.trim() || null,
           },
-        });
-      }
+        },
+      });
     } catch (error) {
       console.error("Error creating session:", error);
       toast.error("Failed to create session. Please try again.");
