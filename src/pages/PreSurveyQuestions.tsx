@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 const PreSurveyQuestions = () => {
   const navigate = useNavigate();
-  const { setResponse, getResponse, submitSurvey, isSubmitting } = usePreSurvey();
+  const { setResponse, getResponse, submitSurvey, submitDemoSurvey, isSubmitting } = usePreSurvey();
   const [currentCategoryIndex, setCategoryIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [slideDirection, setSlideDirection] = useState<"left" | "right">("left");
@@ -154,10 +154,16 @@ const PreSurveyQuestions = () => {
         {/* Demo skip button */}
         <Button
           variant="ghost"
-          onClick={() => navigate("/pre-survey/results")}
+          onClick={async () => {
+            const success = await submitDemoSurvey();
+            if (success) {
+              navigate("/pre-survey/results");
+            }
+          }}
+          disabled={isSubmitting}
           className="w-full mt-3 text-xs text-muted-foreground hover:text-foreground"
         >
-          Skip for Demo →
+          {isSubmitting ? "Generating demo data..." : "Skip for Demo →"}
         </Button>
       </div>
     </div>

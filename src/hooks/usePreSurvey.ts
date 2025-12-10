@@ -166,11 +166,34 @@ export const usePreSurvey = () => {
     return preSurveyCategories.reduce((total, cat) => total + cat.questions.length, 0);
   };
 
+  const generateRandomResponses = () => {
+    const newResponses = new Map<string, number>();
+    
+    for (const category of preSurveyCategories) {
+      for (const question of category.questions) {
+        const randomValue = Math.floor(Math.random() * question.scaleType) + 1;
+        const key = `${question.categoryCode}_${question.questionIndex}`;
+        newResponses.set(key, randomValue);
+      }
+    }
+    
+    setResponses(newResponses);
+    return newResponses;
+  };
+
+  const submitDemoSurvey = async (): Promise<boolean> => {
+    generateRandomResponses();
+    // Need a small delay to let state update before calculating results
+    await new Promise(resolve => setTimeout(resolve, 100));
+    return submitSurvey();
+  };
+
   return {
     responses,
     setResponse,
     getResponse,
     submitSurvey,
+    submitDemoSurvey,
     isSubmitting,
     results,
     loadResults,
