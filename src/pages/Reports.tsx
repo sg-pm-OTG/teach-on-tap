@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { HeroSessionCard } from "@/components/report/HeroSessionCard";
@@ -12,28 +13,100 @@ import { ScoreRadarChart } from "@/components/report/ScoreRadarChart";
 import { CollapsibleSection } from "@/components/report/CollapsibleSection";
 import { OpportunityCallout } from "@/components/report/OpportunityCallout";
 import { SectionDivider } from "@/components/report/SectionDivider";
-import {
-  sessionDetails,
-  speakers,
-  themes,
-  conclusions,
-  talkTimeData,
-  speakerInteractions,
-  speakerLabels,
-  scenarioContent,
-  scenarioScores,
-  scenarioAnalysis,
-  dialogueScores,
-  dialogueAnalysis,
-  finalSummary,
-} from "@/data/reportData";
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { SessionChipSelector } from "@/components/report/SessionChipSelector";
+import { ComparisonSelector } from "@/components/report/ComparisonSelector";
+import { TrendBadge } from "@/components/report/TrendBadge";
+import { useAllSessionReports } from "@/hooks/useAllSessionReports";
+import { ChevronDown, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { format, parseISO } from "date-fns";
+import { Target, Wrench, Brain, Compass, Users, LucideIcon } from "lucide-react";
+
+// Icon mapping for themes
+const iconMap: Record<string, LucideIcon> = {
+  Target,
+  Wrench,
+  Brain,
+  Compass,
+  Users,
+};
 
 const Reports = () => {
   const [showAllSpeakers, setShowAllSpeakers] = useState(false);
-  const displayedSpeakers = showAllSpeakers ? speakers : speakers.slice(0, 3);
+  const [compareMode, setCompareMode] = useState(false);
+
+  const {
+    reports,
+    selectedReport,
+    comparisonReport,
+    availableForComparison,
+    setSelectedReportId,
+    setComparisonReportId,
+    isLoading,
+  } = useAllSessionReports();
+
+  // Handle compare mode toggle
+  const handleToggleCompare = () => {
+    if (compareMode) {
+      setComparisonReportId(null);
+    }
+    setCompareMode(!compareMode);
+  };
+
+  // Empty state
+  if (!isLoading && reports.length === 0) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <TopBar />
+        <main className="flex-1 overflow-y-auto pb-24 flex items-center justify-center">
+          <div className="text-center px-6">
+            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+              <FileText className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h2 className="text-lg font-semibold text-foreground mb-2">No Reports Yet</h2>
+            <p className="text-sm text-muted-foreground">
+              Complete a session recording to see your first report here.
+            </p>
+          </div>
+        </main>
+        <BottomNav />
+      </div>
+    );
+  }
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <TopBar />
+        <main className="flex-1 overflow-y-auto pb-24 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-sm text-muted-foreground">Loading reports...</p>
+          </div>
+        </main>
+        <BottomNav />
+      </div>
+    );
+  }
+
+  if (!selectedReport) return null;
+
+  const displayedSpeakers = showAllSpeakers 
+    ? selectedReport.speakers 
+    : selectedReport.speakers.slice(0, 3);
+
+  const speakerLabels = selectedReport.speakers.map((s, i) => 
+    i === 0 ? "F" : `P${i}`
+  );
+
+  const formatSessionDate = (dateStr: string) => {
+    try {
+      return format(parseISO(dateStr), "MMMM d, yyyy");
+    } catch {
+      return dateStr;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -41,14 +114,56 @@ const Reports = () => {
 
       <main className="flex-1 overflow-y-auto pb-24">
         <div className="container max-w-md mx-auto px-4 py-6 space-y-4">
+          {/* Session Selector */}
+          <div className="animate-slide-in-up">
+            <SessionChipSelector
+              sessions={reports.map((r) => ({
+                id: r.id,
+                sessionDate: r.sessionDate,
+                useSite: r.useSite,
+              }))}
+              selectedId={selectedReport.id}
+              onSelect={(id) => setSelectedReportId(id)}
+              compareMode={compareMode}
+              onToggleCompare={handleToggleCompare}
+              canCompare={reports.length > 1}
+            />
+          </div>
+
+          {/* Comparison Selector (when compare mode is on) */}
+          {compareMode && availableForComparison.length > 0 && (
+            <div className="animate-slide-in-up">
+              <ComparisonSelector
+                currentSessionDate={selectedReport.sessionDate}
+                availableSessions={availableForComparison.map((r) => ({
+                  id: r.id,
+                  sessionDate: r.sessionDate,
+                  useSite: r.useSite,
+                }))}
+                selectedComparisonId={comparisonReport?.id || null}
+                onSelectComparison={(id) => setComparisonReportId(id)}
+              />
+            </div>
+          )}
+
           {/* Hero Session Card */}
           <div className="animate-slide-in-up">
             <HeroSessionCard
-              title={sessionDetails.title}
-              useSite={sessionDetails.useSite}
-              date={sessionDetails.date}
-              participants={sessionDetails.participants}
-              activityType={sessionDetails.activityType}
+              title="FOP Analysis Full Report"
+              useSite={selectedReport.useSite}
+              date={formatSessionDate(selectedReport.sessionDate)}
+              participants={selectedReport.participants}
+              activityType={selectedReport.sessionType}
+              overallScore={selectedReport.overallScore}
+              trendBadge={
+                comparisonReport ? (
+                  <TrendBadge
+                    currentValue={selectedReport.overallScore}
+                    previousValue={comparisonReport.overallScore}
+                    size="md"
+                  />
+                ) : undefined
+              }
             />
           </div>
 
@@ -63,12 +178,12 @@ const Reports = () => {
                 description={speaker.description}
               />
             ))}
-            {speakers.length > 3 && (
+            {selectedReport.speakers.length > 3 && (
               <button
                 onClick={() => setShowAllSpeakers(!showAllSpeakers)}
                 className="w-full py-2 text-sm text-primary font-medium flex items-center justify-center gap-1 hover:bg-muted/50 rounded-lg transition-colors"
               >
-                {showAllSpeakers ? "Show Less" : `Show All ${speakers.length} Speakers`}
+                {showAllSpeakers ? "Show Less" : `Show All ${selectedReport.speakers.length} Speakers`}
                 <ChevronDown className={cn("h-4 w-4 transition-transform", showAllSpeakers && "rotate-180")} />
               </button>
             )}
@@ -78,35 +193,38 @@ const Reports = () => {
 
           {/* Main Discussion Themes */}
           <div className="space-y-3 animate-slide-in-up">
-            {themes.map((theme, index) => (
-              <ThemeCard
-                key={index}
-                title={theme.title}
-                icon={theme.icon}
-                bullets={theme.bullets}
-                accentColor={theme.accentColor}
-              />
-            ))}
+            {selectedReport.themes.map((theme, index) => {
+              const IconComponent = iconMap[theme.icon] || Target;
+              return (
+                <ThemeCard
+                  key={index}
+                  title={theme.title}
+                  icon={IconComponent}
+                  bullets={theme.bullets}
+                  accentColor={theme.accentColor}
+                />
+              );
+            })}
           </div>
 
           <SectionDivider title="Conclusions" />
 
           {/* Overall Conclusions */}
           <div className="animate-slide-in-up">
-            <ConclusionCard title="Overall Conclusions" conclusions={conclusions} />
+            <ConclusionCard title="Overall Conclusions" conclusions={selectedReport.conclusions} />
           </div>
 
           <SectionDivider title="Structural Analysis" />
 
           {/* Talk Time Distribution - Pie Chart */}
           <div className="animate-slide-in-up">
-            <TalkTimePieChart data={talkTimeData} />
+            <TalkTimePieChart data={selectedReport.talkTimeData} />
           </div>
 
           {/* Talk Time Bars */}
           <div className="bg-card rounded-xl border border-border p-4 space-y-3 animate-slide-in-up">
             <h4 className="font-medium text-sm text-foreground mb-3">Speaker Talk Time Details</h4>
-            {talkTimeData.map((item) => (
+            {selectedReport.talkTimeData.map((item) => (
               <TalkTimeBar
                 key={item.speaker}
                 speaker={item.speaker}
@@ -120,7 +238,7 @@ const Reports = () => {
           {/* Speaker Interaction Chord Diagram */}
           <div className="animate-slide-in-up">
             <InteractionChordDiagram
-              interactions={speakerInteractions}
+              interactions={selectedReport.speakerInteractions}
               labels={speakerLabels}
             />
           </div>
@@ -130,25 +248,35 @@ const Reports = () => {
           {/* Scenario Card */}
           <div className="animate-slide-in-up">
             <ScenarioCard
-              title={scenarioContent.title}
-              content={scenarioContent.content}
+              title={selectedReport.scenarioContent.title}
+              content={selectedReport.scenarioContent.content}
             />
           </div>
 
-          {/* Scenario Scores - Radar Chart */}
+          {/* Scenario Scores - Radar Chart with Comparison Overlay */}
           <div className="animate-slide-in-up">
             <ScoreRadarChart
-              data={scenarioScores}
+              data={selectedReport.scenarioScores}
               title="Scenario Quality Scores"
               maxScore={4}
               color="#F97316"
+              currentDate={selectedReport.sessionDate}
+              comparison={
+                comparisonReport
+                  ? {
+                      data: comparisonReport.scenarioScores,
+                      date: comparisonReport.sessionDate,
+                      color: "#9CA3AF",
+                    }
+                  : undefined
+              }
             />
           </div>
 
           {/* Scenario Detailed Analysis */}
           <div className="space-y-2 animate-slide-in-up">
             <h4 className="font-medium text-sm text-foreground mb-3">Detailed Analysis</h4>
-            {scenarioAnalysis.map((item) => (
+            {selectedReport.scenarioAnalysis.map((item) => (
               <CollapsibleSection key={item.title} title={item.title} score={item.score}>
                 <p className="text-sm text-muted-foreground leading-relaxed">{item.content}</p>
               </CollapsibleSection>
@@ -157,20 +285,30 @@ const Reports = () => {
 
           <SectionDivider title="Generative Dialogue" />
 
-          {/* Dialogue Scores - Radar Chart */}
+          {/* Dialogue Scores - Radar Chart with Comparison Overlay */}
           <div className="animate-slide-in-up">
             <ScoreRadarChart
-              data={dialogueScores}
+              data={selectedReport.dialogueScores}
               title="Dialogue Quality Scores"
               maxScore={4}
               color="#0D9488"
+              currentDate={selectedReport.sessionDate}
+              comparison={
+                comparisonReport
+                  ? {
+                      data: comparisonReport.dialogueScores,
+                      date: comparisonReport.sessionDate,
+                      color: "#9CA3AF",
+                    }
+                  : undefined
+              }
             />
           </div>
 
           {/* Dialogue Detailed Analysis */}
           <div className="space-y-2 animate-slide-in-up">
             <h4 className="font-medium text-sm text-foreground mb-3">Detailed Analysis</h4>
-            {dialogueAnalysis.map((item) => (
+            {selectedReport.dialogueAnalysis.map((item) => (
               <CollapsibleSection key={item.title} title={item.title} score={item.score}>
                 <div className="space-y-3">
                   <p className="text-sm text-muted-foreground leading-relaxed">{item.content}</p>
@@ -193,7 +331,7 @@ const Reports = () => {
           <div className="animate-slide-in-up">
             <ConclusionCard
               title="Session Summary"
-              conclusions={finalSummary}
+              conclusions={selectedReport.finalSummary}
               variant="summary"
             />
           </div>

@@ -5,27 +5,57 @@ import {
   PolarRadiusAxis,
   Radar,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
+import { format, parseISO } from "date-fns";
+
+interface ScoreItem {
+  label: string;
+  score: number;
+}
+
+interface ComparisonData {
+  data: ScoreItem[];
+  date: string;
+  color?: string;
+}
 
 interface ScoreRadarChartProps {
-  data: { label: string; score: number }[];
+  data: ScoreItem[];
   title: string;
   maxScore?: number;
   color?: string;
+  comparison?: ComparisonData;
+  currentDate?: string;
 }
 
 export const ScoreRadarChart = ({ 
   data, 
   title, 
   maxScore = 4,
-  color = "#0D9488" 
+  color = "#0D9488",
+  comparison,
+  currentDate,
 }: ScoreRadarChartProps) => {
-  const chartData = data.map((item) => ({
-    subject: item.label.length > 15 ? item.label.substring(0, 12) + "..." : item.label,
-    fullLabel: item.label,
-    score: item.score,
-    fullMark: maxScore,
-  }));
+  const chartData = data.map((item, index) => {
+    const comparisonItem = comparison?.data[index];
+    return {
+      subject: item.label.length > 15 ? item.label.substring(0, 12) + "..." : item.label,
+      fullLabel: item.label,
+      score: item.score,
+      comparisonScore: comparisonItem?.score,
+      fullMark: maxScore,
+    };
+  });
+
+  const formatDateLabel = (dateStr?: string) => {
+    if (!dateStr) return "";
+    try {
+      return format(parseISO(dateStr), "MMM d");
+    } catch {
+      return dateStr;
+    }
+  };
 
   return (
     <div className="bg-card rounded-xl border border-border p-4">
@@ -44,14 +74,33 @@ export const ScoreRadarChart = ({
               tick={{ fontSize: 8, fill: "hsl(var(--muted-foreground))" }}
               tickCount={maxScore + 1}
             />
+            {/* Comparison radar (rendered first so it's behind) */}
+            {comparison && (
+              <Radar
+                name={`Previous (${formatDateLabel(comparison.date)})`}
+                dataKey="comparisonScore"
+                stroke={comparison.color || "#9CA3AF"}
+                fill={comparison.color || "#9CA3AF"}
+                fillOpacity={0.1}
+                strokeWidth={1.5}
+                strokeDasharray="4 4"
+              />
+            )}
+            {/* Current radar */}
             <Radar
-              name="Score"
+              name={currentDate ? `Current (${formatDateLabel(currentDate)})` : "Score"}
               dataKey="score"
               stroke={color}
               fill={color}
               fillOpacity={0.3}
               strokeWidth={2}
             />
+            {comparison && (
+              <Legend 
+                wrapperStyle={{ fontSize: '10px' }}
+                iconSize={8}
+              />
+            )}
           </RadarChart>
         </ResponsiveContainer>
       </div>
