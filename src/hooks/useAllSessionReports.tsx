@@ -109,6 +109,7 @@ export const useAllSessionReports = () => {
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [comparisonReportId, setComparisonReportId] = useState<string | null>(null);
 
+  // Fetch regular (non-baseline) session reports
   const { data: rawReports, isLoading } = useQuery({
     queryKey: ["allSessionReports"],
     queryFn: async () => {
@@ -124,6 +125,25 @@ export const useAllSessionReports = () => {
 
       if (error) throw error;
       return data || [];
+    },
+  });
+
+  // Fetch baseline session report separately
+  const { data: rawBaselineReport } = useQuery({
+    queryKey: ["baselineSessionReport"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data, error } = await supabase
+        .from("session_reports")
+        .select("*, sessions!inner(*)")
+        .eq("user_id", user.id)
+        .eq("sessions.is_baseline", true)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
     },
   });
 
@@ -266,17 +286,157 @@ export const useAllSessionReports = () => {
     return reports.find((r) => r.id === comparisonReportId) || null;
   }, [reports, comparisonReportId]);
 
-  // Get reports available for comparison (exclude currently selected)
+  // Transform baseline report using the same logic
+  const baselineReport: SessionReport | null = useMemo(() => {
+    if (!rawBaselineReport) return null;
+
+    const session = rawBaselineReport.sessions as {
+      session_date: string;
+      use_site: string;
+      session_type: string;
+      number_of_participants: number;
+    };
+
+    // Transform scenario scores
+    const rawScenarioScores = rawBaselineReport.scenario_scores as unknown as ScoreItem[];
+    const scenarioScores = rawScenarioScores.map(s => ({
+      label: s.label,
+      score: s.score,
+    }));
+
+    // Transform dialogue scores  
+    const rawDialogueScores = rawBaselineReport.dialogue_scores as unknown as ScoreItem[];
+    const dialogueScores = rawDialogueScores.map(s => ({
+      label: s.label,
+      score: s.score,
+    }));
+
+    // Calculate overall score
+    const scenarioAvg = scenarioScores.reduce((sum, s) => sum + s.score, 0) / scenarioScores.length;
+    const dialogueAvg = dialogueScores.reduce((sum, s) => sum + s.score, 0) / dialogueScores.length;
+    const overallScore = (scenarioAvg + dialogueAvg) / 2;
+
+    // Transform speakers
+    const rawSpeakers = rawBaselineReport.speakers as unknown as RawSpeaker[];
+    const speakers: Speaker[] = rawSpeakers.map((s) => ({
+      id: s.name,
+      description: `${s.role} • Talk time: ${s.talkTime}`,
+    }));
+
+    // Transform themes
+    const rawThemes = rawBaselineReport.themes as unknown as RawTheme[];
+    const themes: Theme[] = rawThemes.map((t, index) => ({
+      title: t.title,
+      icon: themeIcons[index % themeIcons.length],
+      accentColor: themeColors[index % themeColors.length],
+      bullets: [t.description],
+    }));
+
+    const conclusions = rawBaselineReport.conclusions as unknown as string[];
+
+    // Transform talk time data
+    const rawTalkTime = rawBaselineReport.talk_time_data as unknown as TalkTimeItem[];
+    const totalSeconds = rawTalkTime.reduce((sum, t) => sum + t.seconds, 0);
+    const talkTimeData: TalkTimeItem[] = rawTalkTime.map((t, index) => ({
+      speaker: t.speaker,
+      seconds: t.seconds,
+      percentage: totalSeconds > 0 ? parseFloat(((t.seconds / totalSeconds) * 100).toFixed(1)) : 0,
+      color: index === 0 ? "bg-teal-500" : `bg-${["blue", "purple", "pink", "orange", "emerald", "indigo", "rose", "cyan"][index % 8]}-500`,
+    }));
+
+    // Transform speaker interactions
+    const rawInteractions = rawBaselineReport.speaker_interactions as unknown as RawSpeakerInteraction[];
+    const speakerInteractions: number[][] = rawInteractions.map((row) =>
+      row.interactions.map((i) => i.count)
+    );
+
+    // Transform scenario content
+    const rawScenarioContent = rawBaselineReport.scenario_content as unknown as RawScenarioContent;
+    const scenarioContent: ScenarioContent = {
+      title: rawScenarioContent.title,
+      content: [rawScenarioContent.description, rawScenarioContent.context].filter(Boolean),
+    };
+
+    // Transform scenario analysis
+    const rawScenarioAnalysis = rawBaselineReport.scenario_analysis as unknown as RawAnalysisItem[];
+    const scenarioAnalysis: AnalysisItem[] = rawScenarioAnalysis.map((a) => ({
+      title: a.marker,
+      score: a.rating,
+      content: `${a.summary}. ${a.details}`,
+    }));
+
+    // Transform dialogue analysis
+    const rawDialogueAnalysis = rawBaselineReport.dialogue_analysis as unknown as RawAnalysisItem[];
+    const dialogueAnalysis: AnalysisItem[] = rawDialogueAnalysis.map((a) => ({
+      title: a.marker,
+      score: a.rating,
+      content: `${a.summary}. ${a.details}`,
+    }));
+
+    // Transform final summary
+    const rawFinalSummary = rawBaselineReport.final_summary as unknown as RawFinalSummary;
+    const finalSummary: string[] = [
+      `Overall Score: ${rawFinalSummary.overallScore}/4`,
+      rawFinalSummary.strengths.length > 0 
+        ? `Strengths: ${rawFinalSummary.strengths.join(", ")}` 
+        : null,
+      rawFinalSummary.areasForImprovement.length > 0 
+        ? `Areas for improvement: ${rawFinalSummary.areasForImprovement.join(", ")}` 
+        : null,
+      rawFinalSummary.recommendation,
+    ].filter(Boolean) as string[];
+
+    return {
+      id: rawBaselineReport.id,
+      sessionId: rawBaselineReport.session_id,
+      createdAt: rawBaselineReport.created_at,
+      sessionDate: session.session_date,
+      useSite: session.use_site,
+      sessionType: session.session_type,
+      participants: session.number_of_participants,
+      speakers,
+      themes,
+      conclusions,
+      talkTimeData,
+      speakerInteractions,
+      scenarioContent,
+      scenarioScores,
+      scenarioAnalysis,
+      dialogueScores,
+      dialogueAnalysis,
+      finalSummary,
+      overallScore: parseFloat(overallScore.toFixed(1)),
+      isBaseline: true,
+    } as SessionReport & { isBaseline: boolean };
+  }, [rawBaselineReport]);
+
+  // Get reports available for comparison (exclude currently selected, include baseline)
   const availableForComparison = useMemo(() => {
     if (!selectedReport) return [];
-    return reports.filter((r) => r.id !== selectedReport.id);
-  }, [reports, selectedReport]);
+    const regularSessions = reports.filter((r) => r.id !== selectedReport.id);
+    
+    // Add baseline report if it exists
+    if (baselineReport) {
+      return [{ ...baselineReport, isBaseline: true }, ...regularSessions];
+    }
+    return regularSessions;
+  }, [reports, selectedReport, baselineReport]);
+
+  // Update comparison report lookup to include baseline
+  const comparisonReportWithBaseline = useMemo(() => {
+    if (!comparisonReportId) return null;
+    if (baselineReport && comparisonReportId === baselineReport.id) {
+      return baselineReport;
+    }
+    return reports.find((r) => r.id === comparisonReportId) || null;
+  }, [reports, comparisonReportId, baselineReport]);
 
   return {
     reports,
     selectedReport,
-    comparisonReport,
+    comparisonReport: comparisonReportWithBaseline,
     availableForComparison,
+    baselineReport,
     setSelectedReportId,
     setComparisonReportId,
     isLoading,

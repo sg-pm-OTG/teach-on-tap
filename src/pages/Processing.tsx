@@ -59,38 +59,35 @@ const Processing = () => {
           });
         }, 500);
 
-        // Generate mock report after "processing" completes (skip for baseline)
+        // Generate mock report after "processing" completes
         setTimeout(async () => {
           try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("User not authenticated");
 
-            // Only generate report for non-baseline sessions
-            if (!isBaseline) {
-              // Generate mock report data
-              const reportData = generateMockReport(sessionDetails);
+            // Generate mock report data (for both baseline and regular sessions)
+            const reportData = generateMockReport(sessionDetails);
 
-              // Insert report into database
-              const { error: reportError } = await supabase
-                .from("session_reports")
-                .insert({
-                  session_id: sessionId,
-                  user_id: user.id,
-                  scenario_scores: reportData.scenario_scores,
-                  dialogue_scores: reportData.dialogue_scores,
-                  scenario_analysis: reportData.scenario_analysis,
-                  dialogue_analysis: reportData.dialogue_analysis,
-                  talk_time_data: reportData.talk_time_data,
-                  themes: reportData.themes,
-                  conclusions: reportData.conclusions,
-                  speaker_interactions: reportData.speaker_interactions,
-                  speakers: reportData.speakers,
-                  scenario_content: reportData.scenario_content,
-                  final_summary: reportData.final_summary,
-                });
+            // Insert report into database
+            const { error: reportError } = await supabase
+              .from("session_reports")
+              .insert({
+                session_id: sessionId,
+                user_id: user.id,
+                scenario_scores: reportData.scenario_scores,
+                dialogue_scores: reportData.dialogue_scores,
+                scenario_analysis: reportData.scenario_analysis,
+                dialogue_analysis: reportData.dialogue_analysis,
+                talk_time_data: reportData.talk_time_data,
+                themes: reportData.themes,
+                conclusions: reportData.conclusions,
+                speaker_interactions: reportData.speaker_interactions,
+                speakers: reportData.speakers,
+                scenario_content: reportData.scenario_content,
+                final_summary: reportData.final_summary,
+              });
 
-              if (reportError) throw reportError;
-            }
+            if (reportError) throw reportError;
 
             // Update session status to completed
             await supabase
