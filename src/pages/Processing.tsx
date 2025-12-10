@@ -95,6 +95,14 @@ const Processing = () => {
               .update({ status: "completed" })
               .eq("id", sessionId);
 
+            // If baseline, update profile to mark baseline completed
+            if (isBaseline) {
+              await supabase
+                .from("profiles")
+                .update({ baseline_completed: true })
+                .eq("user_id", user.id);
+            }
+
             setReportGenerated(true);
             setProcessingComplete(true);
           } catch (error) {
@@ -124,8 +132,7 @@ const Processing = () => {
     // For regular: navigate only when both processing and survey are complete
     if (isBaseline && processingComplete) {
       setTimeout(() => {
-        navigate("/");
-        toast.success("Baseline recording submitted successfully!");
+        navigate("/baseline-success");
       }, 1000);
     } else if (!isBaseline && processingComplete && surveyComplete && reportGenerated) {
       setTimeout(() => {
