@@ -139,6 +139,7 @@ const Reports = () => {
                   id: r.id,
                   sessionDate: r.sessionDate,
                   useSite: r.useSite,
+                  isBaseline: (r as any).isBaseline || false,
                 }))}
                 selectedComparisonId={comparisonReport?.id || null}
                 onSelectComparison={(id) => setComparisonReportId(id)}
