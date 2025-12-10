@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, Target, TrendingUp } from "lucide-react";
+import { ClipboardList, Target } from "lucide-react";
 import alcLogo from "@/assets/alc-logo.png";
 
 const PreSurveyIntro = () => {
@@ -51,18 +51,6 @@ const PreSurveyIntro = () => {
                 <p className="font-medium text-foreground text-sm">19 Categories</p>
                 <p className="text-xs text-muted-foreground">
                   From pedagogical practices to professional skills
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                <TrendingUp className="w-5 h-5 text-success" />
-              </div>
-              <div>
-                <p className="font-medium text-foreground text-sm">Personalized Insights</p>
-                <p className="text-xs text-muted-foreground">
-                  Compare your scores against national averages
                 </p>
               </div>
             </div>
