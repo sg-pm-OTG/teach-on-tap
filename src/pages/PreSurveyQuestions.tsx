@@ -150,6 +150,15 @@ const PreSurveyQuestions = () => {
             Answer all questions to continue automatically
           </p>
         )}
+        
+        {/* Demo skip button */}
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/pre-survey/results")}
+          className="w-full mt-3 text-xs text-muted-foreground hover:text-foreground"
+        >
+          Skip for Demo →
+        </Button>
       </div>
     </div>
   );
