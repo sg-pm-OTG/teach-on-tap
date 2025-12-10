@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { chord, ribbon, ChordGroup } from "d3-chord";
 import { arc } from "d3-shape";
 import { descending } from "d3-array";
@@ -19,6 +19,13 @@ const SPEAKER_COLORS = [
 
 export const InteractionChordDiagram = ({ interactions, labels }: InteractionChordDiagramProps) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [isAnimated, setIsAnimated] = useState(false);
+
+  // Trigger animation after mount
+  useEffect(() => {
+    const timer = setTimeout(() => setIsAnimated(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   const size = 280;
   const outerRadius = size / 2 - 30;
@@ -62,10 +69,42 @@ export const InteractionChordDiagram = ({ interactions, labels }: InteractionCho
 
       <div className="flex justify-center">
         <svg width={size} height={size} viewBox={`${-size/2} ${-size/2} ${size} ${size}`}>
+          <defs>
+            <style>{`
+              @keyframes arcGrow {
+                from {
+                  transform: scale(0);
+                  opacity: 0;
+                }
+                to {
+                  transform: scale(1);
+                  opacity: 1;
+                }
+              }
+              @keyframes ribbonFade {
+                from {
+                  opacity: 0;
+                  transform: scale(0.8);
+                }
+                to {
+                  opacity: 0.65;
+                  transform: scale(1);
+                }
+              }
+              @keyframes labelFade {
+                from {
+                  opacity: 0;
+                }
+                to {
+                  opacity: 1;
+                }
+              }
+            `}</style>
+          </defs>
+
           {/* Arcs (outer segments for each speaker) */}
           {chordData.groups.map((group, i) => {
             const path = arcGenerator(group);
-            const isHovered = hoveredIndex === i;
             const isOtherHovered = hoveredIndex !== null && hoveredIndex !== i;
             
             return (
@@ -79,6 +118,11 @@ export const InteractionChordDiagram = ({ interactions, labels }: InteractionCho
                   onMouseEnter={() => setHoveredIndex(i)}
                   onMouseLeave={() => setHoveredIndex(null)}
                   className="cursor-pointer transition-opacity duration-200"
+                  style={{
+                    transformOrigin: 'center',
+                    animation: isAnimated ? `arcGrow 0.5s ease-out ${i * 0.08}s forwards` : 'none',
+                    opacity: isAnimated ? undefined : 0,
+                  }}
                 />
               </g>
             );
@@ -97,15 +141,21 @@ export const InteractionChordDiagram = ({ interactions, labels }: InteractionCho
             
             if (!pathData) return null;
             
+            const baseDelay = chordData.groups.length * 0.08 + 0.2;
+            
             return (
               <path
                 key={`ribbon-${i}`}
                 d={pathData}
                 fill={sourceColor}
-                opacity={isHighlighted ? 0.65 : 0.1}
                 stroke={sourceColor}
                 strokeWidth={isHighlighted ? 0.5 : 0}
                 className="transition-opacity duration-200"
+                style={{
+                  transformOrigin: 'center',
+                  animation: isAnimated ? `ribbonFade 0.4s ease-out ${baseDelay + i * 0.05}s forwards` : 'none',
+                  opacity: isAnimated ? (isHighlighted ? undefined : 0.1) : 0,
+                }}
               />
             );
           })}
@@ -126,6 +176,10 @@ export const InteractionChordDiagram = ({ interactions, labels }: InteractionCho
                 dominantBaseline="middle"
                 className="text-[10px] font-medium fill-foreground"
                 transform={`rotate(${finalRotation}, ${x}, ${y})`}
+                style={{
+                  animation: isAnimated ? `labelFade 0.3s ease-out ${0.3 + i * 0.08}s forwards` : 'none',
+                  opacity: isAnimated ? undefined : 0,
+                }}
               >
                 {labels[i]}
               </text>
