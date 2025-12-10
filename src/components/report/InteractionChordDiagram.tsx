@@ -18,8 +18,13 @@ const SPEAKER_COLORS = [
 ];
 
 export const InteractionChordDiagram = ({ interactions, labels }: InteractionChordDiagramProps) => {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isAnimated, setIsAnimated] = useState(false);
+
+  // Toggle selection on tap/click
+  const handleSpeakerClick = (index: number) => {
+    setSelectedIndex(prev => prev === index ? null : index);
+  };
 
   // Trigger animation after mount
   useEffect(() => {
@@ -105,19 +110,19 @@ export const InteractionChordDiagram = ({ interactions, labels }: InteractionCho
           {/* Arcs (outer segments for each speaker) */}
           {chordData.groups.map((group, i) => {
             const path = arcGenerator(group);
-            const isOtherHovered = hoveredIndex !== null && hoveredIndex !== i;
+            const isSelected = selectedIndex === i;
+            const isOtherSelected = selectedIndex !== null && selectedIndex !== i;
             
             return (
               <g key={`arc-${i}`}>
                 <path
                   d={path || ""}
                   fill={getColor(i)}
-                  opacity={isOtherHovered ? 0.3 : 1}
-                  stroke="hsl(var(--background))"
-                  strokeWidth={1}
-                  onMouseEnter={() => setHoveredIndex(i)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                  className="cursor-pointer transition-opacity duration-200"
+                  opacity={isOtherSelected ? 0.3 : 1}
+                  stroke={isSelected ? "hsl(var(--foreground))" : "hsl(var(--background))"}
+                  strokeWidth={isSelected ? 2 : 1}
+                  onClick={() => handleSpeakerClick(i)}
+                  className="cursor-pointer transition-all duration-200"
                   style={{
                     transformOrigin: 'center',
                     animation: isAnimated ? `arcGrow 0.5s ease-out ${i * 0.08}s forwards` : 'none',
@@ -133,9 +138,9 @@ export const InteractionChordDiagram = ({ interactions, labels }: InteractionCho
             const ribbonGen = ribbon().radius(innerRadius);
             // @ts-ignore - d3-chord types are overly complex, this works at runtime
             const pathData: string | null = ribbonGen(chordItem);
-            const isHighlighted = hoveredIndex === null || 
-              hoveredIndex === chordItem.source.index || 
-              hoveredIndex === chordItem.target.index;
+            const isHighlighted = selectedIndex === null || 
+              selectedIndex === chordItem.source.index || 
+              selectedIndex === chordItem.target.index;
             
             const sourceColor = getColor(chordItem.source.index);
             
@@ -150,11 +155,11 @@ export const InteractionChordDiagram = ({ interactions, labels }: InteractionCho
                 fill={sourceColor}
                 stroke={sourceColor}
                 strokeWidth={isHighlighted ? 0.5 : 0}
-                className="transition-opacity duration-200"
+                className="transition-all duration-200 pointer-events-none"
                 style={{
                   transformOrigin: 'center',
                   animation: isAnimated ? `ribbonFade 0.4s ease-out ${baseDelay + i * 0.05}s forwards` : 'none',
-                  opacity: isAnimated ? (isHighlighted ? undefined : 0.1) : 0,
+                  opacity: isAnimated ? (isHighlighted ? 0.65 : 0.1) : 0,
                 }}
               />
             );
@@ -190,20 +195,26 @@ export const InteractionChordDiagram = ({ interactions, labels }: InteractionCho
 
       {/* Legend */}
       <div className="flex flex-wrap items-center justify-center gap-3 mt-4 pt-3 border-t border-border">
-        {labels.map((label, i) => (
-          <div 
-            key={label} 
-            className="flex items-center gap-1.5 cursor-pointer"
-            onMouseEnter={() => setHoveredIndex(i)}
-            onMouseLeave={() => setHoveredIndex(null)}
-          >
+        {labels.map((label, i) => {
+          const isSelected = selectedIndex === i;
+          return (
             <div 
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: getColor(i) }}
-            />
-            <span className="text-[10px] text-muted-foreground">{label}</span>
-          </div>
-        ))}
+              key={label} 
+              className={`flex items-center gap-1.5 cursor-pointer px-2 py-1 rounded-full transition-all duration-200 ${
+                isSelected ? 'bg-muted ring-1 ring-primary' : 'hover:bg-muted/50'
+              }`}
+              onClick={() => handleSpeakerClick(i)}
+            >
+              <div 
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: getColor(i) }}
+              />
+              <span className={`text-[10px] ${isSelected ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+                {label}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
