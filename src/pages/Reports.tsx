@@ -6,7 +6,7 @@ import { ThemeCard } from "@/components/report/ThemeCard";
 import { ConclusionCard } from "@/components/report/ConclusionCard";
 import { TalkTimeBar } from "@/components/report/TalkTimeBar";
 import { TalkTimePieChart } from "@/components/report/TalkTimePieChart";
-import { InteractionGrid } from "@/components/report/InteractionGrid";
+import { InteractionChordDiagram } from "@/components/report/InteractionChordDiagram";
 import { ScenarioCard } from "@/components/report/ScenarioCard";
 import { ScoreRadarChart } from "@/components/report/ScoreRadarChart";
 import { CollapsibleSection } from "@/components/report/CollapsibleSection";
@@ -117,9 +117,9 @@ const Reports = () => {
             ))}
           </div>
 
-          {/* Speaker Interaction Heat Map */}
+          {/* Speaker Interaction Chord Diagram */}
           <div className="animate-slide-in-up">
-            <InteractionGrid
+            <InteractionChordDiagram
               interactions={speakerInteractions}
               labels={speakerLabels}
             />
