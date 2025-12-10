@@ -126,7 +126,7 @@ const Reports = () => {
               onSelect={(id) => setSelectedReportId(id)}
               compareMode={compareMode}
               onToggleCompare={handleToggleCompare}
-              canCompare={reports.length > 1}
+              canCompare={availableForComparison.length > 0}
             />
           </div>
 
