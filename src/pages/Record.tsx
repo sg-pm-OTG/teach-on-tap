@@ -154,7 +154,7 @@ const Record = () => {
 
         <main className="container max-w-md mx-auto px-4 py-6 flex-1 overflow-y-auto pb-24">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-foreground">Session Details</h1>
+            <h1 className="text-2xl font-bold text-foreground">Tell Us About Your Session</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Fill in these details before recording
             </p>
@@ -163,10 +163,10 @@ const Record = () => {
           <div className="space-y-5">
             {/* Use Site */}
             <div className="space-y-2">
-              <Label htmlFor="useSite">Use Site</Label>
+              <Label htmlFor="useSite">Course</Label>
               <Input
                 id="useSite"
-                placeholder="e.g., Lincoln High School"
+                placeholder="e.g., Mathematics 101"
                 value={useSite}
                 onChange={(e) => setUseSite(e.target.value)}
               />
@@ -207,7 +207,7 @@ const Record = () => {
 
             {/* Type of Session */}
             <div className="space-y-2">
-              <Label>Type of Session</Label>
+              <Label>Type</Label>
               <Select value={sessionType} onValueChange={setSessionType}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select session type" />
@@ -224,7 +224,7 @@ const Record = () => {
 
             {/* Session Date */}
             <div className="space-y-2">
-              <Label>Session Date</Label>
+              <Label>Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -371,7 +371,7 @@ const Record = () => {
                 className="text-muted-foreground"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Session Details
+                Back to Details
               </Button>
             )}
           </div>
@@ -400,12 +400,12 @@ const Record = () => {
         </div>
 
         <div className="space-y-5">
-          {/* Use Site */}
+          {/* Course */}
           <div className="space-y-2">
-            <Label htmlFor="useSite">Use Site</Label>
+            <Label htmlFor="useSite">Course</Label>
             <Input
               id="useSite"
-              placeholder="e.g., Lincoln High School"
+              placeholder="e.g., Mathematics 101"
               value={useSite}
               onChange={(e) => setUseSite(e.target.value)}
             />
@@ -444,9 +444,9 @@ const Record = () => {
             </div>
           </div>
 
-          {/* Type of Session */}
+          {/* Type */}
           <div className="space-y-2">
-            <Label>Type of Session</Label>
+            <Label>Type</Label>
             <Select value={sessionType} onValueChange={setSessionType}>
               <SelectTrigger>
                 <SelectValue placeholder="Select session type" />
@@ -461,9 +461,9 @@ const Record = () => {
             </Select>
           </div>
 
-          {/* Session Date */}
+          {/* Date */}
           <div className="space-y-2">
-            <Label>Session Date</Label>
+            <Label>Date</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
