@@ -7,7 +7,7 @@ export const TopBar = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border pt-[env(safe-area-inset-top)]">
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border pt-[max(env(safe-area-inset-top),12px)]">
       <div className="container max-w-md mx-auto flex items-center justify-between h-14 px-4">
         <div className="flex items-center">
           <img 
