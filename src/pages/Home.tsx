@@ -44,7 +44,7 @@ const Home = () => {
             Welcome back, {profile?.name || "Teacher"}
           </h1>
           <p className="text-muted-foreground">
-            Ready to track your teaching excellence?
+            Ready to track your FOP practice?
           </p>
         </div>
 
