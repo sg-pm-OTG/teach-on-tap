@@ -52,27 +52,17 @@ serve(async (req) => {
 
     console.log("File downloaded, size:", fileData.size, "bytes");
 
-    // For now, we'll return the original file with mp3 extension
-    // Full FFmpeg conversion would require more complex setup
-    // The WebM file can be played by most modern players
-    // This serves as a placeholder - in production, you'd use a dedicated transcoding service
-    
     // Convert blob to array buffer
     const arrayBuffer = await fileData.arrayBuffer();
     
-    // Return the file with appropriate headers for download
-    // Note: This returns the original WebM data - for true MP3 conversion,
-    // you would need to integrate with a transcoding service like:
-    // - AWS MediaConvert
-    // - Cloudinary
-    // - A dedicated FFmpeg microservice
-    
-    const fileName = filePath.split('/').pop()?.replace('.webm', '.mp3') || 'recording.mp3';
+    // Return the WebM file as-is (WebM is widely supported)
+    // True MP3 conversion would require a dedicated transcoding service
+    const fileName = filePath.split('/').pop() || 'recording.webm';
     
     return new Response(arrayBuffer, {
       headers: {
         ...corsHeaders,
-        'Content-Type': 'audio/mpeg',
+        'Content-Type': 'audio/webm',
         'Content-Disposition': `attachment; filename="${fileName}"`,
       },
     });
