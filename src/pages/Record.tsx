@@ -109,6 +109,36 @@ const Record = () => {
         return;
       }
 
+      let audioFileUrl: string | null = null;
+
+      // Upload audio file if available
+      if (audioBlob) {
+        const timestamp = Date.now();
+        const fileExtension = audioBlob.type.includes("webm") ? "webm" : "mp4";
+        const fileName = `${user.id}/${timestamp}.${fileExtension}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("session-recordings")
+          .upload(fileName, audioBlob, {
+            contentType: audioBlob.type,
+            upsert: false,
+          });
+
+        if (uploadError) {
+          console.error("Error uploading audio:", uploadError);
+          toast.error("Failed to upload audio recording");
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Get the file URL
+        const { data: urlData } = supabase.storage
+          .from("session-recordings")
+          .getPublicUrl(fileName);
+
+        audioFileUrl = urlData.publicUrl;
+      }
+
       const { data: session, error } = await supabase
         .from("sessions")
         .insert({
@@ -120,6 +150,7 @@ const Record = () => {
           emergent_scenario: emergentScenario.trim() || null,
           status: "pending",
           is_baseline: isBaseline,
+          audio_file_url: audioFileUrl,
         })
         .select()
         .single();
