@@ -2,25 +2,75 @@ import { useState } from "react";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Waveform } from "@/components/Waveform";
-import { Mic, Square, CheckCircle } from "lucide-react";
+import { Mic, Square, CheckCircle, ArrowRight, CalendarIcon, Info, ArrowLeft } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+const SESSION_TYPES = [
+  "Classroom Lesson",
+  "Work Meeting",
+  "Workshop",
+  "Informal Discussion",
+  "Online Lesson",
+] as const;
+
+type Step = "details" | "recording" | "confirm";
 
 const Record = () => {
+  const [step, setStep] = useState<Step>("details");
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const presetBaseline = (location.state as { presetBaseline?: boolean })?.presetBaseline ?? false;
 
+  // Session details state
+  const [useSite, setUseSite] = useState("");
+  const [numberOfParticipants, setNumberOfParticipants] = useState(1);
+  const [emergentScenario, setEmergentScenario] = useState("");
+  const [sessionType, setSessionType] = useState("");
+  const [sessionDate, setSessionDate] = useState<Date>(new Date());
+  const [isBaseline] = useState(presetBaseline);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isFormValid =
+    useSite.trim() !== "" &&
+    numberOfParticipants >= 1 &&
+    emergentScenario.trim() !== "" &&
+    sessionType !== "";
+
+  const handleStartRecording = () => {
+    if (isFormValid) {
+      setStep("recording");
+    }
+  };
+
   const handleRecord = () => {
     if (!isRecording) {
       setIsRecording(true);
-      // Start timer
       const interval = setInterval(() => {
         setRecordingTime((prev) => prev + 1);
       }, 1000);
-      // Store interval for cleanup
       (window as any).recordingInterval = interval;
     }
   };
@@ -30,10 +80,64 @@ const Record = () => {
     if ((window as any).recordingInterval) {
       clearInterval((window as any).recordingInterval);
     }
-    // Navigate to session details page, passing baseline flag if set
     setTimeout(() => {
-      navigate("/session-details", { state: { presetBaseline } });
+      setStep("confirm");
     }, 500);
+  };
+
+  const handleSubmit = async () => {
+    if (!isFormValid || isSubmitting) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error("You must be logged in to submit a session");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const { data: session, error } = await supabase
+        .from("sessions")
+        .insert({
+          user_id: user.id,
+          use_site: useSite.trim(),
+          number_of_participants: numberOfParticipants,
+          session_type: sessionType,
+          session_date: format(sessionDate, "yyyy-MM-dd"),
+          emergent_scenario: emergentScenario.trim() || null,
+          status: "pending",
+          is_baseline: isBaseline,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      navigate("/processing", {
+        state: {
+          sessionId: session.id,
+          isBaseline,
+          sessionDetails: {
+            use_site: useSite.trim(),
+            number_of_participants: numberOfParticipants,
+            session_type: sessionType,
+            session_date: format(sessionDate, "yyyy-MM-dd"),
+            emergent_scenario: emergentScenario.trim() || null,
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error creating session:", error);
+      toast.error("Failed to create session. Please try again.");
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleParticipantChange = (delta: number) => {
+    setNumberOfParticipants((prev) => Math.max(1, prev + delta));
   };
 
   const formatTime = (seconds: number) => {
@@ -42,79 +146,378 @@ const Record = () => {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  return (
-    <div className="min-h-screen bg-background pb-20">
-      <TopBar />
+  // Step 1: Session Details Form
+  if (step === "details") {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <TopBar />
 
-      <main className="container max-w-md mx-auto px-4 py-8">
-        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] space-y-8">
-          {/* Connection Status */}
-          <div className="flex items-center gap-2 px-4 py-2 bg-success/10 text-success rounded-full border border-success/20 animate-slide-in-up">
-            <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
-            <span className="text-sm font-medium">Microphone Connected</span>
+        <main className="container max-w-md mx-auto px-4 py-6 flex-1 overflow-y-auto pb-24">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-foreground">Session Details</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Fill in these details before recording
+            </p>
           </div>
 
-          {/* Recording Timer */}
-          {isRecording && (
-            <div className="text-center animate-slide-in-up">
-              <p className="text-sm text-muted-foreground mb-1">Recording Time</p>
-              <p className="text-4xl font-bold text-foreground font-mono">
-                {formatTime(recordingTime)}
-              </p>
+          <div className="space-y-5">
+            {/* Use Site */}
+            <div className="space-y-2">
+              <Label htmlFor="useSite">Use Site</Label>
+              <Input
+                id="useSite"
+                placeholder="e.g., Lincoln High School"
+                value={useSite}
+                onChange={(e) => setUseSite(e.target.value)}
+              />
             </div>
-          )}
 
-          {/* Waveform Visualization */}
-          <div className="w-full max-w-xs">
-            <Waveform isActive={isRecording} className="h-32" />
-          </div>
-
-          {/* Record/Stop Button */}
-          <div className="flex flex-col items-center gap-4 w-full max-w-xs">
-            {!isRecording ? (
-              <button
-                onClick={handleRecord}
-                className="w-32 h-32 rounded-full gradient-accent hover:scale-105 active:scale-95 transition-all flex items-center justify-center group"
-              >
-                <Mic className="h-12 w-12 text-primary-foreground group-hover:scale-110 transition-transform" />
-              </button>
-            ) : (
-              <button
-                onClick={handleStop}
-                className="w-32 h-32 rounded-full bg-destructive hover:scale-105 active:scale-95 transition-all flex items-center justify-center group"
-              >
-                <Square className="h-10 w-10 text-destructive-foreground fill-current group-hover:scale-110 transition-transform" />
-              </button>
-            )}
-
-            <div className="text-center">
-              <p className="text-sm font-medium text-foreground">
-                {isRecording ? "Tap to stop recording" : "Tap to start recording"}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {isRecording
-                  ? "Your session is being captured"
-                  : "Speak naturally during your lesson"}
-              </p>
-            </div>
-          </div>
-
-          {/* Tips */}
-          {!isRecording && (
-            <div className="w-full max-w-xs bg-muted/30 rounded-xl p-4 border border-border animate-slide-in-up">
-              <div className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-foreground mb-1">Recording Tips</p>
-                  <ul className="text-xs text-muted-foreground space-y-1">
-                    <li>• Place phone near you during the lesson</li>
-                    <li>• Ensure minimal background noise</li>
-                    <li>• Record for at least 10 minutes</li>
-                  </ul>
-                </div>
+            {/* Number of Participants */}
+            <div className="space-y-2">
+              <Label>Number of Participants</Label>
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleParticipantChange(-1)}
+                  disabled={numberOfParticipants <= 1}
+                >
+                  −
+                </Button>
+                <Input
+                  type="number"
+                  min={1}
+                  value={numberOfParticipants}
+                  onChange={(e) =>
+                    setNumberOfParticipants(Math.max(1, parseInt(e.target.value) || 1))
+                  }
+                  className="w-20 text-center"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleParticipantChange(1)}
+                >
+                  +
+                </Button>
               </div>
             </div>
-          )}
+
+            {/* Type of Session */}
+            <div className="space-y-2">
+              <Label>Type of Session</Label>
+              <Select value={sessionType} onValueChange={setSessionType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select session type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SESSION_TYPES.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Session Date */}
+            <div className="space-y-2">
+              <Label>Session Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !sessionDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {sessionDate ? format(sessionDate, "PPP") : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={sessionDate}
+                    onSelect={(date) => date && setSessionDate(date)}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Emergent Scenario Description */}
+            <div className="space-y-2">
+              <Label htmlFor="emergentScenario">Description of Emergent Scenario</Label>
+              <Textarea
+                id="emergentScenario"
+                placeholder="Describe the emergent scenario observed during the session..."
+                value={emergentScenario}
+                onChange={(e) => setEmergentScenario(e.target.value)}
+                rows={4}
+              />
+              <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
+                <Info className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-muted-foreground">
+                  Enter "<span className="font-medium text-foreground">Assess session for scenario</span>" if you want the AI to detect the scenario automatically.
+                </p>
+              </div>
+            </div>
+
+            {/* Continue to Recording Button */}
+            <Button
+              variant="record"
+              size="lg"
+              className="w-full mt-6"
+              onClick={handleStartRecording}
+              disabled={!isFormValid}
+            >
+              Continue to Recording
+              <ArrowRight className="h-5 w-5 ml-2" />
+            </Button>
+          </div>
+        </main>
+
+        <BottomNav />
+      </div>
+    );
+  }
+
+  // Step 2: Recording
+  if (step === "recording") {
+    return (
+      <div className="min-h-screen bg-background pb-20">
+        <TopBar />
+
+        <main className="container max-w-md mx-auto px-4 py-8">
+          <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] space-y-8">
+            {/* Connection Status */}
+            <div className="flex items-center gap-2 px-4 py-2 bg-success/10 text-success rounded-full border border-success/20 animate-slide-in-up">
+              <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
+              <span className="text-sm font-medium">Microphone Connected</span>
+            </div>
+
+            {/* Recording Timer */}
+            {isRecording && (
+              <div className="text-center animate-slide-in-up">
+                <p className="text-sm text-muted-foreground mb-1">Recording Time</p>
+                <p className="text-4xl font-bold text-foreground font-mono">
+                  {formatTime(recordingTime)}
+                </p>
+              </div>
+            )}
+
+            {/* Waveform Visualization */}
+            <div className="w-full max-w-xs">
+              <Waveform isActive={isRecording} className="h-32" />
+            </div>
+
+            {/* Record/Stop Button */}
+            <div className="flex flex-col items-center gap-4 w-full max-w-xs">
+              {!isRecording ? (
+                <button
+                  onClick={handleRecord}
+                  className="w-32 h-32 rounded-full gradient-accent hover:scale-105 active:scale-95 transition-all flex items-center justify-center group"
+                >
+                  <Mic className="h-12 w-12 text-primary-foreground group-hover:scale-110 transition-transform" />
+                </button>
+              ) : (
+                <button
+                  onClick={handleStop}
+                  className="w-32 h-32 rounded-full bg-destructive hover:scale-105 active:scale-95 transition-all flex items-center justify-center group"
+                >
+                  <Square className="h-10 w-10 text-destructive-foreground fill-current group-hover:scale-110 transition-transform" />
+                </button>
+              )}
+
+              <div className="text-center">
+                <p className="text-sm font-medium text-foreground">
+                  {isRecording ? "Tap to stop recording" : "Tap to start recording"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {isRecording
+                    ? "Your session is being captured"
+                    : "Speak naturally during your lesson"}
+                </p>
+              </div>
+            </div>
+
+            {/* Tips */}
+            {!isRecording && (
+              <div className="w-full max-w-xs bg-muted/30 rounded-xl p-4 border border-border animate-slide-in-up">
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground mb-1">Recording Tips</p>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>• Place phone near you during the lesson</li>
+                      <li>• Ensure minimal background noise</li>
+                      <li>• Record for at least 45 minutes</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Back Button */}
+            {!isRecording && (
+              <Button
+                variant="ghost"
+                onClick={() => setStep("details")}
+                className="text-muted-foreground"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Session Details
+              </Button>
+            )}
+          </div>
+        </main>
+
+        <BottomNav />
+      </div>
+    );
+  }
+
+  // Step 3: Confirm Details
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <TopBar />
+
+      <main className="container max-w-md mx-auto px-4 py-6 flex-1 overflow-y-auto pb-24">
+        <div className="mb-6">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-success/10 text-success rounded-full border border-success/20 w-fit mb-4">
+            <CheckCircle className="h-4 w-4" />
+            <span className="text-sm font-medium">Recording Complete</span>
+          </div>
+          <h1 className="text-2xl font-bold text-foreground">Confirm Details</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Review and edit your session details before submitting
+          </p>
+        </div>
+
+        <div className="space-y-5">
+          {/* Use Site */}
+          <div className="space-y-2">
+            <Label htmlFor="useSite">Use Site</Label>
+            <Input
+              id="useSite"
+              placeholder="e.g., Lincoln High School"
+              value={useSite}
+              onChange={(e) => setUseSite(e.target.value)}
+            />
+          </div>
+
+          {/* Number of Participants */}
+          <div className="space-y-2">
+            <Label>Number of Participants</Label>
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => handleParticipantChange(-1)}
+                disabled={numberOfParticipants <= 1}
+              >
+                −
+              </Button>
+              <Input
+                type="number"
+                min={1}
+                value={numberOfParticipants}
+                onChange={(e) =>
+                  setNumberOfParticipants(Math.max(1, parseInt(e.target.value) || 1))
+                }
+                className="w-20 text-center"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => handleParticipantChange(1)}
+              >
+                +
+              </Button>
+            </div>
+          </div>
+
+          {/* Type of Session */}
+          <div className="space-y-2">
+            <Label>Type of Session</Label>
+            <Select value={sessionType} onValueChange={setSessionType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select session type" />
+              </SelectTrigger>
+              <SelectContent>
+                {SESSION_TYPES.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Session Date */}
+          <div className="space-y-2">
+            <Label>Session Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !sessionDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {sessionDate ? format(sessionDate, "PPP") : "Pick a date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={sessionDate}
+                  onSelect={(date) => date && setSessionDate(date)}
+                  initialFocus
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {/* Emergent Scenario Description */}
+          <div className="space-y-2">
+            <Label htmlFor="emergentScenario">Description of Emergent Scenario</Label>
+            <Textarea
+              id="emergentScenario"
+              placeholder="Describe the emergent scenario observed during the session..."
+              value={emergentScenario}
+              onChange={(e) => setEmergentScenario(e.target.value)}
+              rows={4}
+            />
+            <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
+              <Info className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-muted-foreground">
+                Enter "<span className="font-medium text-foreground">Assess session for scenario</span>" if you want the AI to detect the scenario automatically.
+              </p>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <Button
+            variant="record"
+            size="lg"
+            className="w-full mt-6"
+            onClick={handleSubmit}
+            disabled={!isFormValid || isSubmitting}
+          >
+            {isSubmitting ? "Creating Session..." : "Submit for Analysis"}
+            <ArrowRight className="h-5 w-5 ml-2" />
+          </Button>
         </div>
       </main>
 
