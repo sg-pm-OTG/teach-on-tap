@@ -23,6 +23,7 @@ import { format, parseISO } from "date-fns";
 import { Target, Wrench, Brain, Compass, Users, LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 // Icon mapping for themes
 const iconMap: Record<string, LucideIcon> = {
@@ -117,11 +118,22 @@ const Reports = () => {
     }
 
     try {
-      const response = await fetch(selectedReport.audioFileUrl);
-      if (!response.ok) throw new Error("Failed to download");
-      
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
+      // Extract file path from the full URL
+      const urlParts = selectedReport.audioFileUrl.split('/session-recordings/');
+      if (urlParts.length < 2) {
+        throw new Error("Invalid audio URL format");
+      }
+      const filePath = urlParts[1];
+
+      // Use Supabase's authenticated download
+      const { data, error } = await supabase.storage
+        .from('session-recordings')
+        .download(filePath);
+
+      if (error) throw error;
+
+      // Create download link
+      const url = URL.createObjectURL(data);
       const a = document.createElement("a");
       a.href = url;
       a.download = `session-${format(parseISO(selectedReport.sessionDate), "yyyy-MM-dd")}.webm`;
