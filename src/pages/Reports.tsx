@@ -120,7 +120,7 @@ const Reports = () => {
 
     try {
       setIsDownloading(true);
-      toast.info("Converting to MP3...");
+      toast.info("Downloading audio...");
 
       // Extract file path from the full URL
       const urlParts = selectedReport.audioFileUrl.split('/session-recordings/');
@@ -129,25 +129,24 @@ const Reports = () => {
         return;
       }
       const filePath = urlParts[1];
-      console.log("Converting file:", filePath);
 
-      // Call edge function to convert and download
+      // Call edge function to download
       const { data, error } = await supabase.functions.invoke('convert-audio-to-mp3', {
         body: { filePath },
       });
 
       if (error) {
-        console.error("Conversion error:", error);
-        toast.error(`Conversion failed: ${error.message}`);
+        console.error("Download error:", error);
+        toast.error(`Download failed: ${error.message}`);
         return;
       }
 
-      // The response is the audio blob
-      const blob = new Blob([data], { type: 'audio/mpeg' });
+      // The response is the audio blob (WebM format)
+      const blob = new Blob([data], { type: 'audio/webm' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `session-${format(parseISO(selectedReport.sessionDate), "yyyy-MM-dd")}.mp3`;
+      a.download = `session-${format(parseISO(selectedReport.sessionDate), "yyyy-MM-dd")}.webm`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -231,10 +230,10 @@ const Reports = () => {
                 onClick={handleDownloadAudio}
                 disabled={isDownloading}
               >
-                {isDownloading ? (
+              {isDownloading ? (
                   <>
                     <div className="h-4 w-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                    Converting to MP3...
+                    Downloading...
                   </>
                 ) : (
                   <>
