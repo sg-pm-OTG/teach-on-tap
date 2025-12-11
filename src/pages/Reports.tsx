@@ -17,10 +17,12 @@ import { SessionChipSelector } from "@/components/report/SessionChipSelector";
 import { ComparisonSelector } from "@/components/report/ComparisonSelector";
 import { TrendBadge } from "@/components/report/TrendBadge";
 import { useAllSessionReports } from "@/hooks/useAllSessionReports";
-import { ChevronDown, FileText } from "lucide-react";
+import { ChevronDown, FileText, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { Target, Wrench, Brain, Compass, Users, LucideIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 // Icon mapping for themes
 const iconMap: Record<string, LucideIcon> = {
@@ -108,6 +110,33 @@ const Reports = () => {
     }
   };
 
+  const handleDownloadAudio = async () => {
+    if (!selectedReport?.audioFileUrl) {
+      toast.error("No audio file available for this session");
+      return;
+    }
+
+    try {
+      const response = await fetch(selectedReport.audioFileUrl);
+      if (!response.ok) throw new Error("Failed to download");
+      
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `session-${format(parseISO(selectedReport.sessionDate), "yyyy-MM-dd")}.webm`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast.success("Audio downloaded successfully");
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to download audio file");
+    }
+  };
+
   return (
     <div className="min-h-screen min-h-[100dvh] bg-background flex flex-col pb-24">
       <TopBar />
@@ -167,6 +196,20 @@ const Reports = () => {
               }
             />
           </div>
+
+          {/* Download Audio Button */}
+          {selectedReport.audioFileUrl && (
+            <div className="animate-slide-in-up">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleDownloadAudio}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download Session Audio
+              </Button>
+            </div>
+          )}
 
           <SectionDivider title="Speakers" />
 
