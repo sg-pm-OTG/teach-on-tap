@@ -188,7 +188,7 @@ const Processing = () => {
               Weekly Progress Check
             </h2>
             <p className="text-sm text-muted-foreground mb-6">
-              While we analyze your session, please complete this quick survey about your FOP engagement this week.
+              Quick check-in while we process your session.
             </p>
             
             <SurveyContainer 
