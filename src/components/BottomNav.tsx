@@ -14,9 +14,9 @@ export const BottomNav = () => {
   ];
 
   return (
-    <nav className="absolute bottom-0 left-0 right-0 bg-background border-t border-border z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t border-border z-50 pb-[env(safe-area-inset-bottom)]">
       <div className="container max-w-md mx-auto">
-        <div className="grid grid-cols-4 gap-1 px-2 py-2">
+        <div className="grid grid-cols-4 gap-1 px-2 py-2 pb-1">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;

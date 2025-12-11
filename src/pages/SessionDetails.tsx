@@ -119,7 +119,7 @@ const SessionDetails = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen min-h-[100dvh] bg-background flex flex-col pb-24">
       <TopBar />
 
       <main className="container max-w-md mx-auto px-4 py-6 flex-1 overflow-y-auto">
