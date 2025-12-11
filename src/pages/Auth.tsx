@@ -158,7 +158,7 @@ const Auth = () => {
             // Login Form
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <h2 className="text-2xl font-semibold text-foreground">Welcome Back</h2>
+                <h2 className="text-2xl font-semibold text-foreground">Welcome Back New Update</h2>
                 <p className="text-sm text-muted-foreground">Sign in to continue</p>
               </div>
 
