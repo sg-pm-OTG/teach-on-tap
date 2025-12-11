@@ -88,6 +88,7 @@ export interface SessionReport {
   useSite: string;
   sessionType: string;
   participants: number;
+  audioFileUrl: string | null;
   speakers: Speaker[];
   themes: Theme[];
   conclusions: string[];
@@ -156,6 +157,7 @@ export const useAllSessionReports = () => {
         use_site: string;
         session_type: string;
         number_of_participants: number;
+        audio_file_url: string | null;
       };
 
       // Transform scenario scores
@@ -256,6 +258,7 @@ export const useAllSessionReports = () => {
         useSite: session.use_site,
         sessionType: session.session_type,
         participants: session.number_of_participants,
+        audioFileUrl: session.audio_file_url,
         speakers,
         themes,
         conclusions,
@@ -295,6 +298,7 @@ export const useAllSessionReports = () => {
       use_site: string;
       session_type: string;
       number_of_participants: number;
+      audio_file_url: string | null;
     };
 
     // Transform scenario scores
@@ -394,6 +398,7 @@ export const useAllSessionReports = () => {
       useSite: session.use_site,
       sessionType: session.session_type,
       participants: session.number_of_participants,
+      audioFileUrl: session.audio_file_url,
       speakers,
       themes,
       conclusions,
