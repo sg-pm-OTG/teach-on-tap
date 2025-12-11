@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Waveform } from "@/components/Waveform";
-import { Mic, Square, CheckCircle, ArrowRight, CalendarIcon, Info, ArrowLeft } from "lucide-react";
+import { Mic, Square, CheckCircle, ArrowRight, CalendarIcon, Info, ArrowLeft, AlertCircle } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Select,
@@ -25,6 +25,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 
 const SESSION_TYPES = [
   "Classroom Lesson",
@@ -38,11 +39,20 @@ type Step = "details" | "recording" | "confirm";
 
 const Record = () => {
   const [step, setStep] = useState<Step>("details");
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const presetBaseline = (location.state as { presetBaseline?: boolean })?.presetBaseline ?? false;
+
+  // Audio recording hook
+  const {
+    isRecording,
+    recordingTime,
+    audioBlob,
+    error: recordingError,
+    startRecording,
+    stopRecording,
+    resetRecording,
+  } = useAudioRecorder();
 
   // Session details state
   const [useSite, setUseSite] = useState("");
@@ -65,25 +75,25 @@ const Record = () => {
     }
   };
 
-  const handleRecord = () => {
+  const handleRecord = async () => {
     if (!isRecording) {
-      setIsRecording(true);
-      const interval = setInterval(() => {
-        setRecordingTime((prev) => prev + 1);
-      }, 1000);
-      (window as any).recordingInterval = interval;
+      await startRecording();
     }
   };
 
   const handleStop = () => {
-    setIsRecording(false);
-    if ((window as any).recordingInterval) {
-      clearInterval((window as any).recordingInterval);
-    }
+    stopRecording();
     setTimeout(() => {
       setStep("confirm");
     }, 500);
   };
+
+  // Show error toast if recording fails
+  useEffect(() => {
+    if (recordingError) {
+      toast.error(recordingError);
+    }
+  }, [recordingError]);
 
   const handleSubmit = async () => {
     if (!isFormValid || isSubmitting) return;
@@ -296,10 +306,19 @@ const Record = () => {
         <main className="container max-w-md mx-auto px-4 py-8">
           <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] space-y-8">
             {/* Connection Status */}
-            <div className="flex items-center gap-2 px-4 py-2 bg-success/10 text-success rounded-full border border-success/20 animate-slide-in-up">
-              <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
-              <span className="text-sm font-medium">Microphone Connected</span>
-            </div>
+            {recordingError ? (
+              <div className="flex items-center gap-2 px-4 py-2 bg-destructive/10 text-destructive rounded-full border border-destructive/20 animate-slide-in-up">
+                <AlertCircle className="w-4 h-4" />
+                <span className="text-sm font-medium">Microphone Error</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-4 py-2 bg-success/10 text-success rounded-full border border-success/20 animate-slide-in-up">
+                <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
+                <span className="text-sm font-medium">
+                  {isRecording ? "Recording..." : "Microphone Ready"}
+                </span>
+              </div>
+            )}
 
             {/* Recording Timer */}
             {isRecording && (
@@ -367,7 +386,10 @@ const Record = () => {
             {!isRecording && (
               <Button
                 variant="ghost"
-                onClick={() => setStep("details")}
+                onClick={() => {
+                  resetRecording();
+                  setStep("details");
+                }}
                 className="text-muted-foreground"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
