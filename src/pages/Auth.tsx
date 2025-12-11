@@ -140,7 +140,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen min-h-[100dvh] bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex flex-col items-center justify-center p-6 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
       <div className="w-full max-w-md space-y-8">
         {/* Logo */}
         <div className="text-center space-y-3">
@@ -158,7 +158,7 @@ const Auth = () => {
             // Login Form
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <h2 className="text-2xl font-semibold text-foreground">Welcome Back New Update</h2>
+                <h2 className="text-2xl font-semibold text-foreground">Welcome Back</h2>
                 <p className="text-sm text-muted-foreground">Sign in to continue</p>
               </div>
 

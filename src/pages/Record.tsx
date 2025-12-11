@@ -149,10 +149,10 @@ const Record = () => {
   // Step 1: Session Details Form
   if (step === "details") {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="min-h-screen min-h-[100dvh] bg-background flex flex-col pb-24">
         <TopBar />
 
-        <main className="container max-w-md mx-auto px-4 py-6 flex-1 overflow-y-auto pb-24">
+        <main className="container max-w-md mx-auto px-4 py-6 flex-1 overflow-y-auto">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-foreground">Tell Us About Your Session</h1>
             <p className="text-sm text-muted-foreground mt-1">
@@ -290,7 +290,7 @@ const Record = () => {
   // Step 2: Recording
   if (step === "recording") {
     return (
-      <div className="min-h-screen bg-background pb-20">
+      <div className="min-h-screen min-h-[100dvh] bg-background pb-24">
         <TopBar />
 
         <main className="container max-w-md mx-auto px-4 py-8">
@@ -384,10 +384,10 @@ const Record = () => {
 
   // Step 3: Confirm Details
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen min-h-[100dvh] bg-background flex flex-col pb-24">
       <TopBar />
 
-      <main className="container max-w-md mx-auto px-4 py-6 flex-1 overflow-y-auto pb-24">
+      <main className="container max-w-md mx-auto px-4 py-6 flex-1 overflow-y-auto">
         <div className="mb-6">
           <div className="flex items-center gap-2 px-3 py-1.5 bg-success/10 text-success rounded-full border border-success/20 w-fit mb-4">
             <CheckCircle className="h-4 w-4" />

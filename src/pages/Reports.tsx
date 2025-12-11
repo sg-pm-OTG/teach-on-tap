@@ -56,9 +56,9 @@ const Reports = () => {
   // Empty state
   if (!isLoading && reports.length === 0) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="min-h-screen min-h-[100dvh] bg-background flex flex-col pb-24">
         <TopBar />
-        <main className="flex-1 overflow-y-auto pb-24 flex items-center justify-center">
+        <main className="flex-1 overflow-y-auto flex items-center justify-center">
           <div className="text-center px-6">
             <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
               <FileText className="h-8 w-8 text-muted-foreground" />
@@ -77,9 +77,9 @@ const Reports = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="min-h-screen min-h-[100dvh] bg-background flex flex-col pb-24">
         <TopBar />
-        <main className="flex-1 overflow-y-auto pb-24 flex items-center justify-center">
+        <main className="flex-1 overflow-y-auto flex items-center justify-center">
           <div className="text-center">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <p className="text-sm text-muted-foreground">Loading reports...</p>
@@ -109,10 +109,10 @@ const Reports = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen min-h-[100dvh] bg-background flex flex-col pb-24">
       <TopBar />
 
-      <main className="flex-1 overflow-y-auto pb-24">
+      <main className="flex-1 overflow-y-auto">
         <div className="container max-w-md mx-auto px-4 py-6 space-y-4">
           {/* Session Selector */}
           <div className="animate-slide-in-up">

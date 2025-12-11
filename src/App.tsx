@@ -26,12 +26,8 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <div className="min-h-screen bg-gradient-to-br from-muted via-background to-muted flex items-center justify-center p-4">
-        <div className="w-full max-w-[430px] h-[932px] bg-background rounded-[3rem] border-[14px] border-foreground/90 overflow-hidden relative flex flex-col">
-          {/* Phone notch */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-7 bg-foreground/90 rounded-b-3xl z-50" />
-          
-          <BrowserRouter>
+      <div className="min-h-screen bg-background">
+        <BrowserRouter>
             <AuthProvider>
               <Routes>
                 <Route path="/auth" element={<Auth />} />
@@ -51,7 +47,6 @@ const App = () => (
               </Routes>
             </AuthProvider>
           </BrowserRouter>
-        </div>
       </div>
     </TooltipProvider>
   </QueryClientProvider>

@@ -7,11 +7,11 @@ const BaselineSuccess = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen min-h-[100dvh] bg-background pb-24">
       <TopBar />
 
       <main className="container max-w-md mx-auto px-4 py-8">
-        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] space-y-8">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8">
           {/* Success Icon */}
           <div className="relative animate-slide-in-up">
             <div className="w-24 h-24 rounded-full bg-success/20 flex items-center justify-center">

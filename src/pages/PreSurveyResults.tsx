@@ -50,7 +50,7 @@ const PreSurveyResults = () => {
   }, []);
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="min-h-screen min-h-[100dvh] flex flex-col bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
       {/* Header - Celebration */}
       <div className="pt-6 pb-4 px-6 text-center">
         <img 
