@@ -121,16 +121,22 @@ const Reports = () => {
       // Extract file path from the full URL
       const urlParts = selectedReport.audioFileUrl.split('/session-recordings/');
       if (urlParts.length < 2) {
-        throw new Error("Invalid audio URL format");
+        toast.error("Invalid audio URL format");
+        return;
       }
       const filePath = urlParts[1];
+      console.log("Downloading file:", filePath);
 
       // Use Supabase's authenticated download
       const { data, error } = await supabase.storage
         .from('session-recordings')
         .download(filePath);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase storage error:", error);
+        toast.error(`Download failed: ${error.message}`);
+        return;
+      }
 
       // Create download link
       const url = URL.createObjectURL(data);
@@ -143,9 +149,9 @@ const Reports = () => {
       URL.revokeObjectURL(url);
       
       toast.success("Audio downloaded successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Download error:", error);
-      toast.error("Failed to download audio file");
+      toast.error(error?.message || "Failed to download audio file");
     }
   };
 
