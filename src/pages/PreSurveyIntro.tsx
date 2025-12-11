@@ -19,17 +19,17 @@ const PreSurveyIntro = () => {
           <ClipboardList className="w-7 h-7 text-primary-foreground" />
         </div>
         <h1 className="text-2xl font-bold text-foreground mb-2">
-          Pre-Survey Assessment
+          A Few Questions Before We Start
         </h1>
         <p className="text-muted-foreground text-sm">
-          Let's understand your starting point
+          Help us personalize your FOP journey
         </p>
       </div>
 
       {/* Content */}
       <div className="flex-1 px-6 space-y-6 overflow-y-auto">
         <div className="bg-card rounded-xl p-4 border border-border">
-          <h2 className="font-medium text-foreground mb-3">What to expect</h2>
+          <h2 className="font-medium text-foreground mb-3">Here's what we'll cover</h2>
           <div className="space-y-4">
             <div className="flex gap-3">
               <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -87,7 +87,7 @@ const PreSurveyIntro = () => {
           className="w-full gradient-accent text-primary-foreground"
           size="lg"
         >
-          Begin Survey
+          Let's Go!
         </Button>
       </div>
     </div>
