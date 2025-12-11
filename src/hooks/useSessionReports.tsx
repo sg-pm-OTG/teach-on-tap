@@ -25,8 +25,9 @@ interface TalkTimeItem {
 }
 
 export const useSessionReports = () => {
+  // Only count non-baseline sessions
   const { data: sessions, isLoading: sessionsLoading } = useQuery({
-    queryKey: ["sessions"],
+    queryKey: ["sessions-non-baseline"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
@@ -36,6 +37,7 @@ export const useSessionReports = () => {
         .select("*")
         .eq("user_id", user.id)
         .eq("status", "completed")
+        .eq("is_baseline", false)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -43,16 +45,18 @@ export const useSessionReports = () => {
     },
   });
 
+  // Only get latest report from non-baseline sessions
   const { data: latestReport, isLoading: reportLoading } = useQuery({
-    queryKey: ["latestReport"],
+    queryKey: ["latestReport-non-baseline"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
       const { data, error } = await supabase
         .from("session_reports")
-        .select("*, sessions(*)")
+        .select("*, sessions!inner(*)")
         .eq("user_id", user.id)
+        .eq("sessions.is_baseline", false)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
