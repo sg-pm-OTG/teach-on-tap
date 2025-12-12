@@ -153,7 +153,7 @@ const Processing = () => {
         {/* Compact Processing Indicator */}
         <div className="mb-6 p-4 bg-card rounded-xl border border-border">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full gradient-accent flex items-center justify-center animate-pulse-slow">
+            <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center animate-pulse-slow">
               <Loader2 className="h-6 w-6 text-primary-foreground animate-spin" />
             </div>
             <div className="flex-1">

@@ -12,7 +12,7 @@ export const AIInsightCard = ({ strengths, focusAreas }: AIInsightCardProps) => 
   return (
     <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl p-5 border-2 border-border animate-slide-in-up">
       <div className="flex items-start gap-3 mb-3">
-        <div className="w-10 h-10 rounded-lg gradient-accent flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center flex-shrink-0">
           <Lightbulb className="h-5 w-5 text-primary-foreground" />
         </div>
         <div>

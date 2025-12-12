@@ -138,7 +138,7 @@ const PreSurveyQuestions = () => {
             <Button
               onClick={handleSubmit}
               disabled={!allQuestionsAnswered || isSubmitting}
-              className="flex-1 gradient-accent text-primary-foreground"
+              className="flex-1 gradient-primary text-primary-foreground"
             >
               {isSubmitting ? "Submitting..." : "Submit"}
             </Button>

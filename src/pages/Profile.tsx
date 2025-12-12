@@ -56,7 +56,7 @@ const Profile = () => {
           <div className="px-6 py-6 space-y-6">
             {/* User Info */}
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 gradient-accent rounded-full flex items-center justify-center">
+              <div className="w-16 h-16 gradient-primary rounded-full flex items-center justify-center">
                 <User className="w-8 h-8 text-primary-foreground" />
               </div>
               <div>
