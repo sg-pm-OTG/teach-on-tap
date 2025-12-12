@@ -1,50 +1,42 @@
 // Placeholder national average benchmarks - to be updated with real data
+// All categories now use a 6-point scale (max score = 6)
 export const nationalBenchmarks: Record<string, number> = {
-  // Section A: Pedagogical Practices (max 4)
-  A1: 3.2, // Learning Beliefs
-  A2: 3.0, // Fulfilment-based Learning Beliefs
-  A3: 2.9, // Generative Dialogue
-  A4: 3.1, // Teaching Stance
-  A5: 2.8, // Knowledge Management
-  A6: 3.0, // Learner Management
-  A7: 2.5, // Peer Observation
+  // Section A: Learning Beliefs (max 6)
+  A1: 4.5, // Learning as acquisition
+  A2: 4.3, // Learning as participation
+  A3: 4.2, // Learning as knowledge building
 
-  // Section B: Professional Environment (mixed max)
-  B1: 3.8, // Organisational Commitment (max 5)
-  B2: 3.6, // Peer Culture (max 5)
-  B3: 3.4, // Instructional Leadership (max 5)
-  B4: 5.2, // Psychological Safety (max 7)
-  B5: 3.5, // Collaborative Culture (max 5)
+  // Section B: Learning Orientation (max 6)
+  B1: 4.6, // Internal motivation
+  B2: 4.8, // Skills mastery
+  B3: 4.4, // Deep learning
 
-  // Section C: Skills Domain (max 6)
-  C1: 4.5, // Communication
-  C2: 4.3, // Connecting
-  C3: 4.4, // Collaboration
-  C4: 4.0, // Change
-  C5: 4.1, // Creativity
-  C6: 4.2, // Critical Thinking
-  C7: 4.6, // Curiosity
+  // Section C: Good Job Framework (max 6)
+  C1: 5.0, // TAE knowledge
+  C2: 4.9, // Teamwork
+  C3: 3.8, // Task complexity
+  C4: 4.2, // Work autonomy
+  C5: 3.5, // Professional development support
+  C6: 3.8, // Job prospects
 };
 
 // Placeholder recommendations - to be updated with real recommendations
 export const recommendations: Record<string, string> = {
-  A1: "Consider exploring resources on constructivist learning theory and student-centered approaches to strengthen your beliefs about how students learn best.",
-  A2: "Reflect on how you can integrate more holistic approaches that address students' emotional and social development alongside academic goals.",
-  A3: "Focus on asking more open-ended questions that encourage deeper thinking and allow students to build on each other's ideas during discussions.",
-  A4: "Explore ways to position yourself more as a facilitator of learning, allowing students greater agency in their educational journey.",
-  A5: "Look into strategies for helping students organize, retain, and transfer their knowledge across different contexts and subjects.",
-  A6: "Consider differentiation strategies and creating more supportive environments that encourage students to take intellectual risks.",
-  A7: "Seek opportunities to engage in peer observation with colleagues - both observing others and inviting them to observe your teaching.",
-  B1: "Reflect on your connection to your school's mission and consider ways to deepen your engagement with the school community.",
-  B2: "Look for opportunities to build stronger professional relationships with colleagues through informal interactions and shared projects.",
-  B3: "Consider how you might engage more with school leadership or provide input on instructional decisions and school direction.",
-  B4: "If you feel unsafe taking risks, consider discussing concerns with trusted colleagues or leaders, or seek professional development on growth mindset.",
-  B5: "Initiate or join collaborative activities such as lesson study groups, professional learning communities, or cross-departmental projects.",
-  C1: "Practice articulating complex ideas in simpler terms and focus on active listening skills to better understand diverse perspectives.",
-  C2: "Focus on building deeper relationships with students, colleagues, and parents through regular, meaningful interactions.",
-  C3: "Seek more collaborative opportunities and practice integrating diverse perspectives in your work with others.",
-  C4: "Embrace small changes first and view challenges as growth opportunities. Help colleagues navigate change by sharing your experiences.",
-  C5: "Dedicate time to brainstorm new ideas, experiment with different approaches, and create space for creative exploration in your practice.",
-  C6: "Practice analyzing information from multiple sources and perspectives. Model critical thinking for students by thinking aloud during problem-solving.",
-  C7: "Cultivate your curiosity by exploring new topics, asking more questions, and modeling intellectual curiosity for your students.",
+  // Section A: Learning Beliefs
+  A1: "Consider balancing structured knowledge acquisition with more exploratory learning approaches to give learners a stronger foundation while maintaining engagement.",
+  A2: "Focus on creating more opportunities for meaningful interaction and collaborative learning experiences in your sessions.",
+  A3: "Encourage learners to generate their own insights and solutions by incorporating more open-ended problems and knowledge-building activities.",
+
+  // Section B: Learning Orientation
+  B1: "Reflect on your learning habits and consider setting regular learning goals that align with your personal and professional aspirations.",
+  B2: "Identify opportunities to develop and apply your expertise more fully, seeking out challenges that allow you to demonstrate and grow your skills.",
+  B3: "Practice connecting new information to your existing knowledge and real-world applications to deepen your understanding and retention.",
+
+  // Section C: Good Job Framework
+  C1: "Invest in developing your subject matter expertise and pedagogical knowledge through targeted professional development opportunities.",
+  C2: "Seek out collaborative projects and team-based initiatives to strengthen your teamwork skills and contribute more effectively to group objectives.",
+  C3: "Look for opportunities to engage with more complex problems in your work, which can help develop your problem-solving capabilities.",
+  C4: "Discuss with your supervisor ways to increase your autonomy in decision-making around your work tasks and schedule.",
+  C5: "Advocate for professional development support from your organization, including time during working hours and financial resources for training.",
+  C6: "Have conversations with leadership about career progression paths and how your professional development connects to advancement opportunities.",
 };
