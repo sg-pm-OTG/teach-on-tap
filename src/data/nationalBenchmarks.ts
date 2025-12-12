@@ -13,7 +13,7 @@ export const nationalBenchmarks: Record<string, number> = {
 
   // Section C: Good Job Framework (max 6)
   C1: 5.0, // TAE knowledge
-  C2: 4.9, // Teamwork
+  C2: 4.9, // Social Context (Teamwork)
   C3: 3.8, // Task complexity
   C4: 4.2, // Work autonomy
   C5: 3.5, // Professional development support
@@ -34,7 +34,7 @@ export const recommendations: Record<string, string> = {
 
   // Section C: Good Job Framework
   C1: "Invest in developing your subject matter expertise and pedagogical knowledge through targeted professional development opportunities.",
-  C2: "Seek out collaborative projects and team-based initiatives to strengthen your teamwork skills and contribute more effectively to group objectives.",
+  C2: "Seek out collaborative projects and team-based initiatives to strengthen your social context and teamwork skills, contributing more effectively to group objectives.",
   C3: "Look for opportunities to engage with more complex problems in your work, which can help develop your problem-solving capabilities.",
   C4: "Discuss with your supervisor ways to increase your autonomy in decision-making around your work tasks and schedule.",
   C5: "Advocate for professional development support from your organization, including time during working hours and financial resources for training.",
