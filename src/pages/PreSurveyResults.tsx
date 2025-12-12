@@ -187,7 +187,7 @@ const PreSurveyResults = () => {
       <div className="p-6 border-t border-border">
         <Button
           onClick={() => navigate("/")}
-          className="w-full gradient-accent text-primary-foreground"
+          className="w-full gradient-primary text-primary-foreground"
           size="lg"
         >
           Continue to Home

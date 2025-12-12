@@ -15,7 +15,7 @@ const buttonVariants = cva(
         secondary: "gradient-secondary text-secondary-foreground",
         ghost: "hover:bg-muted text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        record: "gradient-accent text-primary-foreground min-h-[56px] font-semibold",
+        record: "gradient-primary text-primary-foreground min-h-[56px] font-semibold",
         action: "bg-card border-2 border-border text-foreground hover:border-primary hover:bg-muted",
       },
       size: {

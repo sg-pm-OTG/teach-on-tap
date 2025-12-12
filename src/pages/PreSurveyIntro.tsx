@@ -15,7 +15,7 @@ const PreSurveyIntro = () => {
           alt="Adult Learning Collaboratory" 
           className="h-12 w-auto mx-auto mb-6"
         />
-        <div className="w-14 h-14 gradient-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div className="w-14 h-14 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
           <ClipboardList className="w-7 h-7 text-primary-foreground" />
         </div>
         <h1 className="text-2xl font-bold text-foreground mb-2">
@@ -84,7 +84,7 @@ const PreSurveyIntro = () => {
       <div className="p-6 border-t border-border">
         <Button
           onClick={() => navigate("/pre-survey/questions")}
-          className="w-full gradient-accent text-primary-foreground"
+          className="w-full gradient-primary text-primary-foreground"
           size="lg"
         >
           Let's Go!
