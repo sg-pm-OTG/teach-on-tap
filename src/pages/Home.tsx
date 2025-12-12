@@ -138,6 +138,7 @@ const Home = () => {
             variant="action"
             size="touch"
             className="w-full justify-start"
+            onClick={() => navigate("/upload")}
           >
             <Upload className="h-5 w-5" />
             <span>Upload Audio File</span>
