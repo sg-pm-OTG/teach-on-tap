@@ -11,9 +11,10 @@ import {
   DIFFICULTY_SCALE,
   CONFIDENCE_SCALE,
 } from "@/types/survey";
+import type { SurveyData } from "@/types/survey";
 
 interface SurveyContainerProps {
-  onComplete: () => void;
+  onComplete: (surveyData: SurveyData) => void;
   sessionId?: string;
 }
 
@@ -36,7 +37,7 @@ export const SurveyContainer = ({ onComplete, sessionId }: SurveyContainerProps)
       // Submit survey
       const success = await submitSurvey();
       if (success) {
-        onComplete();
+        onComplete(surveyData);
       }
     } else {
       setCurrentStep(nextStep);
