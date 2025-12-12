@@ -7,6 +7,7 @@ import { AuthProvider } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Record from "./pages/Record";
+import Upload from "./pages/Upload";
 import SessionDetails from "./pages/SessionDetails";
 import Processing from "./pages/Processing";
 import Reports from "./pages/Reports";
@@ -44,6 +45,7 @@ const App = () => (
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                 <Route path="/record" element={<ProtectedRoute><Record /></ProtectedRoute>} />
+                <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
                 <Route path="/session-details" element={<ProtectedRoute><SessionDetails /></ProtectedRoute>} />
                 <Route path="/baseline-success" element={<ProtectedRoute><BaselineSuccess /></ProtectedRoute>} />
                 <Route path="/processing" element={<ProtectedRoute><Processing /></ProtectedRoute>} />
