@@ -72,10 +72,12 @@ const JourneyMilestones = () => {
       icon: FileText,
       status: progress.finalReport,
       description: "Receive your comprehensive progress report",
-      statusLabel: progress.finalReport === "current" 
-        ? progress.finalReportStatus === "pending" 
-          ? "Pending Generation" 
-          : "Awaiting generation"
+      actionLabel: progress.finalReportStatus === "generated" ? "View Report" : undefined,
+      onAction: progress.finalReportStatus === "generated" 
+        ? () => navigate("/final-report")
+        : undefined,
+      statusLabel: progress.finalReport === "current" && progress.finalReportStatus !== "generated"
+        ? "Generating..."
         : undefined,
     },
     {
