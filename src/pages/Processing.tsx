@@ -3,9 +3,11 @@ import { TopBar } from "@/components/TopBar";
 import { Loader2 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { SurveyContainer } from "@/components/survey/SurveyContainer";
+import { SurveyResultsFeedback } from "@/components/survey/SurveyResultsFeedback";
 import { supabase } from "@/integrations/supabase/client";
 import { generateMockReport } from "@/lib/mockReportGenerator";
 import { toast } from "sonner";
+import type { SurveyData } from "@/types/survey";
 
 interface LocationState {
   sessionId: string;
@@ -23,6 +25,8 @@ const Processing = () => {
   const [progress, setProgress] = useState(0);
   const [processingComplete, setProcessingComplete] = useState(false);
   const [surveyComplete, setSurveyComplete] = useState(false);
+  const [showSurveyResults, setShowSurveyResults] = useState(false);
+  const [surveyData, setSurveyData] = useState<SurveyData | null>(null);
   const [reportGenerated, setReportGenerated] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -129,17 +133,23 @@ const Processing = () => {
 
   useEffect(() => {
     // For baseline: navigate home once processing is complete (no survey needed)
-    // For regular: navigate only when both processing and survey are complete
     if (isBaseline && processingComplete) {
       setTimeout(() => {
         navigate("/baseline-success");
       }, 1000);
-    } else if (!isBaseline && processingComplete && surveyComplete && reportGenerated) {
-      setTimeout(() => {
-        navigate("/reports");
-      }, 1000);
     }
-  }, [processingComplete, surveyComplete, reportGenerated, isBaseline, navigate]);
+    // Regular sessions now show survey results first, then user clicks to navigate
+  }, [processingComplete, isBaseline, navigate]);
+
+  const handleSurveyComplete = (data: SurveyData) => {
+    setSurveyData(data);
+    setSurveyComplete(true);
+    setShowSurveyResults(true);
+  };
+
+  const handleContinueToReport = () => {
+    navigate("/reports");
+  };
 
   if (!sessionId) {
     return null;
@@ -181,8 +191,16 @@ const Processing = () => {
           </div>
         </div>
 
-        {/* Survey Section - Only show for non-baseline sessions */}
-        {!isBaseline && (
+        {/* Survey Results Feedback - Show after survey is submitted */}
+        {!isBaseline && showSurveyResults && surveyData && (
+          <SurveyResultsFeedback 
+            surveyData={surveyData} 
+            onContinue={handleContinueToReport}
+          />
+        )}
+
+        {/* Survey Section - Only show for non-baseline sessions before completion */}
+        {!isBaseline && !showSurveyResults && (
           <div className="bg-card rounded-xl border border-border p-4">
             <h2 className="text-xl font-bold text-foreground mb-4">
               Weekly Progress Check
@@ -192,7 +210,7 @@ const Processing = () => {
             </p>
             
             <SurveyContainer 
-              onComplete={() => setSurveyComplete(true)} 
+              onComplete={handleSurveyComplete} 
               sessionId={sessionId}
             />
           </div>
@@ -207,11 +225,11 @@ const Processing = () => {
           </div>
         )}
 
-        {/* Waiting Message */}
-        {!isBaseline && surveyComplete && !processingComplete && (
+        {/* Waiting Message - Show when survey results are displayed but processing not complete */}
+        {!isBaseline && showSurveyResults && !processingComplete && (
           <div className="mt-6 p-4 bg-muted/50 rounded-lg text-center animate-fade-in">
             <p className="text-sm text-muted-foreground">
-              Survey submitted! Waiting for analysis to complete...
+              Processing your session in the background...
             </p>
           </div>
         )}
