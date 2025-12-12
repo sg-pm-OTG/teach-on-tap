@@ -61,6 +61,10 @@ const JourneyMilestones = () => {
       icon: ClipboardList,
       status: progress.postSurvey,
       description: "Complete your post-program assessment",
+      actionLabel: progress.postSurvey === "current" ? "Start Survey" : undefined,
+      onAction: progress.postSurvey === "current" 
+        ? () => navigate("/post-survey")
+        : undefined,
     },
     {
       id: "finalReport",
