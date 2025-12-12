@@ -36,9 +36,9 @@ const PreSurveyIntro = () => {
                 <ClipboardList className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <p className="font-medium text-foreground text-sm">74 Questions</p>
+                <p className="font-medium text-foreground text-sm">31 Questions</p>
                 <p className="text-xs text-muted-foreground">
-                  Across 3 sections covering your teaching practices
+                  Across 3 sections covering your learning practices
                 </p>
               </div>
             </div>
@@ -48,9 +48,9 @@ const PreSurveyIntro = () => {
                 <Target className="w-5 h-5 text-secondary" />
               </div>
               <div>
-                <p className="font-medium text-foreground text-sm">19 Categories</p>
+                <p className="font-medium text-foreground text-sm">12 Categories</p>
                 <p className="text-xs text-muted-foreground">
-                  From pedagogical practices to professional skills
+                  From learning beliefs to professional development
                 </p>
               </div>
             </div>
@@ -62,21 +62,21 @@ const PreSurveyIntro = () => {
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li className="flex items-center gap-2">
               <span className="w-6 h-6 bg-primary/20 text-primary rounded-full flex items-center justify-center text-xs font-medium">A</span>
-              Pedagogical Practices
+              Learning Beliefs
             </li>
             <li className="flex items-center gap-2">
               <span className="w-6 h-6 bg-primary/20 text-primary rounded-full flex items-center justify-center text-xs font-medium">B</span>
-              Professional Environment
+              Learning Orientation
             </li>
             <li className="flex items-center gap-2">
               <span className="w-6 h-6 bg-primary/20 text-primary rounded-full flex items-center justify-center text-xs font-medium">C</span>
-              Skills Domain
+              Good Job Framework
             </li>
           </ul>
         </div>
 
         <p className="text-xs text-muted-foreground text-center">
-          Takes approximately 15-20 minutes to complete
+          Takes approximately 10 minutes to complete
         </p>
       </div>
 
