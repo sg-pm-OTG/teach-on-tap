@@ -15,26 +15,32 @@ const journeySteps = [
   },
   {
     id: 2,
-    label: "Attend Masterclass",
-    icon: GraduationCap,
+    label: "Record Baseline Session",
+    icon: Mic,
     status: "next" as const,
     description: "Your next step",
   },
   {
     id: 3,
+    label: "Attend Masterclass",
+    icon: GraduationCap,
+    status: "upcoming" as const,
+  },
+  {
+    id: 4,
     label: "Record Teaching Sessions",
     icon: Mic,
     status: "upcoming" as const,
   },
   {
-    id: 4,
+    id: 5,
     label: "Complete Post-Survey",
     icon: ClipboardCheck,
     status: "upcoming" as const,
   },
   {
-    id: 5,
-    label: "Receive Final Report",
+    id: 6,
+    label: "Final Report & Launch Huddle",
     icon: FileText,
     status: "upcoming" as const,
   },
@@ -169,14 +175,14 @@ const PreSurveyResults = () => {
         <Card className="p-4 bg-gradient-to-br from-primary/10 to-accent/30 border-primary/20">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-              <GraduationCap className="w-5 h-5 text-primary-foreground" />
+              <Mic className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground mb-1">
-                What's Next: Attend Masterclass
+                What's Next: Record Your Baseline
               </p>
               <p className="text-xs text-muted-foreground">
-                We look forward to your participation in the masterclass! After completing your training, you'll be able to start recording your teaching sessions.
+                Your first recording establishes a baseline of your current teaching style. This will be compared with later sessions to show your growth throughout the FOP program.
               </p>
             </div>
           </div>
