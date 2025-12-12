@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      post_survey_responses: {
+        Row: {
+          category_code: string
+          created_at: string
+          id: string
+          question_index: number
+          response_value: number
+          user_id: string
+        }
+        Insert: {
+          category_code: string
+          created_at?: string
+          id?: string
+          question_index: number
+          response_value: number
+          user_id: string
+        }
+        Update: {
+          category_code?: string
+          created_at?: string
+          id?: string
+          question_index?: number
+          response_value?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      post_survey_results: {
+        Row: {
+          category_code: string
+          category_name: string
+          completed_at: string
+          id: string
+          max_score: number
+          national_average: number
+          recommendation: string | null
+          user_id: string
+          user_score: number
+        }
+        Insert: {
+          category_code: string
+          category_name: string
+          completed_at?: string
+          id?: string
+          max_score: number
+          national_average: number
+          recommendation?: string | null
+          user_id: string
+          user_score: number
+        }
+        Update: {
+          category_code?: string
+          category_name?: string
+          completed_at?: string
+          id?: string
+          max_score?: number
+          national_average?: number
+          recommendation?: string | null
+          user_id?: string
+          user_score?: number
+        }
+        Relationships: []
+      }
       pre_survey_responses: {
         Row: {
           category_code: string

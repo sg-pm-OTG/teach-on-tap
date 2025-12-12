@@ -16,6 +16,9 @@ import NotFound from "./pages/NotFound";
 import PreSurveyIntro from "./pages/PreSurveyIntro";
 import PreSurveyQuestions from "./pages/PreSurveyQuestions";
 import PreSurveyResults from "./pages/PreSurveyResults";
+import PostSurveyIntro from "./pages/PostSurveyIntro";
+import PostSurveyQuestions from "./pages/PostSurveyQuestions";
+import PostSurveyResults from "./pages/PostSurveyResults";
 import Profile from "./pages/Profile";
 import BaselineSuccess from "./pages/BaselineSuccess";
 
@@ -34,6 +37,9 @@ const App = () => (
                 <Route path="/pre-survey" element={<ProtectedRoute><PreSurveyIntro /></ProtectedRoute>} />
                 <Route path="/pre-survey/questions" element={<ProtectedRoute><PreSurveyQuestions /></ProtectedRoute>} />
                 <Route path="/pre-survey/results" element={<ProtectedRoute><PreSurveyResults /></ProtectedRoute>} />
+                <Route path="/post-survey" element={<ProtectedRoute><PostSurveyIntro /></ProtectedRoute>} />
+                <Route path="/post-survey/questions" element={<ProtectedRoute><PostSurveyQuestions /></ProtectedRoute>} />
+                <Route path="/post-survey/results" element={<ProtectedRoute><PostSurveyResults /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                 <Route path="/record" element={<ProtectedRoute><Record /></ProtectedRoute>} />
