@@ -106,10 +106,13 @@ export const usePostSurvey = () => {
 
       if (resultsError) throw resultsError;
 
-      // Update profile to mark post-survey as completed
+      // Update profile to mark post-survey as completed AND auto-generate final report
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ post_survey_completed: true })
+        .update({ 
+          post_survey_completed: true,
+          final_report_status: 'generated'
+        })
         .eq('user_id', user.id);
 
       if (profileError) throw profileError;

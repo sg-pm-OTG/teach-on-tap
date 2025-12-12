@@ -3,7 +3,7 @@ import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { MetricCard } from "@/components/MetricCard";
 import { Button } from "@/components/ui/button";
-import { Mic, Upload, FileText, TrendingUp, BarChart3, Award, Sparkles } from "lucide-react";
+import { Mic, Upload, FileText, TrendingUp, BarChart3, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
 import { useSessionReports } from "@/hooks/useSessionReports";
@@ -11,21 +11,22 @@ import { SessionSummaryCard } from "@/components/home/SessionSummaryCard";
 import { AIInsightCard } from "@/components/home/AIInsightCard";
 import JourneyMilestones from "@/components/home/JourneyMilestones";
 import JourneyProgressBar from "@/components/home/JourneyProgressBar";
-
+import FinalReportHero from "@/components/home/FinalReportHero";
 const Home = () => {
   const journeyRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { profile } = useProfile();
   const { insights, sessionCount, isLoading } = useSessionReports();
 
+  const isFinalReportReady = profile?.final_report_status === "generated";
+
   const getSessionsSubtitle = () => {
+    if (isFinalReportReady) return "Journey Complete!";
     if (sessionCount === 0) return "Start your first session!";
-    if (sessionCount >= 5) return "Ready for Final Report";
-    if (sessionCount >= 3) return "Final Report available!";
-    return `${5 - sessionCount} more to unlock Final Report`;
+    if (sessionCount >= 3) return "Complete post-survey for report";
+    return `${3 - sessionCount} more to unlock Final Report`;
   };
 
-  const showFinalReportButton = sessionCount >= 3;
   const hasData = sessionCount > 0 && insights;
   const isActiveUser = sessionCount >= 1;
 
@@ -48,8 +49,11 @@ const Home = () => {
           </p>
         </div>
 
-        {/* Compact Journey Progress Bar - Show for active users */}
-        {isActiveUser && <JourneyProgressBar onViewClick={scrollToJourney} />}
+        {/* Final Report Hero - Show when report is ready */}
+        {isFinalReportReady && <FinalReportHero />}
+
+        {/* Compact Journey Progress Bar - Show for active users who haven't completed */}
+        {isActiveUser && !isFinalReportReady && <JourneyProgressBar onViewClick={scrollToJourney} />}
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 gap-4">
@@ -151,17 +155,6 @@ const Home = () => {
             </Button>
           )}
 
-          {showFinalReportButton && (
-            <Button
-              variant="record"
-              size="touch"
-              className="w-full justify-start"
-              onClick={() => {/* TODO: Navigate to Final Report generation */}}
-            >
-              <Award className="h-5 w-5" />
-              <span>Generate Final Report</span>
-            </Button>
-          )}
         </div>
 
         {/* Journey Milestones - Show at bottom for active users */}

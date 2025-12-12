@@ -21,6 +21,7 @@ import PostSurveyQuestions from "./pages/PostSurveyQuestions";
 import PostSurveyResults from "./pages/PostSurveyResults";
 import Profile from "./pages/Profile";
 import BaselineSuccess from "./pages/BaselineSuccess";
+import FinalReport from "./pages/FinalReport";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
                 <Route path="/baseline-success" element={<ProtectedRoute><BaselineSuccess /></ProtectedRoute>} />
                 <Route path="/processing" element={<ProtectedRoute><Processing /></ProtectedRoute>} />
                 <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+                <Route path="/final-report" element={<ProtectedRoute><FinalReport /></ProtectedRoute>} />
                 <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />

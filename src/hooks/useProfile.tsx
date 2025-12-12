@@ -10,6 +10,11 @@ interface Profile {
   gender: "male" | "female" | "other" | "prefer_not_to_say";
   years_teaching_experience: number;
   pre_survey_completed: boolean;
+  post_survey_completed: boolean;
+  baseline_completed: boolean;
+  masterclass_attended: boolean;
+  final_report_status: string;
+  launch_huddle_attended: boolean;
   created_at: string;
   updated_at: string;
 }
