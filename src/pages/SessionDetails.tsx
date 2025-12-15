@@ -118,9 +118,9 @@ const SessionDetails = () => {
         </div>
 
         <div className="space-y-5">
-          {/* Use Site */}
+          {/* Course */}
           <div className="space-y-2">
-            <Label htmlFor="useSite">Use Site</Label>
+            <Label htmlFor="useSite">Course</Label>
             <Input
               id="useSite"
               placeholder="e.g., Lincoln High School"

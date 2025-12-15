@@ -191,7 +191,7 @@ const Record = () => {
           </div>
 
           <div className="space-y-5">
-            {/* Use Site */}
+            {/* Course */}
             <div className="space-y-2">
               <Label htmlFor="useSite">Course</Label>
               <Input
