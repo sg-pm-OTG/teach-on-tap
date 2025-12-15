@@ -1,39 +1,28 @@
 import { Progress } from "@/components/ui/progress";
 
 interface PreSurveyProgressProps {
-  currentCategory: number;
-  totalCategories: number;
-  currentSection: string;
-  questionsAnswered: number;
-  questionsInCategory: number;
+  totalQuestionsAnswered: number;
+  totalQuestions: number;
 }
 
 export const PreSurveyProgress = ({
-  currentCategory,
-  totalCategories,
-  currentSection,
-  questionsAnswered,
-  questionsInCategory,
+  totalQuestionsAnswered,
+  totalQuestions,
 }: PreSurveyProgressProps) => {
-  const progressPercent = ((currentCategory - 1) / totalCategories) * 100 + 
-    (questionsAnswered / questionsInCategory / totalCategories) * 100;
+  const progressPercent = (totalQuestionsAnswered / totalQuestions) * 100;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <div className="flex justify-between items-center">
         <span className="text-xs font-medium text-muted-foreground">
-          Step {currentCategory} of {totalCategories}
+          {totalQuestionsAnswered} of {totalQuestions} answered
         </span>
         <span className="text-xs text-muted-foreground">
-          {questionsAnswered}/{questionsInCategory} answered
+          {Math.round(progressPercent)}%
         </span>
       </div>
       
       <Progress value={progressPercent} className="h-2" />
-      
-      <p className="text-xs text-primary font-medium">
-        {currentSection}
-      </p>
     </div>
   );
 };
