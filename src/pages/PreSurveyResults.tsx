@@ -9,7 +9,7 @@ import alcLogo from "@/assets/alc-logo.png";
 const journeySteps = [
   {
     id: 1,
-    label: "Pre-Survey Complete",
+    label: "Questionnaire Complete",
     icon: ClipboardCheck,
     status: "complete" as const,
   },
@@ -70,7 +70,7 @@ const PreSurveyResults = () => {
         </div>
         <h1 className="text-2xl font-bold text-foreground mb-2">Thank You!</h1>
         <p className="text-muted-foreground">
-          You've completed your pre-survey assessment
+          You've completed your questionnaire
         </p>
       </div>
 
@@ -104,7 +104,7 @@ const PreSurveyResults = () => {
                 Results in Your Final Report
               </p>
               <p className="text-xs text-muted-foreground">
-                Your pre-survey results will be compared with your post-survey to show your growth throughout the program.
+                Your questionnaire results will be compared with your post-program questionnaire to show your growth throughout the program.
               </p>
             </div>
           </div>

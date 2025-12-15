@@ -61,8 +61,8 @@ const Notifications = () => {
         notifications.push({
           id: 'pre-survey-completed',
           icon: ClipboardCheck,
-          title: "Pre-Survey Completed",
-          message: "Great job! You've completed your pre-survey assessment.",
+          title: "Questionnaire Completed",
+          message: "Great job! You've completed your questionnaire.",
           time: formatDistanceToNow(new Date(profile.updated_at), { addSuffix: true }),
           timestamp: new Date(profile.updated_at),
           color: "success",
@@ -307,7 +307,7 @@ const Notifications = () => {
               No notifications yet
             </h3>
             <p className="text-sm text-muted-foreground text-center max-w-xs">
-              Complete your pre-survey and start recording sessions to see your activity here.
+              Complete your questionnaire and start recording sessions to see your activity here.
             </p>
           </div>
         )}
