@@ -18,6 +18,7 @@ interface ComparisonData {
   data: ScoreItem[];
   date: string;
   color?: string;
+  isBaseline?: boolean;
 }
 
 interface ScoreRadarChartProps {
@@ -26,8 +27,16 @@ interface ScoreRadarChartProps {
   maxScore?: number;
   color?: string;
   comparison?: ComparisonData;
+  comparisons?: ComparisonData[]; // Support multiple comparisons
   currentDate?: string;
 }
+
+// Colors for multiple comparison overlays
+const COMPARISON_COLORS = [
+  { stroke: "#9CA3AF", fill: "#9CA3AF" },
+  { stroke: "#6366F1", fill: "#6366F1" },
+  { stroke: "#EC4899", fill: "#EC4899" },
+];
 
 export const ScoreRadarChart = ({ 
   data, 
@@ -35,17 +44,30 @@ export const ScoreRadarChart = ({
   maxScore = 4,
   color = "#0D9488",
   comparison,
+  comparisons = [],
   currentDate,
 }: ScoreRadarChartProps) => {
+  // Use comparisons array if provided, otherwise fall back to single comparison
+  const allComparisons = comparisons.length > 0 
+    ? comparisons.slice(0, 3) // Limit to 3 for readability
+    : comparison 
+      ? [comparison] 
+      : [];
+
   const chartData = data.map((item, index) => {
-    const comparisonItem = comparison?.data[index];
-    return {
+    const result: any = {
       subject: item.label.length > 15 ? item.label.substring(0, 12) + "..." : item.label,
       fullLabel: item.label,
       score: item.score,
-      comparisonScore: comparisonItem?.score,
       fullMark: maxScore,
     };
+    
+    // Add comparison scores for each comparison session
+    allComparisons.forEach((comp, compIndex) => {
+      result[`comparison${compIndex}`] = comp.data[index]?.score;
+    });
+    
+    return result;
   });
 
   const formatDateLabel = (dateStr?: string) => {
@@ -74,18 +96,25 @@ export const ScoreRadarChart = ({
               tick={{ fontSize: 8, fill: "hsl(var(--muted-foreground))" }}
               tickCount={maxScore + 1}
             />
-            {/* Comparison radar (rendered first so it's behind) */}
-            {comparison && (
-              <Radar
-                name={`Previous (${formatDateLabel(comparison.date)})`}
-                dataKey="comparisonScore"
-                stroke={comparison.color || "#9CA3AF"}
-                fill={comparison.color || "#9CA3AF"}
-                fillOpacity={0.1}
-                strokeWidth={1.5}
-                strokeDasharray="4 4"
-              />
-            )}
+            {/* Comparison radars (rendered first so they're behind) */}
+            {allComparisons.map((comp, index) => {
+              const colors = COMPARISON_COLORS[index] || COMPARISON_COLORS[0];
+              const label = comp.isBaseline 
+                ? "Baseline" 
+                : formatDateLabel(comp.date);
+              return (
+                <Radar
+                  key={`comparison-${index}`}
+                  name={label}
+                  dataKey={`comparison${index}`}
+                  stroke={comp.color || colors.stroke}
+                  fill={comp.color || colors.fill}
+                  fillOpacity={0.08}
+                  strokeWidth={1.5}
+                  strokeDasharray={index === 0 ? "4 4" : index === 1 ? "2 2" : "6 2"}
+                />
+              );
+            })}
             {/* Current radar */}
             <Radar
               name={currentDate ? `Current (${formatDateLabel(currentDate)})` : "Score"}
@@ -95,7 +124,7 @@ export const ScoreRadarChart = ({
               fillOpacity={0.3}
               strokeWidth={2}
             />
-            {comparison && (
+            {allComparisons.length > 0 && (
               <Legend 
                 wrapperStyle={{ fontSize: '10px' }}
                 iconSize={8}

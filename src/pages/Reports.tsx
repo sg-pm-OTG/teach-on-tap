@@ -18,6 +18,7 @@ import { SessionChipSelector } from "@/components/report/SessionChipSelector";
 import { ComparisonSelector } from "@/components/report/ComparisonSelector";
 import { TrendBadge } from "@/components/report/TrendBadge";
 import ImportantSectionWrapper from "@/components/report/ImportantSectionWrapper";
+import { ComparisonSummaryCard } from "@/components/report/ComparisonSummaryCard";
 import { useAllSessionReports } from "@/hooks/useAllSessionReports";
 import { ChevronDown, FileText, Download, Music, FileDown, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -45,6 +46,7 @@ const Reports = () => {
     reports,
     selectedReport,
     comparisonReport,
+    comparisonReports,
     comparisonReportIds,
     availableForComparison,
     allSessionsForTimeline,
@@ -204,7 +206,28 @@ const Reports = () => {
             </div>
           )}
 
-          {/* Score Evolution Chart (when compare mode is on with selections) */}
+          {/* Comparison Summary Card (when comparisons are selected) */}
+          {compareMode && comparisonReports.length > 0 && selectedReport && (
+            <div className="animate-slide-in-up">
+              <ComparisonSummaryCard
+                currentSession={{
+                  id: selectedReport.id,
+                  date: selectedReport.sessionDate,
+                  scenarioAvg: selectedReport.scenarioAvg,
+                  dialogueAvg: selectedReport.dialogueAvg,
+                }}
+                comparisonSessions={comparisonReports.map(r => ({
+                  id: r.id,
+                  date: r.sessionDate,
+                  isBaseline: (r as any).isBaseline || false,
+                  scenarioAvg: r.scenarioAvg,
+                  dialogueAvg: r.dialogueAvg,
+                }))}
+              />
+            </div>
+          )}
+
+          {/* Score Evolution Chart (when compare mode is on) */}
           {compareMode && allSessionsForTimeline.length > 1 && (
             <div className="animate-slide-in-up">
               <SectionDivider title="Your Growth Journey" />
@@ -336,22 +359,18 @@ const Reports = () => {
               content={selectedReport.scenarioContent.content}
             />
 
-            {/* Scenario Scores - Radar Chart with Comparison Overlay */}
+            {/* Scenario Scores - Radar Chart with Multiple Comparison Overlays */}
             <ScoreRadarChart
               data={selectedReport.scenarioScores}
               title="Scenario Quality Scores"
               maxScore={4}
               color="#F97316"
               currentDate={selectedReport.sessionDate}
-              comparison={
-                comparisonReport
-                  ? {
-                      data: comparisonReport.scenarioScores,
-                      date: comparisonReport.sessionDate,
-                      color: "#9CA3AF",
-                    }
-                  : undefined
-              }
+              comparisons={comparisonReports.map((r, index) => ({
+                data: r.scenarioScores,
+                date: r.sessionDate,
+                isBaseline: (r as any).isBaseline || false,
+              }))}
             />
 
             {/* Scenario Detailed Analysis */}
@@ -371,22 +390,18 @@ const Reports = () => {
             icon={MessageCircle}
             variant="dialogue"
           >
-            {/* Dialogue Scores - Radar Chart with Comparison Overlay */}
+            {/* Dialogue Scores - Radar Chart with Multiple Comparison Overlays */}
             <ScoreRadarChart
               data={selectedReport.dialogueScores}
               title="Dialogue Quality Scores"
               maxScore={4}
               color="#0D9488"
               currentDate={selectedReport.sessionDate}
-              comparison={
-                comparisonReport
-                  ? {
-                      data: comparisonReport.dialogueScores,
-                      date: comparisonReport.sessionDate,
-                      color: "#9CA3AF",
-                    }
-                  : undefined
-              }
+              comparisons={comparisonReports.map((r, index) => ({
+                data: r.dialogueScores,
+                date: r.sessionDate,
+                isBaseline: (r as any).isBaseline || false,
+              }))}
             />
 
             {/* Dialogue Detailed Analysis */}
