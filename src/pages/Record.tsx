@@ -6,22 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Waveform } from "@/components/Waveform";
-import { Mic, Square, CheckCircle, ArrowRight, CalendarIcon, Info, ArrowLeft, AlertCircle } from "lucide-react";
+import { Mic, Square, CheckCircle, ArrowRight, Info, ArrowLeft, AlertCircle } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -59,7 +46,7 @@ const Record = () => {
   const [numberOfParticipants, setNumberOfParticipants] = useState(1);
   const [emergentScenario, setEmergentScenario] = useState("");
   const [sessionType, setSessionType] = useState("");
-  const [sessionDate, setSessionDate] = useState<Date>(new Date());
+  const [sessionDate, setSessionDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
   const [isBaseline] = useState(presetBaseline);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -146,7 +133,7 @@ const Record = () => {
           use_site: useSite.trim(),
           number_of_participants: numberOfParticipants,
           session_type: sessionType,
-          session_date: format(sessionDate, "yyyy-MM-dd"),
+          session_date: sessionDate,
           emergent_scenario: emergentScenario.trim() || null,
           status: "pending",
           is_baseline: isBaseline,
@@ -165,7 +152,7 @@ const Record = () => {
             use_site: useSite.trim(),
             number_of_participants: numberOfParticipants,
             session_type: sessionType,
-            session_date: format(sessionDate, "yyyy-MM-dd"),
+          session_date: sessionDate,
             emergent_scenario: emergentScenario.trim() || null,
           },
         },
@@ -248,47 +235,31 @@ const Record = () => {
 
             {/* Type of Session */}
             <div className="space-y-2">
-              <Label>Type</Label>
-              <Select value={sessionType} onValueChange={setSessionType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select session type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SESSION_TYPES.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="sessionType">Type</Label>
+              <select
+                id="sessionType"
+                value={sessionType}
+                onChange={(e) => setSessionType(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="" disabled>Select session type</option>
+                {SESSION_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Session Date */}
             <div className="space-y-2">
-              <Label>Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !sessionDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {sessionDate ? format(sessionDate, "PPP") : "Pick a date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={sessionDate}
-                    onSelect={(date) => date && setSessionDate(date)}
-                    initialFocus
-                    className="pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
+              <Label htmlFor="sessionDate">Date</Label>
+              <Input
+                id="sessionDate"
+                type="date"
+                value={sessionDate}
+                onChange={(e) => setSessionDate(e.target.value)}
+              />
             </div>
 
             {/* Emergent Scenario Description */}
@@ -499,47 +470,31 @@ const Record = () => {
 
           {/* Type */}
           <div className="space-y-2">
-            <Label>Type</Label>
-            <Select value={sessionType} onValueChange={setSessionType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select session type" />
-              </SelectTrigger>
-              <SelectContent>
-                {SESSION_TYPES.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label htmlFor="sessionTypeConfirm">Type</Label>
+            <select
+              id="sessionTypeConfirm"
+              value={sessionType}
+              onChange={(e) => setSessionType(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="" disabled>Select session type</option>
+              {SESSION_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Date */}
           <div className="space-y-2">
-            <Label>Date</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !sessionDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {sessionDate ? format(sessionDate, "PPP") : "Pick a date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={sessionDate}
-                  onSelect={(date) => date && setSessionDate(date)}
-                  initialFocus
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
+            <Label htmlFor="sessionDateConfirm">Date</Label>
+            <Input
+              id="sessionDateConfirm"
+              type="date"
+              value={sessionDate}
+              onChange={(e) => setSessionDate(e.target.value)}
+            />
           </div>
 
           {/* Emergent Scenario Description */}
