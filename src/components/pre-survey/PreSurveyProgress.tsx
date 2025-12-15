@@ -22,7 +22,7 @@ export const PreSurveyProgress = ({
     <div className="space-y-3">
       <div className="flex justify-between items-center">
         <span className="text-xs font-medium text-muted-foreground">
-          Category {currentCategory} of {totalCategories}
+          Step {currentCategory} of {totalCategories}
         </span>
         <span className="text-xs text-muted-foreground">
           {questionsAnswered}/{questionsInCategory} answered
