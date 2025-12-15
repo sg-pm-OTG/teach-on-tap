@@ -57,11 +57,11 @@ const JourneyMilestones = () => {
     },
     {
       id: "postSurvey",
-      label: "Post Survey",
+      label: "Post-Program Questionnaire",
       icon: ClipboardList,
       status: progress.postSurvey,
-      description: "Complete your post-program assessment",
-      actionLabel: progress.postSurvey === "current" ? "Start Survey" : undefined,
+      description: "Complete your post-program questionnaire",
+      actionLabel: progress.postSurvey === "current" ? "Start Questionnaire" : undefined,
       onAction: progress.postSurvey === "current" 
         ? () => navigate("/post-survey")
         : undefined,

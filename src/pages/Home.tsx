@@ -23,7 +23,7 @@ const Home = () => {
   const getSessionsSubtitle = () => {
     if (isFinalReportReady) return "Journey Complete!";
     if (sessionCount === 0) return "Start your first session!";
-    if (sessionCount >= 3) return "Complete post-survey for report";
+    if (sessionCount >= 3) return "Complete questionnaire for report";
     return `${3 - sessionCount} more to unlock Final Report`;
   };
 
