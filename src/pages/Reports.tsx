@@ -17,8 +17,9 @@ import { SectionDivider } from "@/components/report/SectionDivider";
 import { SessionChipSelector } from "@/components/report/SessionChipSelector";
 import { ComparisonSelector } from "@/components/report/ComparisonSelector";
 import { TrendBadge } from "@/components/report/TrendBadge";
+import ImportantSectionWrapper from "@/components/report/ImportantSectionWrapper";
 import { useAllSessionReports } from "@/hooks/useAllSessionReports";
-import { ChevronDown, FileText, Download, Music, FileDown } from "lucide-react";
+import { ChevronDown, FileText, Download, Music, FileDown, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { Target, Wrench, Brain, Compass, Users, LucideIcon } from "lucide-react";
@@ -323,18 +324,19 @@ const Reports = () => {
             />
           </div>
 
-          <SectionDivider title="Emergent Scenario" />
-
-          {/* Scenario Card */}
-          <div className="animate-slide-in-up">
+          {/* Emergent Scenario Section */}
+          <ImportantSectionWrapper
+            title="Emergent Scenario"
+            icon={Target}
+            variant="scenario"
+          >
+            {/* Scenario Card */}
             <ScenarioCard
               title={selectedReport.scenarioContent.title}
               content={selectedReport.scenarioContent.content}
             />
-          </div>
 
-          {/* Scenario Scores - Radar Chart with Comparison Overlay */}
-          <div className="animate-slide-in-up">
+            {/* Scenario Scores - Radar Chart with Comparison Overlay */}
             <ScoreRadarChart
               data={selectedReport.scenarioScores}
               title="Scenario Quality Scores"
@@ -351,22 +353,25 @@ const Reports = () => {
                   : undefined
               }
             />
-          </div>
 
-          {/* Scenario Detailed Analysis */}
-          <div className="space-y-2 animate-slide-in-up">
-            <h4 className="font-medium text-sm text-foreground mb-3">Detailed Analysis</h4>
-            {selectedReport.scenarioAnalysis.map((item) => (
-              <CollapsibleSection key={item.title} title={item.title} score={item.score}>
-                <p className="text-sm text-muted-foreground leading-relaxed">{item.content}</p>
-              </CollapsibleSection>
-            ))}
-          </div>
+            {/* Scenario Detailed Analysis */}
+            <div className="space-y-2">
+              <h4 className="font-medium text-sm text-foreground mb-3">Detailed Analysis</h4>
+              {selectedReport.scenarioAnalysis.map((item) => (
+                <CollapsibleSection key={item.title} title={item.title} score={item.score}>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.content}</p>
+                </CollapsibleSection>
+              ))}
+            </div>
+          </ImportantSectionWrapper>
 
-          <SectionDivider title="Generative Dialogue" />
-
-          {/* Dialogue Scores - Radar Chart with Comparison Overlay */}
-          <div className="animate-slide-in-up">
+          {/* Generative Dialogue Section */}
+          <ImportantSectionWrapper
+            title="Generative Dialogue"
+            icon={MessageCircle}
+            variant="dialogue"
+          >
+            {/* Dialogue Scores - Radar Chart with Comparison Overlay */}
             <ScoreRadarChart
               data={selectedReport.dialogueScores}
               title="Dialogue Quality Scores"
@@ -383,27 +388,27 @@ const Reports = () => {
                   : undefined
               }
             />
-          </div>
 
-          {/* Dialogue Detailed Analysis */}
-          <div className="space-y-2 animate-slide-in-up">
-            <h4 className="font-medium text-sm text-foreground mb-3">Detailed Analysis</h4>
-            {selectedReport.dialogueAnalysis.map((item) => (
-              <CollapsibleSection key={item.title} title={item.title} score={item.score}>
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground leading-relaxed">{item.content}</p>
-                  {item.opportunity && (
-                    <OpportunityCallout
-                      speaker={item.opportunity.speaker}
-                      quote={item.opportunity.quote}
-                      observation={item.opportunity.observation}
-                      opportunity={item.opportunity.opportunity}
-                    />
-                  )}
-                </div>
-              </CollapsibleSection>
-            ))}
-          </div>
+            {/* Dialogue Detailed Analysis */}
+            <div className="space-y-2">
+              <h4 className="font-medium text-sm text-foreground mb-3">Detailed Analysis</h4>
+              {selectedReport.dialogueAnalysis.map((item) => (
+                <CollapsibleSection key={item.title} title={item.title} score={item.score}>
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground leading-relaxed">{item.content}</p>
+                    {item.opportunity && (
+                      <OpportunityCallout
+                        speaker={item.opportunity.speaker}
+                        quote={item.opportunity.quote}
+                        observation={item.opportunity.observation}
+                        opportunity={item.opportunity.opportunity}
+                      />
+                    )}
+                  </div>
+                </CollapsibleSection>
+              ))}
+            </div>
+          </ImportantSectionWrapper>
 
           <SectionDivider title="Key Insights" />
 
