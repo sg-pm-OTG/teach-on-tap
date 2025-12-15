@@ -21,7 +21,7 @@ export const HeroSessionCard = ({
   trendBadge,
 }: HeroSessionCardProps) => {
   const details = [
-    { icon: MapPin, label: "Use Site", value: useSite },
+    { icon: MapPin, label: "Course", value: useSite },
     { icon: Calendar, label: "Date", value: date },
     { icon: Users, label: "Participants", value: `${participants} Participants` },
     { icon: BookOpen, label: "Activity", value: activityType },
