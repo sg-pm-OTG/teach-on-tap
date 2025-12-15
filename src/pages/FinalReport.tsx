@@ -1,95 +1,271 @@
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
-import { Trophy, FileText, TrendingUp, Award, Users, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useProfile } from "@/hooks/useProfile";
-import { eventData } from "@/data/eventData";
+import { useFinalReportData } from "@/hooks/useFinalReportData";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { 
+  Map, 
+  BarChart3, 
+  MessageSquare, 
+  Lightbulb, 
+  SlidersHorizontal,
+  Brain,
+  Compass,
+  Rocket,
+  FileText,
+} from "lucide-react";
+
+import { FinalReportCover } from "@/components/final-report/FinalReportCover";
+import { JourneyOverview } from "@/components/final-report/JourneyOverview";
+import { StructuralAnalysis } from "@/components/final-report/StructuralAnalysis";
+import { FOPAnalysisChart } from "@/components/final-report/FOPAnalysisChart";
+import { RecommendationCards } from "@/components/final-report/RecommendationCards";
+import { EaseOfUseSection } from "@/components/final-report/EaseOfUseSection";
+import { BeliefsShiftSection } from "@/components/final-report/BeliefsShiftSection";
+import { LearningOrientationSection } from "@/components/final-report/LearningOrientationSection";
+import { WhatsNextSection } from "@/components/final-report/WhatsNextSection";
 
 const FinalReport = () => {
   const navigate = useNavigate();
-  const { profile } = useProfile();
+  const {
+    isLoading,
+    journeyTimeline,
+    scenarioScoreProgression,
+    dialogueScoreProgression,
+    talkTimeBySession,
+    latestSpeakerInteractions,
+    beliefComparisons,
+    orientationComparisons,
+    difficultyProgression,
+    summaryStats,
+  } = useFinalReportData();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen min-h-[100dvh] bg-background pb-24">
+        <TopBar />
+        <main className="container max-w-md mx-auto px-4 py-6 space-y-4">
+          <Skeleton className="h-40 w-full rounded-2xl" />
+          <Skeleton className="h-16 w-full rounded-xl" />
+          <Skeleton className="h-16 w-full rounded-xl" />
+          <Skeleton className="h-16 w-full rounded-xl" />
+        </main>
+        <BottomNav />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen min-h-[100dvh] bg-background pb-24">
       <TopBar />
 
       <main className="container max-w-md mx-auto px-4 py-6 space-y-6">
-        {/* Hero Section */}
-        <div className="text-center space-y-4 animate-fade-in">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mx-auto">
-            <Trophy className="h-10 w-10 text-primary-foreground" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              Your Final Report
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Congratulations on completing your FOP journey, {profile?.name || "Teacher"}!
-            </p>
-          </div>
-        </div>
+        {/* Cover/Hero */}
+        <FinalReportCover />
 
-        {/* Report Summary Card */}
-        <div className="bg-card rounded-xl border border-border p-6 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <FileText className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground">Journey Summary</h3>
-              <p className="text-sm text-muted-foreground">Your complete progress overview</p>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-muted/50 rounded-lg p-4 text-center">
-              <TrendingUp className="h-6 w-6 text-primary mx-auto mb-2" />
-              <p className="text-2xl font-bold text-foreground">3+</p>
-              <p className="text-xs text-muted-foreground">Sessions Completed</p>
-            </div>
-            <div className="bg-muted/50 rounded-lg p-4 text-center">
-              <Award className="h-6 w-6 text-secondary mx-auto mb-2" />
-              <p className="text-2xl font-bold text-foreground">100%</p>
-              <p className="text-xs text-muted-foreground">Program Complete</p>
-            </div>
-          </div>
-        </div>
+        {/* Accordion Sections */}
+        <Accordion type="single" collapsible className="space-y-3">
+          {/* Journey Overview */}
+          <AccordionItem 
+            value="journey" 
+            className="bg-card rounded-xl border border-border overflow-hidden"
+          >
+            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Map className="h-4 w-4 text-primary" />
+                </div>
+                <span className="font-medium text-foreground">Your FOP Journey</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              <JourneyOverview timeline={journeyTimeline} />
+            </AccordionContent>
+          </AccordionItem>
 
-        {/* Coming Soon Notice */}
-        <div className="bg-gradient-to-br from-muted/50 to-muted rounded-xl border border-border p-6 text-center space-y-3">
-          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-            <FileText className="h-6 w-6 text-primary" />
-          </div>
-          <h3 className="font-semibold text-foreground">Detailed Report</h3>
-          <p className="text-sm text-muted-foreground">
-            Your comprehensive analysis including pre/post survey comparisons, session insights, and personalized recommendations will be available here.
-          </p>
-        </div>
+          {/* Structural Analysis */}
+          <AccordionItem 
+            value="structural" 
+            className="bg-card rounded-xl border border-border overflow-hidden"
+          >
+            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center">
+                  <BarChart3 className="h-4 w-4 text-secondary" />
+                </div>
+                <span className="font-medium text-foreground">Structural Analysis</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              <StructuralAnalysis 
+                talkTimeBySession={talkTimeBySession}
+                latestSpeakerInteractions={latestSpeakerInteractions}
+              />
+            </AccordionContent>
+          </AccordionItem>
 
-        {/* Launch Huddle Reminder */}
-        <div className="bg-card rounded-xl border border-border p-5 space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
-              <Users className="h-5 w-5 text-secondary" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground">Launch Huddle</h3>
-              <p className="text-sm text-muted-foreground">Join us to celebrate!</p>
-            </div>
-          </div>
-          
-          <div className="flex items-start gap-2 text-sm text-muted-foreground">
-            <Calendar className="h-4 w-4 mt-0.5 shrink-0" />
-            <span>{eventData.launchHuddle.date}</span>
-          </div>
-          <p className="text-xs text-muted-foreground pl-6">
-            {eventData.launchHuddle.location}
-          </p>
-        </div>
+          {/* Scenario Analysis */}
+          <AccordionItem 
+            value="scenario" 
+            className="bg-card rounded-xl border border-border overflow-hidden"
+          >
+            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center">
+                  <Lightbulb className="h-4 w-4 text-accent-foreground" />
+                </div>
+                <span className="font-medium text-foreground">Scenario Analysis</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              <FOPAnalysisChart
+                title="FOP Scenario Markers"
+                description="Track how your scenario facilitation skills have evolved across sessions"
+                data={scenarioScoreProgression}
+                type="scenario"
+              />
+              <div className="mt-4">
+                <RecommendationCards 
+                  sectionTitle="Scenario Recommendations"
+                  recommendations={[
+                    {
+                      title: "Leverage Complex Scenarios",
+                      description: "Your progress shows readiness for more challenging scenario designs that push learners to consider multiple futures.",
+                      icon: "lightbulb",
+                    },
+                    {
+                      title: "Build on Strengths",
+                      description: "Continue developing the markers where you've shown the most growth for even deeper impact.",
+                      icon: "trending",
+                    },
+                  ]}
+                />
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Dialogue Analysis */}
+          <AccordionItem 
+            value="dialogue" 
+            className="bg-card rounded-xl border border-border overflow-hidden"
+          >
+            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <MessageSquare className="h-4 w-4 text-primary" />
+                </div>
+                <span className="font-medium text-foreground">Dialogue Analysis</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              <FOPAnalysisChart
+                title="Generative Dialogue Markers"
+                description="See how your dialogue facilitation has developed over time"
+                data={dialogueScoreProgression}
+                type="dialogue"
+              />
+              <div className="mt-4">
+                <RecommendationCards 
+                  sectionTitle="Dialogue Recommendations"
+                  recommendations={[
+                    {
+                      title: "Deepen Question Quality",
+                      description: "Focus on asking questions that invite deeper reflection and exploration of possibilities.",
+                      icon: "target",
+                    },
+                    {
+                      title: "Foster Peer Learning",
+                      description: "Create more opportunities for participants to build on each other's ideas.",
+                      icon: "users",
+                    },
+                  ]}
+                />
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Ease of Use */}
+          <AccordionItem 
+            value="ease" 
+            className="bg-card rounded-xl border border-border overflow-hidden"
+          >
+            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center">
+                  <SlidersHorizontal className="h-4 w-4 text-secondary" />
+                </div>
+                <span className="font-medium text-foreground">Ease of Use</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              <EaseOfUseSection data={difficultyProgression} />
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Learning Beliefs */}
+          <AccordionItem 
+            value="beliefs" 
+            className="bg-card rounded-xl border border-border overflow-hidden"
+          >
+            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center">
+                  <Brain className="h-4 w-4 text-accent-foreground" />
+                </div>
+                <span className="font-medium text-foreground">Learning Beliefs Shift</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              <BeliefsShiftSection data={beliefComparisons} />
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Learning Orientation */}
+          <AccordionItem 
+            value="orientation" 
+            className="bg-card rounded-xl border border-border overflow-hidden"
+          >
+            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Compass className="h-4 w-4 text-primary" />
+                </div>
+                <span className="font-medium text-foreground">Learning Orientation</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              <LearningOrientationSection data={orientationComparisons} />
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* What's Next */}
+          <AccordionItem 
+            value="next" 
+            className="bg-card rounded-xl border border-border overflow-hidden"
+          >
+            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center">
+                  <Rocket className="h-4 w-4 text-secondary" />
+                </div>
+                <span className="font-medium text-foreground">What's Next?</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              <WhatsNextSection />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
         {/* Actions */}
-        <div className="space-y-3">
+        <div className="space-y-3 pt-2">
           <Button
             variant="outline"
             className="w-full"
