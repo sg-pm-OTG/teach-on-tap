@@ -26,50 +26,17 @@ const PreSurveyIntro = () => {
       {/* Content */}
       <div className="flex-1 px-6 space-y-6 overflow-y-auto">
         <div className="bg-card rounded-xl p-4 border border-border">
-          <h2 className="font-medium text-foreground mb-3">Here's what we'll cover</h2>
-          <div className="space-y-4">
-            <div className="flex gap-3">
-              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                <ClipboardList className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <p className="font-medium text-foreground text-sm">31 Questions</p>
-                <p className="text-xs text-muted-foreground">
-                  Across 3 sections covering your learning practices
-                </p>
-              </div>
+          <div className="flex gap-3 items-center">
+            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <ClipboardList className="w-5 h-5 text-primary" />
             </div>
-
-            <div className="flex gap-3">
-              <div className="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Target className="w-5 h-5 text-secondary" />
-              </div>
-              <div>
-                <p className="font-medium text-foreground text-sm">12 Topics</p>
-                <p className="text-xs text-muted-foreground">
-                  From learning beliefs to professional development
-                </p>
-              </div>
+            <div>
+              <p className="font-medium text-foreground text-sm">34 Questions</p>
+              <p className="text-xs text-muted-foreground">
+                Quick scale-based responses about your learning practices
+              </p>
             </div>
           </div>
-        </div>
-
-        <div className="bg-muted/50 rounded-xl p-4">
-          <h3 className="font-medium text-foreground text-sm mb-2">Sections</h3>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-center gap-2">
-              <span className="w-6 h-6 bg-primary/20 text-primary rounded-full flex items-center justify-center text-xs font-medium">A</span>
-              Learning Beliefs
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-6 h-6 bg-primary/20 text-primary rounded-full flex items-center justify-center text-xs font-medium">B</span>
-              Learning Orientation
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-6 h-6 bg-primary/20 text-primary rounded-full flex items-center justify-center text-xs font-medium">C</span>
-              Good Job Framework
-            </li>
-          </ul>
         </div>
 
         <p className="text-xs text-muted-foreground text-center">

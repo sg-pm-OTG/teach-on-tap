@@ -17,10 +17,6 @@ export const CategoryQuestionGroup = ({
 }: CategoryQuestionGroupProps) => {
   return (
     <div className="space-y-6">
-      <h2 className="text-sm font-semibold text-primary uppercase tracking-wide">
-        {categoryName}
-      </h2>
-      
       <div className="space-y-8">
         {questions.map((question, idx) => {
           const currentValue = responses.get(question.questionIndex);

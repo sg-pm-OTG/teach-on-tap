@@ -79,6 +79,9 @@ export const postSurveyCategories: PreSurveyCategory[] = [
   },
 ];
 
-export const getPostSurveyTotalQuestions = (): number => {
+export const getTotalQuestions = (): number => {
   return postSurveyCategories.reduce((total, category) => total + category.questions.length, 0);
 };
+
+// Alias for backward compatibility
+export const getPostSurveyTotalQuestions = getTotalQuestions;

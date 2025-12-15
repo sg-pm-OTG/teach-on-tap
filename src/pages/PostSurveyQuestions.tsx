@@ -5,12 +5,12 @@ import { ChevronLeft } from "lucide-react";
 import { PreSurveyProgress } from "@/components/pre-survey/PreSurveyProgress";
 import { CategoryQuestionGroup } from "@/components/pre-survey/CategoryQuestionGroup";
 import { usePostSurvey } from "@/hooks/usePostSurvey";
-import { postSurveyCategories } from "@/data/postSurveyQuestions";
+import { postSurveyCategories, getTotalQuestions } from "@/data/postSurveyQuestions";
 import { cn } from "@/lib/utils";
 
 const PostSurveyQuestions = () => {
   const navigate = useNavigate();
-  const { setResponse, getResponse, submitSurvey, submitDemoSurvey, isSubmitting } = usePostSurvey();
+  const { setResponse, getResponse, submitSurvey, submitDemoSurvey, isSubmitting, getCompletedCount } = usePostSurvey();
   const [currentCategoryIndex, setCategoryIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [slideDirection, setSlideDirection] = useState<"left" | "right">("left");
@@ -94,11 +94,8 @@ const PostSurveyQuestions = () => {
       {/* Header */}
       <div className="pt-10 pb-4 px-6 border-b border-border">
         <PreSurveyProgress
-          currentCategory={currentCategoryIndex + 1}
-          totalCategories={totalCategories}
-          currentSection="Learning Beliefs"
-          questionsAnswered={questionsAnswered}
-          questionsInCategory={currentCategory.questions.length}
+          totalQuestionsAnswered={getCompletedCount()}
+          totalQuestions={getTotalQuestions()}
         />
       </div>
 
