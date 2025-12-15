@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Waveform } from "@/components/Waveform";
-import { Mic, Square, CheckCircle, ArrowRight, Info, ArrowLeft, AlertCircle } from "lucide-react";
+import { Mic, Square, CheckCircle, ArrowRight, ArrowLeft, AlertCircle, Sparkles } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -45,6 +46,7 @@ const Record = () => {
   const [useSite, setUseSite] = useState("");
   const [numberOfParticipants, setNumberOfParticipants] = useState(1);
   const [emergentScenario, setEmergentScenario] = useState("");
+  const [autoDetectScenario, setAutoDetectScenario] = useState(false);
   const [sessionType, setSessionType] = useState("");
   const [sessionDate, setSessionDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
   const [isBaseline] = useState(presetBaseline);
@@ -53,7 +55,7 @@ const Record = () => {
   const isFormValid =
     useSite.trim() !== "" &&
     numberOfParticipants >= 1 &&
-    emergentScenario.trim() !== "" &&
+    (autoDetectScenario || emergentScenario.trim() !== "") &&
     sessionType !== "";
 
   const handleStartRecording = () => {
@@ -134,7 +136,7 @@ const Record = () => {
           number_of_participants: numberOfParticipants,
           session_type: sessionType,
           session_date: sessionDate,
-          emergent_scenario: emergentScenario.trim() || null,
+          emergent_scenario: autoDetectScenario ? "AUTO_DETECT" : (emergentScenario.trim() || null),
           status: "pending",
           is_baseline: isBaseline,
           audio_file_url: audioFileUrl,
@@ -153,7 +155,7 @@ const Record = () => {
             number_of_participants: numberOfParticipants,
             session_type: sessionType,
           session_date: sessionDate,
-            emergent_scenario: emergentScenario.trim() || null,
+            emergent_scenario: autoDetectScenario ? "AUTO_DETECT" : (emergentScenario.trim() || null),
           },
         },
       });
@@ -263,21 +265,40 @@ const Record = () => {
             </div>
 
             {/* Emergent Scenario Description */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <Label htmlFor="emergentScenario">Description of Emergent Scenario</Label>
-              <Textarea
-                id="emergentScenario"
-                placeholder="Describe the emergent scenario observed during the session..."
-                value={emergentScenario}
-                onChange={(e) => setEmergentScenario(e.target.value)}
-                rows={4}
-              />
-              <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
-                <Info className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-muted-foreground">
-                  Enter "<span className="font-medium text-foreground">Assess session for scenario</span>" if you want the AI to detect the scenario automatically.
-                </p>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="autoDetect"
+                  checked={autoDetectScenario}
+                  onCheckedChange={(checked) => setAutoDetectScenario(checked === true)}
+                />
+                <label
+                  htmlFor="autoDetect"
+                  className="text-sm font-normal text-foreground cursor-pointer flex items-center gap-1.5"
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-primary" />
+                  Let AI auto-detect the Emergent Scenario
+                </label>
               </div>
+
+              {!autoDetectScenario ? (
+                <Textarea
+                  id="emergentScenario"
+                  placeholder="Describe the emergent scenario observed during the session..."
+                  value={emergentScenario}
+                  onChange={(e) => setEmergentScenario(e.target.value)}
+                  rows={4}
+                />
+              ) : (
+                <div className="flex items-start gap-2 p-3 bg-primary/5 rounded-lg border border-primary/20">
+                  <Sparkles className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-muted-foreground">
+                    AI will analyze your recording to identify the emergent scenario automatically.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Continue to Recording Button */}
@@ -498,21 +519,40 @@ const Record = () => {
           </div>
 
           {/* Emergent Scenario Description */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <Label htmlFor="emergentScenario">Description of Emergent Scenario</Label>
-            <Textarea
-              id="emergentScenario"
-              placeholder="Describe the emergent scenario observed during the session..."
-              value={emergentScenario}
-              onChange={(e) => setEmergentScenario(e.target.value)}
-              rows={4}
-            />
-            <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
-              <Info className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-muted-foreground">
-                Enter "<span className="font-medium text-foreground">Assess session for scenario</span>" if you want the AI to detect the scenario automatically.
-              </p>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="autoDetectConfirm"
+                checked={autoDetectScenario}
+                onCheckedChange={(checked) => setAutoDetectScenario(checked === true)}
+              />
+              <label
+                htmlFor="autoDetectConfirm"
+                className="text-sm font-normal text-foreground cursor-pointer flex items-center gap-1.5"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                Let AI auto-detect the Emergent Scenario
+              </label>
             </div>
+
+            {!autoDetectScenario ? (
+              <Textarea
+                id="emergentScenario"
+                placeholder="Describe the emergent scenario observed during the session..."
+                value={emergentScenario}
+                onChange={(e) => setEmergentScenario(e.target.value)}
+                rows={4}
+              />
+            ) : (
+              <div className="flex items-start gap-2 p-3 bg-primary/5 rounded-lg border border-primary/20">
+                <Sparkles className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-muted-foreground">
+                  AI will analyze your recording to identify the emergent scenario automatically.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Submit Button */}
