@@ -102,7 +102,7 @@ const PostSurveyResults = () => {
         <div className="flex items-center justify-center gap-2 py-3">
           <CheckCircle2 className="w-4 h-4 text-primary" />
           <span className="text-xs text-muted-foreground">
-            Post-survey completed • Responses saved
+            Questionnaire completed • Responses saved
           </span>
         </div>
       </div>

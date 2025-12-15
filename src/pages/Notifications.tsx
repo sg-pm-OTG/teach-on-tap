@@ -103,8 +103,8 @@ const Notifications = () => {
         notifications.push({
           id: 'post-survey-completed',
           icon: ClipboardCheck,
-          title: "Post-Survey Completed",
-          message: "Your post-survey responses have been recorded.",
+          title: "Post-Program Questionnaire Completed",
+          message: "Your questionnaire responses have been recorded.",
           time: formatDistanceToNow(new Date(profile.updated_at), { addSuffix: true }),
           timestamp: new Date(profile.updated_at),
           color: "success",

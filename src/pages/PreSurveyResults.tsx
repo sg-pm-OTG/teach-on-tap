@@ -34,7 +34,7 @@ const journeySteps = [
   },
   {
     id: 5,
-    label: "Complete Post-Survey",
+    label: "Complete Post-Program Questionnaire",
     icon: ClipboardCheck,
     status: "upcoming" as const,
   },
