@@ -113,7 +113,7 @@ export function generateMockReport(sessionDetails: SessionDetails) {
   const facilitatorSeconds = Math.floor(totalSeconds * facilitatorPercent);
   const remainingSeconds = totalSeconds - facilitatorSeconds;
   
-  const talkTimeData = [
+  const talkTimeDataRaw: { speaker: string; seconds: number; color: string }[] = [
     { speaker: "Facilitator", seconds: facilitatorSeconds, color: "hsl(var(--primary))" }
   ];
   
@@ -125,13 +125,20 @@ export function generateMockReport(sessionDetails: SessionDetails) {
       ? totalSeconds - usedSeconds 
       : Math.floor(remainingSeconds / numParticipants * randomFloat(0.7, 1.3));
     
-    talkTimeData.push({
+    talkTimeDataRaw.push({
       speaker: `Participant ${i}`,
       seconds: Math.max(60, participantSeconds),
       color: `hsl(${(i * 60) % 360}, 60%, 50%)`
     });
     usedSeconds += participantSeconds;
   }
+
+  // Add percentage to each entry
+  const totalTimeForPercentage = talkTimeDataRaw.reduce((sum, t) => sum + t.seconds, 0);
+  const talkTimeData = talkTimeDataRaw.map(item => ({
+    ...item,
+    percentage: Math.round((item.seconds / totalTimeForPercentage) * 100 * 10) / 10
+  }));
   
   // Generate speakers
   const speakers = [

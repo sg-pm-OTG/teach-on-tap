@@ -20,8 +20,16 @@ interface EaseOfUseSectionProps {
   data: DifficultyProgression[];
 }
 
-// Map difficulty strings to numeric values
+// Map difficulty strings to numeric values (support both formats from DB)
 const difficultyToValue: Record<string, number> = {
+  // Database format (with spaces)
+  "Very easy": 1,
+  "Easy": 2,
+  "Somewhat easy": 3,
+  "Somewhat difficult": 4,
+  "Difficult": 5,
+  "Very difficult": 6,
+  // Alternative format (underscores)
   "very_easy": 1,
   "easy": 2,
   "somewhat_easy": 3,
