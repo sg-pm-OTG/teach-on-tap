@@ -84,7 +84,7 @@ const PreSurveyResults = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-foreground mb-1">
-                31 questions across 12 categories
+                34 questions completed
               </p>
               <p className="text-xs text-muted-foreground">
                 Thank you for taking the time to share your learning practices with us. Your responses help us understand your starting point.
