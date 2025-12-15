@@ -31,11 +31,22 @@ const Auth = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
+  // Helper to get default date (18 years ago)
+  const getDefault18YearOldDate = () => {
+    const today = new Date();
+    const eighteenYearsAgo = new Date(
+      today.getFullYear() - 18,
+      today.getMonth(),
+      today.getDate()
+    );
+    return eighteenYearsAgo.toISOString().split('T')[0];
+  };
+
   // Form state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState(getDefault18YearOldDate);
   const [gender, setGender] = useState<"male" | "female" | "other" | "prefer_not_to_say">("prefer_not_to_say");
   const [yearsExperience, setYearsExperience] = useState("");
 
