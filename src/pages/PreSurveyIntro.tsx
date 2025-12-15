@@ -15,18 +15,12 @@ const PreSurveyIntro = () => {
           alt="Adult Learning Collaboratory" 
           className="h-12 w-auto mx-auto mb-4"
         />
-        <h1 className="text-xl font-bold text-foreground mb-6">
+        <h1 className="text-xl font-bold text-foreground mb-4">
           Your FOP Journey
         </h1>
-        <div className="w-14 h-14 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <ClipboardList className="w-7 h-7 text-primary-foreground" />
-        </div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+        <h2 className="text-2xl font-bold text-foreground">
           A Few Questions Before We Start
         </h2>
-        <p className="text-muted-foreground text-sm">
-          Help us personalize your FOP journey
-        </p>
       </div>
 
       {/* Content */}
