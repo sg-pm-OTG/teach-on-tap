@@ -17,7 +17,7 @@ const JourneyProgressBar = ({ onViewClick }: JourneyProgressBarProps) => {
     { id: "baseline", label: "Baseline", status: progress.baseline },
     { id: "masterclass", label: "Masterclass", status: progress.masterclass },
     { id: "sessions", label: "Sessions", status: progress.sessions },
-    { id: "postSurvey", label: "Post Survey", status: progress.postSurvey },
+    { id: "postSurvey", label: "Questionnaire", status: progress.postSurvey },
     { id: "finalReport", label: "Final Report", status: progress.finalReport },
     { id: "launchHuddle", label: "Launch Huddle", status: progress.launchHuddle },
   ];

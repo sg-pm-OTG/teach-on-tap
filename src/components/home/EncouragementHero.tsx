@@ -27,7 +27,7 @@ const getEncouragementContent = (
     return {
       icon: Rocket,
       title: "You're on fire!",
-      message: "Amazing progress! You're ready to complete your post-survey and unlock your Final Report.",
+      message: "Amazing progress! You're ready to complete your Post-Program Questionnaire and unlock your Final Report.",
       emoji: "🚀",
     };
   }

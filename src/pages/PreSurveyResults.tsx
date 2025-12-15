@@ -104,7 +104,7 @@ const PreSurveyResults = () => {
                 Results in Your Final Report
               </p>
               <p className="text-xs text-muted-foreground">
-                Your questionnaire results will be compared with your post-program questionnaire to show your growth throughout the program.
+                Your questionnaire results will be compared with your Post-Program Questionnaire to show your growth throughout the program.
               </p>
             </div>
           </div>
