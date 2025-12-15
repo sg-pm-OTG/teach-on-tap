@@ -18,8 +18,8 @@ const authSchema = z.object({
     const date = new Date(val);
     const today = new Date();
     const age = today.getFullYear() - date.getFullYear();
-    return age >= 18 && age <= 100;
-  }, "You must be between 18 and 100 years old"),
+    return age >= 18;
+  }, "You need to be 18 or older to join"),
   gender: z.enum(["male", "female", "other", "prefer_not_to_say"]),
   years_teaching_experience: z.number().min(0, "Must be 0 or greater").max(60, "Must be 60 or less"),
 });
