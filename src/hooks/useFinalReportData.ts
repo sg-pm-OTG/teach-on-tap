@@ -188,11 +188,27 @@ export const useFinalReportData = () => {
 
     return sessionReports
       .filter((report: any) => !report.sessions?.is_baseline)
-      .map((report: any, index: number) => ({
-        session: index + 1,
-        sessionLabel: `Session ${index + 1}`,
-        data: (report.talk_time_data as TalkTimeData[]) || [],
-      }));
+      .map((report: any, index: number) => {
+        const rawData = (report.talk_time_data as any[]) || [];
+        
+        // Calculate total seconds for percentage if not already present
+        const totalSeconds = rawData.reduce((sum, t) => sum + (t.seconds || 0), 0);
+        
+        const dataWithPercentage = rawData.map((item) => ({
+          speaker: item.speaker,
+          seconds: item.seconds || 0,
+          color: item.color || "hsl(var(--muted))",
+          percentage: item.percentage ?? (totalSeconds > 0 
+            ? Math.round((item.seconds / totalSeconds) * 100 * 10) / 10 
+            : 0),
+        }));
+
+        return {
+          session: index + 1,
+          sessionLabel: `Session ${index + 1}`,
+          data: dataWithPercentage,
+        };
+      });
   }, [sessionReports]);
 
   // Get speaker interactions for latest session
@@ -204,12 +220,28 @@ export const useFinalReportData = () => {
     );
     const latest = nonBaselineReports[nonBaselineReports.length - 1];
     
-    if (!latest) return null;
+    if (!latest?.speaker_interactions) return null;
 
-    return {
-      interactions: latest.speaker_interactions as number[][],
-      speakers: (latest.speakers as any[])?.map((s: any) => s.name || s.label) || [],
-    };
+    const rawInteractions = latest.speaker_interactions as any[];
+    
+    // Check if it's already a 2D matrix or needs transformation
+    if (Array.isArray(rawInteractions) && rawInteractions.length > 0) {
+      // If it's an array of objects with 'from' and 'interactions' keys, transform it
+      if (rawInteractions[0]?.from !== undefined && rawInteractions[0]?.interactions !== undefined) {
+        const speakers = rawInteractions.map((s: any) => s.from);
+        const matrix = rawInteractions.map((speaker: any) => 
+          speaker.interactions.map((interaction: any) => interaction.count || 0)
+        );
+        return { interactions: matrix, speakers };
+      }
+      // If it's already a 2D matrix, use as-is
+      if (Array.isArray(rawInteractions[0])) {
+        const speakers = (latest.speakers as any[])?.map((s: any) => s.name || s.label) || [];
+        return { interactions: rawInteractions as number[][], speakers };
+      }
+    }
+
+    return null;
   }, [sessionReports]);
 
   // Process survey comparisons (Learning Beliefs only for post-survey)
