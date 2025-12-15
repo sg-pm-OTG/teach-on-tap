@@ -45,7 +45,7 @@ const PreSurveyIntro = () => {
                 <Target className="w-5 h-5 text-secondary" />
               </div>
               <div>
-                <p className="font-medium text-foreground text-sm">12 Categories</p>
+                <p className="font-medium text-foreground text-sm">12 Topics</p>
                 <p className="text-xs text-muted-foreground">
                   From learning beliefs to professional development
                 </p>
