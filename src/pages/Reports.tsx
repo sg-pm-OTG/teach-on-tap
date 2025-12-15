@@ -14,12 +14,11 @@ import { ScoreEvolutionChart } from "@/components/report/ScoreEvolutionChart";
 import { CollapsibleSection } from "@/components/report/CollapsibleSection";
 import { OpportunityCallout } from "@/components/report/OpportunityCallout";
 import { SectionDivider } from "@/components/report/SectionDivider";
-import { MajorSectionHeader } from "@/components/report/MajorSectionHeader";
 import { SessionChipSelector } from "@/components/report/SessionChipSelector";
 import { ComparisonSelector } from "@/components/report/ComparisonSelector";
 import { TrendBadge } from "@/components/report/TrendBadge";
 import { useAllSessionReports } from "@/hooks/useAllSessionReports";
-import { ChevronDown, FileText, Download, Music, FileDown, Lightbulb, MessagesSquare } from "lucide-react";
+import { ChevronDown, FileText, Download, Music, FileDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { Target, Wrench, Brain, Compass, Users, LucideIcon } from "lucide-react";
@@ -324,12 +323,7 @@ const Reports = () => {
             />
           </div>
 
-          <MajorSectionHeader
-            icon={Lightbulb}
-            title="Emergent Scenario Analysis"
-            subtitle="How effectively was the learning scenario identified and addressed"
-            accentColor="orange"
-          />
+          <SectionDivider title="Emergent Scenario" />
 
           {/* Scenario Card */}
           <div className="animate-slide-in-up">
@@ -369,12 +363,7 @@ const Reports = () => {
             ))}
           </div>
 
-          <MajorSectionHeader
-            icon={MessagesSquare}
-            title="Generative Dialogue Analysis"
-            subtitle="Quality of facilitation and learning conversation flow"
-            accentColor="teal"
-          />
+          <SectionDivider title="Generative Dialogue" />
 
           {/* Dialogue Scores - Radar Chart with Comparison Overlay */}
           <div className="animate-slide-in-up">
