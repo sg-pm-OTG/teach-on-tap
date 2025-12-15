@@ -10,6 +10,7 @@ import { TalkTimePieChart } from "@/components/report/TalkTimePieChart";
 import { InteractionChordDiagram } from "@/components/report/InteractionChordDiagram";
 import { ScenarioCard } from "@/components/report/ScenarioCard";
 import { ScoreRadarChart } from "@/components/report/ScoreRadarChart";
+import { ScoreEvolutionChart } from "@/components/report/ScoreEvolutionChart";
 import { CollapsibleSection } from "@/components/report/CollapsibleSection";
 import { OpportunityCallout } from "@/components/report/OpportunityCallout";
 import { SectionDivider } from "@/components/report/SectionDivider";
@@ -43,16 +44,18 @@ const Reports = () => {
     reports,
     selectedReport,
     comparisonReport,
+    comparisonReportIds,
     availableForComparison,
+    allSessionsForTimeline,
     setSelectedReportId,
-    setComparisonReportId,
+    setComparisonReportIds,
     isLoading,
   } = useAllSessionReports();
 
   // Handle compare mode toggle
   const handleToggleCompare = () => {
     if (compareMode) {
-      setComparisonReportId(null);
+      setComparisonReportIds([]);
     }
     setCompareMode(!compareMode);
   };
@@ -194,8 +197,21 @@ const Reports = () => {
                   useSite: r.useSite,
                   isBaseline: (r as any).isBaseline || false,
                 }))}
-                selectedComparisonId={comparisonReport?.id || null}
-                onSelectComparison={(id) => setComparisonReportId(id)}
+                selectedComparisonIds={comparisonReportIds}
+                onSelectComparison={(ids) => setComparisonReportIds(ids)}
+              />
+            </div>
+          )}
+
+          {/* Score Evolution Chart (when compare mode is on with selections) */}
+          {compareMode && allSessionsForTimeline.length > 1 && (
+            <div className="animate-slide-in-up">
+              <SectionDivider title="Your Growth Journey" />
+              <ScoreEvolutionChart
+                sessions={allSessionsForTimeline}
+                selectedSessionId={selectedReport.id}
+                comparisonIds={comparisonReportIds}
+                onSelectSession={(id) => setSelectedReportId(id)}
               />
             </div>
           )}

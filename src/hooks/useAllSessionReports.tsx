@@ -109,7 +109,7 @@ const themeColors = ["bg-rose-100", "bg-amber-100", "bg-purple-100", "bg-blue-10
 
 export const useAllSessionReports = () => {
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
-  const [comparisonReportId, setComparisonReportId] = useState<string | null>(null);
+  const [comparisonReportIds, setComparisonReportIds] = useState<string[]>([]);
 
   // Fetch regular (non-baseline) session reports
   const { data: rawReports, isLoading } = useQuery({
@@ -286,9 +286,10 @@ export const useAllSessionReports = () => {
   }, [reports, selectedReportId]);
 
   const comparisonReport = useMemo(() => {
-    if (!comparisonReportId || !reports.length) return null;
-    return reports.find((r) => r.id === comparisonReportId) || null;
-  }, [reports, comparisonReportId]);
+    if (!comparisonReportIds.length || !reports.length) return null;
+    // Return first comparison report for backward compatibility (single comparison)
+    return reports.find((r) => r.id === comparisonReportIds[0]) || null;
+  }, [reports, comparisonReportIds]);
 
   // Transform baseline report using the same logic
   const baselineReport: SessionReport | null = useMemo(() => {
@@ -428,23 +429,77 @@ export const useAllSessionReports = () => {
     return regularSessions;
   }, [reports, selectedReport, baselineReport]);
 
-  // Update comparison report lookup to include baseline
+  // Update comparison reports lookup to include baseline (returns array)
+  const comparisonReports = useMemo(() => {
+    if (!comparisonReportIds.length) return [];
+    return comparisonReportIds.map((id) => {
+      if (baselineReport && id === baselineReport.id) {
+        return baselineReport;
+      }
+      return reports.find((r) => r.id === id);
+    }).filter(Boolean) as SessionReport[];
+  }, [reports, comparisonReportIds, baselineReport]);
+
+  // For backward compatibility - single comparison (first selected)
   const comparisonReportWithBaseline = useMemo(() => {
-    if (!comparisonReportId) return null;
-    if (baselineReport && comparisonReportId === baselineReport.id) {
+    if (!comparisonReportIds.length) return null;
+    const firstId = comparisonReportIds[0];
+    if (baselineReport && firstId === baselineReport.id) {
       return baselineReport;
     }
-    return reports.find((r) => r.id === comparisonReportId) || null;
-  }, [reports, comparisonReportId, baselineReport]);
+    return reports.find((r) => r.id === firstId) || null;
+  }, [reports, comparisonReportIds, baselineReport]);
+
+  // All sessions for timeline (chronological order with labels)
+  const allSessionsForTimeline = useMemo(() => {
+    const allSessions: Array<{
+      id: string;
+      date: string;
+      scenarioAvg: number;
+      dialogueAvg: number;
+      isBaseline?: boolean;
+      label: string;
+    }> = [];
+
+    // Add baseline first if exists
+    if (baselineReport) {
+      allSessions.push({
+        id: baselineReport.id,
+        date: baselineReport.sessionDate,
+        scenarioAvg: baselineReport.scenarioAvg,
+        dialogueAvg: baselineReport.dialogueAvg,
+        isBaseline: true,
+        label: "Baseline",
+      });
+    }
+
+    // Add regular sessions
+    reports.forEach((r, index) => {
+      allSessions.push({
+        id: r.id,
+        date: r.sessionDate,
+        scenarioAvg: r.scenarioAvg,
+        dialogueAvg: r.dialogueAvg,
+        isBaseline: false,
+        label: `Session ${reports.length - index}`,
+      });
+    });
+
+    // Sort chronologically
+    return allSessions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }, [reports, baselineReport]);
 
   return {
     reports,
     selectedReport,
     comparisonReport: comparisonReportWithBaseline,
+    comparisonReports,
+    comparisonReportIds,
     availableForComparison,
     baselineReport,
+    allSessionsForTimeline,
     setSelectedReportId,
-    setComparisonReportId,
+    setComparisonReportIds,
     isLoading,
   };
 };
