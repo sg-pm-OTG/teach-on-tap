@@ -17,7 +17,7 @@ import { SessionChipSelector } from "@/components/report/SessionChipSelector";
 import { ComparisonSelector } from "@/components/report/ComparisonSelector";
 import { TrendBadge } from "@/components/report/TrendBadge";
 import { useAllSessionReports } from "@/hooks/useAllSessionReports";
-import { ChevronDown, FileText, Download } from "lucide-react";
+import { ChevronDown, FileText, Download, Music, FileDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { Target, Wrench, Brain, Compass, Users, LucideIcon } from "lucide-react";
@@ -231,30 +231,6 @@ const Reports = () => {
             />
           </div>
 
-          {/* Download Audio Button */}
-          {selectedReport.audioFileUrl && (
-            <div className="animate-slide-in-up">
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={handleDownloadAudio}
-                disabled={isDownloading}
-              >
-              {isDownloading ? (
-                  <>
-                    <div className="h-4 w-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                    Downloading...
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-4 w-4 mr-2" />
-                    Download Session Audio
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
-
           <SectionDivider title="Speakers" />
 
           {/* Speaker Summary */}
@@ -422,6 +398,54 @@ const Reports = () => {
               conclusions={selectedReport.finalSummary}
               variant="summary"
             />
+          </div>
+
+          <SectionDivider title="Downloads" />
+
+          {/* Downloads Section */}
+          <div className="animate-slide-in-up">
+            <div className="bg-card rounded-xl border border-border p-4 space-y-3">
+              <p className="text-xs text-muted-foreground mb-2">Save session materials for offline access</p>
+              
+              {selectedReport.audioFileUrl && (
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-muted-foreground hover:text-foreground"
+                  onClick={handleDownloadAudio}
+                  disabled={isDownloading}
+                >
+                  {isDownloading ? (
+                    <>
+                      <div className="h-4 w-4 mr-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      Downloading...
+                    </>
+                  ) : (
+                    <>
+                      <Music className="h-4 w-4 mr-3" />
+                      Download Session Audio
+                    </>
+                  )}
+                </Button>
+              )}
+
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-muted-foreground hover:text-foreground"
+                onClick={() => toast.info("Transcript download coming soon")}
+              >
+                <FileText className="h-4 w-4 mr-3" />
+                Download Transcript
+              </Button>
+
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-muted-foreground hover:text-foreground"
+                onClick={() => toast.info("PDF report download coming soon")}
+              >
+                <FileDown className="h-4 w-4 mr-3" />
+                Download PDF Report
+              </Button>
+            </div>
           </div>
         </div>
       </main>
