@@ -208,15 +208,25 @@ const Reports = () => {
               date={formatSessionDate(selectedReport.sessionDate)}
               participants={selectedReport.participants}
               activityType={selectedReport.sessionType}
-              overallScore={selectedReport.overallScore}
-              trendBadge={
-                comparisonReport ? (
-                  <TrendBadge
-                    currentValue={selectedReport.overallScore}
-                    previousValue={comparisonReport.overallScore}
-                    size="md"
-                  />
-                ) : undefined
+              scenarioAvg={selectedReport.scenarioAvg}
+              dialogueAvg={selectedReport.dialogueAvg}
+              trendBadges={
+                comparisonReport ? {
+                  scenario: (
+                    <TrendBadge
+                      currentValue={selectedReport.scenarioAvg}
+                      previousValue={comparisonReport.scenarioAvg}
+                      size="sm"
+                    />
+                  ),
+                  dialogue: (
+                    <TrendBadge
+                      currentValue={selectedReport.dialogueAvg}
+                      previousValue={comparisonReport.dialogueAvg}
+                      size="sm"
+                    />
+                  ),
+                } : undefined
               }
             />
           </div>

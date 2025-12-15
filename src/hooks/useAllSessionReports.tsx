@@ -100,7 +100,8 @@ export interface SessionReport {
   dialogueScores: ScoreItem[];
   dialogueAnalysis: AnalysisItem[];
   finalSummary: string[];
-  overallScore: number;
+  scenarioAvg: number;
+  dialogueAvg: number;
 }
 
 const themeIcons = ["Target", "Wrench", "Brain", "Compass", "Users"];
@@ -174,10 +175,9 @@ export const useAllSessionReports = () => {
         score: s.score,
       }));
 
-      // Calculate overall score
+      // Calculate individual averages
       const scenarioAvg = scenarioScores.reduce((sum, s) => sum + s.score, 0) / scenarioScores.length;
       const dialogueAvg = dialogueScores.reduce((sum, s) => sum + s.score, 0) / dialogueScores.length;
-      const overallScore = (scenarioAvg + dialogueAvg) / 2;
 
       // Transform speakers: {name, role, talkTime} -> {id, description}
       const rawSpeakers = report.speakers as unknown as RawSpeaker[];
@@ -270,7 +270,8 @@ export const useAllSessionReports = () => {
         dialogueScores,
         dialogueAnalysis,
         finalSummary,
-        overallScore: parseFloat(overallScore.toFixed(1)),
+        scenarioAvg: parseFloat(scenarioAvg.toFixed(1)),
+        dialogueAvg: parseFloat(dialogueAvg.toFixed(1)),
       };
     });
   }, [rawReports]);
@@ -315,10 +316,9 @@ export const useAllSessionReports = () => {
       score: s.score,
     }));
 
-    // Calculate overall score
+    // Calculate individual averages
     const scenarioAvg = scenarioScores.reduce((sum, s) => sum + s.score, 0) / scenarioScores.length;
     const dialogueAvg = dialogueScores.reduce((sum, s) => sum + s.score, 0) / dialogueScores.length;
-    const overallScore = (scenarioAvg + dialogueAvg) / 2;
 
     // Transform speakers
     const rawSpeakers = rawBaselineReport.speakers as unknown as RawSpeaker[];
@@ -410,7 +410,8 @@ export const useAllSessionReports = () => {
       dialogueScores,
       dialogueAnalysis,
       finalSummary,
-      overallScore: parseFloat(overallScore.toFixed(1)),
+      scenarioAvg: parseFloat(scenarioAvg.toFixed(1)),
+      dialogueAvg: parseFloat(dialogueAvg.toFixed(1)),
       isBaseline: true,
     } as SessionReport & { isBaseline: boolean };
   }, [rawBaselineReport]);

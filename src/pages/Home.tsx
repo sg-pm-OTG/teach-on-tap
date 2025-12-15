@@ -55,22 +55,33 @@ const Home = () => {
         {/* Compact Journey Progress Bar - Show for active users who haven't completed */}
         {isActiveUser && !isFinalReportReady && <JourneyProgressBar onViewClick={scrollToJourney} />}
 
-        {/* Metrics Grid */}
+        {/* Metrics Grid - Dual Scores */}
         <div className="grid grid-cols-2 gap-4">
           <MetricCard
-            title="Overall Score"
-            value={hasData ? `${insights.overallScore}/4` : "—"}
+            title="Scenario"
+            value={hasData ? `${insights.scenarioAvg.toFixed(1)}/4` : "—"}
             subtitle={hasData ? "Latest session" : "No sessions yet"}
             trend={hasData ? "up" : "neutral"}
             icon={<TrendingUp className="h-5 w-5 text-secondary-foreground" />}
           />
           <MetricCard
-            title="Sessions"
-            value={`${sessionCount}/5`}
-            subtitle={getSessionsSubtitle()}
-            trend={sessionCount >= 3 ? "up" : "neutral"}
+            title="Dialogue"
+            value={hasData ? `${insights.dialogueAvg.toFixed(1)}/4` : "—"}
+            subtitle={hasData ? "Latest session" : "No sessions yet"}
+            trend={hasData ? "up" : "neutral"}
             icon={<BarChart3 className="h-5 w-5 text-secondary-foreground" />}
           />
+        </div>
+
+        {/* Session Counter */}
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Sessions</p>
+              <p className="text-2xl font-bold text-foreground">{sessionCount}/5</p>
+            </div>
+            <p className="text-xs text-muted-foreground">{getSessionsSubtitle()}</p>
+          </div>
         </div>
 
         {/* Journey Milestones - Show first for new users */}
