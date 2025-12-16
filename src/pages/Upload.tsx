@@ -282,6 +282,12 @@ const Upload = () => {
                   +
                 </Button>
               </div>
+              {numberOfParticipants >= 40 && (
+                <p className="text-xs text-amber-600 flex items-center gap-1.5 mt-1.5">
+                  <span className="inline-block w-4 h-4 rounded-full bg-amber-100 text-amber-600 text-[10px] flex items-center justify-center font-bold">!</span>
+                  That's quite a large group! Just double-checking this number is correct.
+                </p>
+              )}
             </div>
 
             {/* Type of Session */}
@@ -588,6 +594,12 @@ const Upload = () => {
                 +
               </Button>
             </div>
+              {numberOfParticipants >= 40 && (
+                <p className="text-xs text-amber-600 flex items-center gap-1.5 mt-1.5">
+                  <span className="inline-block w-4 h-4 rounded-full bg-amber-100 text-amber-600 text-[10px] flex items-center justify-center font-bold">!</span>
+                  That's quite a large group! Just double-checking this number is correct.
+                </p>
+              )}
           </div>
 
           {/* Type */}
