@@ -37,8 +37,7 @@ const FinalReportHero = () => {
         {/* CTA Button */}
         <Button
           onClick={() => navigate("/final-report")}
-          className="w-full bg-white hover:bg-white/90 font-semibold"
-          style={{ color: 'hsl(270, 100%, 23%)' }}
+          className="w-full bg-white hover:bg-white/90 text-primary font-semibold"
           size="lg"
         >
           View My Final Report
