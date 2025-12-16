@@ -2,7 +2,6 @@ import { Mic, GraduationCap, Video, ClipboardList, FileText, Users } from "lucid
 import { useNavigate } from "react-router-dom";
 import MilestoneCard from "./MilestoneCard";
 import { useJourneyProgress } from "@/hooks/useJourneyProgress";
-import { eventData } from "@/data/eventData";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const JourneyMilestones = () => {
@@ -42,8 +41,8 @@ const JourneyMilestones = () => {
       icon: GraduationCap,
       status: progress.masterclass,
       description: "Attend the in-person training session",
-      date: eventData.masterclass.date,
-      location: eventData.masterclass.location,
+      date: progress.masterclassDate || undefined,
+      location: progress.masterclassLocation || undefined,
     },
     {
       id: "sessions",
@@ -52,8 +51,6 @@ const JourneyMilestones = () => {
       status: progress.sessions,
       description: "Record teaching sessions and attend Learning Huddles",
       progress: `${progress.sessionCount}/3`,
-      date: progress.sessions === "current" ? eventData.learningHuddle.date : undefined,
-      location: progress.sessions === "current" ? eventData.learningHuddle.location : undefined,
     },
     {
       id: "postSurvey",
@@ -86,8 +83,8 @@ const JourneyMilestones = () => {
       icon: Users,
       status: progress.launchHuddle,
       description: "Celebrate your completion at the final session",
-      date: eventData.launchHuddle.date,
-      location: eventData.launchHuddle.location,
+      date: progress.launchHuddleDate || undefined,
+      location: progress.launchHuddleLocation || undefined,
     },
   ];
 

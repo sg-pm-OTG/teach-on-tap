@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
+import { format } from "date-fns";
 
 export type MilestoneStatus = "complete" | "current" | "locked";
 
@@ -13,6 +14,11 @@ export interface JourneyProgress {
   launchHuddle: MilestoneStatus;
   sessionCount: number;
   finalReportStatus: string;
+  // Per-user event data
+  masterclassDate: string | null;
+  masterclassLocation: string | null;
+  launchHuddleDate: string | null;
+  launchHuddleLocation: string | null;
 }
 
 export const useJourneyProgress = () => {
@@ -24,7 +30,7 @@ export const useJourneyProgress = () => {
       if (!user) return null;
       const { data, error } = await supabase
         .from("profiles")
-        .select("baseline_completed, masterclass_attended, post_survey_completed, final_report_status, launch_huddle_attended")
+        .select("baseline_completed, masterclass_attended, post_survey_completed, final_report_status, launch_huddle_attended, masterclass_datetime, masterclass_location, launch_huddle_datetime, launch_huddle_location")
         .eq("user_id", user.id)
         .single();
       if (error) throw error;
@@ -49,6 +55,15 @@ export const useJourneyProgress = () => {
     enabled: !!user,
   });
 
+  const formatEventDate = (datetime: string | null): string | null => {
+    if (!datetime) return null;
+    try {
+      return format(new Date(datetime), "MMMM d, yyyy, h:mm a");
+    } catch {
+      return null;
+    }
+  };
+
   const getMilestoneStatus = (): JourneyProgress => {
     if (!profile) {
       return {
@@ -60,10 +75,24 @@ export const useJourneyProgress = () => {
         launchHuddle: "locked",
         sessionCount: 0,
         finalReportStatus: "not_started",
+        masterclassDate: null,
+        masterclassLocation: null,
+        launchHuddleDate: null,
+        launchHuddleLocation: null,
       };
     }
 
-    const { baseline_completed, masterclass_attended, post_survey_completed, final_report_status, launch_huddle_attended } = profile;
+    const { 
+      baseline_completed, 
+      masterclass_attended, 
+      post_survey_completed, 
+      final_report_status, 
+      launch_huddle_attended,
+      masterclass_datetime,
+      masterclass_location,
+      launch_huddle_datetime,
+      launch_huddle_location,
+    } = profile;
 
     // Determine each milestone status based on progression
     const baseline: MilestoneStatus = baseline_completed ? "complete" : "current";
@@ -107,6 +136,10 @@ export const useJourneyProgress = () => {
       launchHuddle,
       sessionCount,
       finalReportStatus: final_report_status,
+      masterclassDate: formatEventDate(masterclass_datetime),
+      masterclassLocation: masterclass_location,
+      launchHuddleDate: formatEventDate(launch_huddle_datetime),
+      launchHuddleLocation: launch_huddle_location,
     };
   };
 

@@ -1,8 +1,11 @@
 import { Calendar, MapPin, Rocket, BookOpen, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { eventData } from "@/data/eventData";
 
-export const WhatsNextSection = () => {
+interface WhatsNextSectionProps {
+  launchHuddleDate?: string | null;
+  launchHuddleLocation?: string | null;
+}
+
+export const WhatsNextSection = ({ launchHuddleDate, launchHuddleLocation }: WhatsNextSectionProps) => {
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -25,16 +28,28 @@ export const WhatsNextSection = () => {
               Join us to celebrate your achievements and connect with fellow educators!
             </p>
             
-            <div className="mt-3 space-y-2">
-              <div className="flex items-center gap-2 text-sm opacity-90">
-                <Calendar className="h-4 w-4" />
-                <span>{eventData.launchHuddle.date}</span>
+            {(launchHuddleDate || launchHuddleLocation) && (
+              <div className="mt-3 space-y-2">
+                {launchHuddleDate && (
+                  <div className="flex items-center gap-2 text-sm opacity-90">
+                    <Calendar className="h-4 w-4" />
+                    <span>{launchHuddleDate}</span>
+                  </div>
+                )}
+                {launchHuddleLocation && (
+                  <div className="flex items-start gap-2 text-sm opacity-90">
+                    <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <span>{launchHuddleLocation}</span>
+                  </div>
+                )}
               </div>
-              <div className="flex items-start gap-2 text-sm opacity-90">
-                <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                <span>{eventData.launchHuddle.location}</span>
-              </div>
-            </div>
+            )}
+            
+            {!launchHuddleDate && !launchHuddleLocation && (
+              <p className="mt-3 text-sm opacity-75 italic">
+                Date and location to be announced
+              </p>
+            )}
           </div>
         </div>
       </div>

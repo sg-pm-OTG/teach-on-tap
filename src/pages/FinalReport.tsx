@@ -3,6 +3,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useFinalReportData } from "@/hooks/useFinalReportData";
+import { useJourneyProgress } from "@/hooks/useJourneyProgress";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Accordion,
@@ -34,6 +35,7 @@ import { WhatsNextSection } from "@/components/final-report/WhatsNextSection";
 
 const FinalReport = () => {
   const navigate = useNavigate();
+  const { progress } = useJourneyProgress();
   const {
     isLoading,
     journeyTimeline,
@@ -259,7 +261,10 @@ const FinalReport = () => {
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4">
-              <WhatsNextSection />
+              <WhatsNextSection 
+                launchHuddleDate={progress.launchHuddleDate}
+                launchHuddleLocation={progress.launchHuddleLocation}
+              />
             </AccordionContent>
           </AccordionItem>
         </Accordion>
