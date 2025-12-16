@@ -197,12 +197,7 @@ const UsersList = () => {
                       onClick={() => navigate(`/admin/users/${user.user_id}`)}
                     >
                       <TableCell>
-                        <div>
-                          <div className="font-medium">{user.name}</div>
-                          <div className="text-xs text-muted-foreground font-mono">
-                            {user.user_id.slice(0, 8)}...
-                          </div>
-                        </div>
+                        <div className="font-medium">{user.name}</div>
                       </TableCell>
                       <TableCell>
                         {user.years_teaching_experience} years

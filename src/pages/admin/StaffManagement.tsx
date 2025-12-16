@@ -56,14 +56,10 @@ const StaffManagement = () => {
   const { data: admins, isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("*")
-        .eq("role", "admin")
-        .order("created_at", { ascending: false });
-
+      const { data, error } = await supabase.functions.invoke("admin-list-users");
       if (error) throw error;
-      return data as AdminUser[];
+      if (data.error) throw new Error(data.error);
+      return data.admins as AdminUser[];
     },
   });
 
@@ -186,7 +182,7 @@ const StaffManagement = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>User ID</TableHead>
+                  <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead className="w-20">Actions</TableHead>
@@ -195,8 +191,8 @@ const StaffManagement = () => {
               <TableBody>
                 {admins?.map((admin) => (
                   <TableRow key={admin.id}>
-                    <TableCell className="font-mono text-sm">
-                      {admin.user_id}
+                    <TableCell>
+                      {admin.email}
                       {admin.user_id === currentUser?.id && (
                         <span className="ml-2 text-xs text-muted-foreground">(you)</span>
                       )}
