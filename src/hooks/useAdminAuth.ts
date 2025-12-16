@@ -54,24 +54,34 @@ export const useAdminAuth = () => {
     );
 
     // Check existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        const isAdmin = await checkAdminStatus(session.user.id);
-        setState({
-          user: session.user,
-          session,
-          isAdmin,
-          loading: false,
-        });
-      } else {
+    supabase.auth.getSession()
+      .then(async ({ data: { session } }) => {
+        if (session?.user) {
+          const isAdmin = await checkAdminStatus(session.user.id);
+          setState({
+            user: session.user,
+            session,
+            isAdmin,
+            loading: false,
+          });
+        } else {
+          setState({
+            user: null,
+            session: null,
+            isAdmin: false,
+            loading: false,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error('Error getting session:', error);
         setState({
           user: null,
           session: null,
           isAdmin: false,
           loading: false,
         });
-      }
-    });
+      });
 
     return () => subscription.unsubscribe();
   }, [checkAdminStatus]);
