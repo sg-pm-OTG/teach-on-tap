@@ -286,7 +286,7 @@ const Record = () => {
               {!autoDetectScenario ? (
                 <Textarea
                   id="emergentScenario"
-                  placeholder="Describe the emergent scenario observed during the session..."
+                  placeholder="Did you use an Emergent Scenario? Describe it here."
                   value={emergentScenario}
                   onChange={(e) => setEmergentScenario(e.target.value)}
                   rows={4}
