@@ -15,8 +15,8 @@ import { Badge } from "@/components/ui/badge";
 import { Download, Loader2, FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
-import { preSurveyCategories as preSurveyQuestions } from "@/data/preSurveyQuestions";
-import { postSurveyCategories as postSurveyQuestions } from "@/data/postSurveyQuestions";
+import { preSurveyCategories } from "@/data/preSurveyQuestions";
+import { postSurveyCategories } from "@/data/postSurveyQuestions";
 
 interface UserQuestionnaireTabProps {
   userId: string;
@@ -57,18 +57,18 @@ export const UserQuestionnaireTab = ({ userId }: UserQuestionnaireTabProps) => {
     categoryCode: string,
     questionIndex: number,
     isPre: boolean
-  ) => {
-    const questions = isPre ? preSurveyQuestions : postSurveyQuestions;
-    const category = questions.find((c) => c.code === categoryCode);
+  ): string => {
+    const categories = isPre ? preSurveyCategories : postSurveyCategories;
+    const category = categories.find((c) => c.code === categoryCode);
     if (!category) return "Unknown question";
     const question = category.questions[questionIndex];
-    return question || "Unknown question";
+    return question?.text || "Unknown question";
   };
 
-  const getCategoryName = (categoryCode: string, isPre: boolean) => {
-    const questions = isPre ? preSurveyQuestions : postSurveyQuestions;
-    const category = questions.find((c) => c.code === categoryCode);
-    return category?.category || categoryCode;
+  const getCategoryName = (categoryCode: string, isPre: boolean): string => {
+    const categories = isPre ? preSurveyCategories : postSurveyCategories;
+    const category = categories.find((c) => c.code === categoryCode);
+    return category?.name || categoryCode;
   };
 
   const exportToExcel = (isPre: boolean) => {
