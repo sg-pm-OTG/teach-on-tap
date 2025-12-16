@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { ArrowRight, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,7 +36,7 @@ const SessionDetails = () => {
   const [useSite, setUseSite] = useState("");
   const [numberOfParticipants, setNumberOfParticipants] = useState(1);
   const [emergentScenario, setEmergentScenario] = useState("");
-  const [autoDetectScenario, setAutoDetectScenario] = useState(false);
+  const [hasEmergentScenario, setHasEmergentScenario] = useState<boolean | null>(null);
   const [sessionType, setSessionType] = useState("");
   const [sessionDate, setSessionDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
   const [isBaseline, setIsBaseline] = useState(presetBaseline);
@@ -45,7 +45,8 @@ const SessionDetails = () => {
   const isFormValid =
     useSite.trim() !== "" &&
     numberOfParticipants >= 1 &&
-    (autoDetectScenario || emergentScenario.trim() !== "") &&
+    hasEmergentScenario !== null &&
+    (hasEmergentScenario === false || emergentScenario.trim() !== "") &&
     sessionType !== "";
 
   const handleSubmit = async () => {
@@ -71,7 +72,7 @@ const SessionDetails = () => {
           number_of_participants: numberOfParticipants,
           session_type: sessionType,
             session_date: sessionDate,
-            emergent_scenario: autoDetectScenario ? "AUTO_DETECT" : (emergentScenario.trim() || null),
+            emergent_scenario: hasEmergentScenario === false ? "AUTO_DETECT" : (emergentScenario.trim() || null),
           status: "pending",
           is_baseline: isBaseline,
         })
@@ -90,7 +91,7 @@ const SessionDetails = () => {
             number_of_participants: numberOfParticipants,
             session_type: sessionType,
           session_date: sessionDate,
-          emergent_scenario: autoDetectScenario ? "AUTO_DETECT" : (emergentScenario.trim() || null),
+          emergent_scenario: hasEmergentScenario === false ? "AUTO_DETECT" : (emergentScenario.trim() || null),
           },
         },
       });
@@ -199,32 +200,41 @@ const SessionDetails = () => {
 
           {/* Emergent Scenario Description */}
           <div className="space-y-3">
-            <Label htmlFor="emergentScenario">Description of Emergent Scenario</Label>
+            <Label>Do you have an Emergent Scenario for this session?</Label>
             
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="autoDetect"
-                checked={autoDetectScenario}
-                onCheckedChange={(checked) => setAutoDetectScenario(checked === true)}
-              />
-              <label
-                htmlFor="autoDetect"
-                className="text-sm font-normal text-foreground cursor-pointer flex items-center gap-1.5"
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant={hasEmergentScenario === true ? "default" : "outline"}
+                size="sm"
+                className="flex-1"
+                onClick={() => setHasEmergentScenario(true)}
               >
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                Let AI auto-detect the Emergent Scenario
-              </label>
+                Yes, I have one
+              </Button>
+              <Button
+                type="button"
+                variant={hasEmergentScenario === false ? "default" : "outline"}
+                size="sm"
+                className="flex-1"
+                onClick={() => setHasEmergentScenario(false)}
+              >
+                <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                No, let AI detect
+              </Button>
             </div>
 
-            {!autoDetectScenario ? (
+            {hasEmergentScenario === true && (
               <Textarea
                 id="emergentScenario"
-                placeholder="Describe the emergent scenario observed during the session..."
+                placeholder="Describe the emergent scenario you used..."
                 value={emergentScenario}
                 onChange={(e) => setEmergentScenario(e.target.value)}
                 rows={4}
               />
-            ) : (
+            )}
+
+            {hasEmergentScenario === false && (
               <div className="flex items-start gap-2 p-3 bg-primary/5 rounded-lg border border-primary/20">
                 <Sparkles className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-muted-foreground">
