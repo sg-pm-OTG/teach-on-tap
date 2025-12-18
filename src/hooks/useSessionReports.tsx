@@ -1,10 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+interface TopMarker {
+  label: string;
+  score: number;
+}
+
 interface SessionInsights {
-  overallScore: number;
-  scenarioAvg: number;
-  dialogueAvg: number;
+  topScenarioMarkers: TopMarker[];
+  topDialogueMarkers: TopMarker[];
   strengths: { label: string; score: number }[];
   focusAreas: { label: string; score: number }[];
   facilitatorTalkTimeMinutes: number;
@@ -77,11 +81,17 @@ export const useSessionReports = () => {
     const talkTimeData = latestReport.talk_time_data as unknown as TalkTimeItem[];
     const session = latestReport.sessions as { session_date: string; use_site: string } | null;
 
-    const scenarioAvg =
-      scenarioScores.reduce((sum, s) => sum + s.score, 0) / scenarioScores.length;
-    const dialogueAvg =
-      dialogueScores.reduce((sum, s) => sum + s.score, 0) / dialogueScores.length;
-    const overallScore = (scenarioAvg + dialogueAvg) / 2;
+    // Get top 2 scenario markers by score
+    const topScenarioMarkers = [...scenarioScores]
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 2)
+      .map(s => ({ label: s.label, score: s.score }));
+
+    // Get top 2 dialogue markers by score
+    const topDialogueMarkers = [...dialogueScores]
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 2)
+      .map(s => ({ label: s.label, score: s.score }));
 
     const allScores = [
       ...scenarioScores.map((s) => ({ ...s, source: "scenario" })),
@@ -107,9 +117,8 @@ export const useSessionReports = () => {
     const finalReportGenerated = false;
 
     return {
-      overallScore: parseFloat(overallScore.toFixed(1)),
-      scenarioAvg: parseFloat(scenarioAvg.toFixed(2)),
-      dialogueAvg: parseFloat(dialogueAvg.toFixed(2)),
+      topScenarioMarkers,
+      topDialogueMarkers,
       strengths,
       focusAreas,
       facilitatorTalkTimeMinutes,
