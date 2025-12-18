@@ -221,15 +221,15 @@ const Reports = () => {
                 currentSession={{
                   id: selectedReport.id,
                   date: selectedReport.sessionDate,
-                  scenarioAvg: selectedReport.scenarioAvg,
-                  dialogueAvg: selectedReport.dialogueAvg,
+                  scenarioScores: selectedReport.scenarioScores,
+                  dialogueScores: selectedReport.dialogueScores,
                 }}
                 comparisonSessions={comparisonReports.map(r => ({
                   id: r.id,
                   date: r.sessionDate,
                   isBaseline: (r as any).isBaseline || false,
-                  scenarioAvg: r.scenarioAvg,
-                  dialogueAvg: r.dialogueAvg,
+                  scenarioScores: r.scenarioScores,
+                  dialogueScores: r.dialogueScores,
                 }))}
               />
             </div>

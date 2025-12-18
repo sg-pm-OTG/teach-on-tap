@@ -450,13 +450,13 @@ export const useAllSessionReports = () => {
     return reports.find((r) => r.id === firstId) || null;
   }, [reports, comparisonReportIds, baselineReport]);
 
-  // All sessions for timeline (chronological order with labels)
+  // All sessions for timeline (chronological order with labels) - includes full scores
   const allSessionsForTimeline = useMemo(() => {
     const allSessions: Array<{
       id: string;
       date: string;
-      scenarioAvg: number;
-      dialogueAvg: number;
+      scenarioScores: ScoreItem[];
+      dialogueScores: ScoreItem[];
       isBaseline?: boolean;
       label: string;
     }> = [];
@@ -466,8 +466,8 @@ export const useAllSessionReports = () => {
       allSessions.push({
         id: baselineReport.id,
         date: baselineReport.sessionDate,
-        scenarioAvg: baselineReport.scenarioAvg,
-        dialogueAvg: baselineReport.dialogueAvg,
+        scenarioScores: baselineReport.scenarioScores,
+        dialogueScores: baselineReport.dialogueScores,
         isBaseline: true,
         label: "Baseline",
       });
@@ -478,8 +478,8 @@ export const useAllSessionReports = () => {
       allSessions.push({
         id: r.id,
         date: r.sessionDate,
-        scenarioAvg: r.scenarioAvg,
-        dialogueAvg: r.dialogueAvg,
+        scenarioScores: r.scenarioScores,
+        dialogueScores: r.dialogueScores,
         isBaseline: false,
         label: `Session ${reports.length - index}`,
       });

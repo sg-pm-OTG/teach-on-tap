@@ -5,8 +5,6 @@ import { useNavigate } from "react-router-dom";
 interface SessionSummaryCardProps {
   sessionTitle: string;
   sessionDate: string;
-  scenarioScore: number;
-  dialogueScore: number;
   strengths: { label: string; score: number }[];
   focusAreas: { label: string; score: number }[];
 }

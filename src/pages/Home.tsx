@@ -52,10 +52,10 @@ const Home = () => {
           <JourneyProgressBar onViewClick={scrollToJourney} />
         )}
 
-        {/* Score Badges - Compact inline display */}
+        {/* Score Badges - Top markers display */}
         <ScoreBadges
-          scenarioScore={hasData ? insights.scenarioAvg : null}
-          dialogueScore={hasData ? insights.dialogueAvg : null}
+          topScenarioMarkers={hasData ? insights.topScenarioMarkers : []}
+          topDialogueMarkers={hasData ? insights.topDialogueMarkers : []}
           hasData={!!hasData}
         />
 
@@ -77,8 +77,6 @@ const Home = () => {
             <SessionSummaryCard
               sessionTitle={insights.latestSessionTitle || "Session"}
               sessionDate={insights.latestSessionDate || ""}
-              scenarioScore={insights.scenarioAvg}
-              dialogueScore={insights.dialogueAvg}
               strengths={insights.strengths}
               focusAreas={insights.focusAreas}
             />
