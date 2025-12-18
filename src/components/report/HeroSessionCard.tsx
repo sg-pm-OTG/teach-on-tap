@@ -59,7 +59,7 @@ export const HeroSessionCard = ({
                     {truncateLabel(marker.label)}
                   </span>
                   <span className="text-xs font-semibold bg-white/20 px-1.5 py-0.5 rounded">
-                    {marker.score.toFixed(1)}
+                    {Math.round(marker.score)}
                   </span>
                 </div>
               ))}
@@ -81,7 +81,7 @@ export const HeroSessionCard = ({
                     {truncateLabel(marker.label)}
                   </span>
                   <span className="text-xs font-semibold bg-white/20 px-1.5 py-0.5 rounded">
-                    {marker.score.toFixed(1)}
+                    {Math.round(marker.score)}
                   </span>
                 </div>
               ))}
