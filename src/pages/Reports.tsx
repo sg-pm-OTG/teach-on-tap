@@ -118,6 +118,14 @@ const Reports = () => {
     }
   };
 
+  // Get top N performing markers from a scores array
+  const getTopMarkers = (scores: typeof selectedReport.scenarioScores, count: number = 2) => {
+    return [...scores]
+      .sort((a, b) => b.score - a.score)
+      .slice(0, count)
+      .map(s => ({ label: s.label, score: s.score }));
+  };
+
   const handleDownloadAudio = async () => {
     if (!selectedReport?.audioFileUrl) {
       toast.error("No audio file available for this session");
@@ -248,26 +256,8 @@ const Reports = () => {
               date={formatSessionDate(selectedReport.sessionDate)}
               participants={selectedReport.participants}
               activityType={selectedReport.sessionType}
-              scenarioAvg={selectedReport.scenarioAvg}
-              dialogueAvg={selectedReport.dialogueAvg}
-              trendBadges={
-                comparisonReport ? {
-                  scenario: (
-                    <TrendBadge
-                      currentValue={selectedReport.scenarioAvg}
-                      previousValue={comparisonReport.scenarioAvg}
-                      size="sm"
-                    />
-                  ),
-                  dialogue: (
-                    <TrendBadge
-                      currentValue={selectedReport.dialogueAvg}
-                      previousValue={comparisonReport.dialogueAvg}
-                      size="sm"
-                    />
-                  ),
-                } : undefined
-              }
+              topScenarioMarkers={getTopMarkers(selectedReport.scenarioScores)}
+              topDialogueMarkers={getTopMarkers(selectedReport.dialogueScores)}
             />
           </div>
 
