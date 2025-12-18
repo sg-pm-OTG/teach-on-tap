@@ -29,11 +29,12 @@ interface SurveyComparison {
   categoryCode: string;
   categoryName: string;
   preSurveyScore: number;
-  postSurveyScore: number;
+  postSurveyScore: number | null;
   maxScore: number;
   nationalAverage: number;
-  change: number;
+  change: number | null;
   interpretation: string;
+  hasPostData: boolean;
 }
 
 interface DifficultyProgression {
@@ -246,24 +247,30 @@ export const useFinalReportData = () => {
 
   // Process survey comparisons (Learning Beliefs only for post-survey)
   const beliefComparisons = useMemo<SurveyComparison[]>(() => {
-    if (!preSurveyResults || !postSurveyResults) return [];
+    if (!preSurveyResults) return [];
 
     const learningBeliefCodes = ["A1", "A2", "A3"];
+    const hasPostSurvey = postSurveyResults && postSurveyResults.length > 0;
     
     return learningBeliefCodes.map((code) => {
       const pre = preSurveyResults.find((r) => r.category_code === code);
-      const post = postSurveyResults.find((r) => r.category_code === code);
+      const post = hasPostSurvey 
+        ? postSurveyResults.find((r) => r.category_code === code) 
+        : null;
 
       if (!pre) return null;
 
       const preScore = Number(pre.user_score);
-      const postScore = post ? Number(post.user_score) : preScore;
-      const change = postScore - preScore;
+      const postScore = post ? Number(post.user_score) : null;
+      const change = postScore !== null ? postScore - preScore : null;
 
-      let interpretation = "No Change";
-      if (change > 0.5) interpretation = "Healthy Shift";
-      else if (change < -0.5) interpretation = "Slight Decline";
-      else if (postScore > 4) interpretation = "Still Dominant";
+      let interpretation = "";
+      if (change !== null) {
+        if (change > 0.5) interpretation = "Healthy Shift";
+        else if (change < -0.5) interpretation = "Slight Decline";
+        else if (postScore !== null && postScore > 4) interpretation = "Still Dominant";
+        else interpretation = "No Change";
+      }
 
       return {
         categoryCode: code,
@@ -274,6 +281,7 @@ export const useFinalReportData = () => {
         nationalAverage: Number(pre.national_average),
         change,
         interpretation,
+        hasPostData: postScore !== null,
       };
     }).filter(Boolean) as SurveyComparison[];
   }, [preSurveyResults, postSurveyResults]);
