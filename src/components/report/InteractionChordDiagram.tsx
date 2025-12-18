@@ -6,6 +6,7 @@ import { descending } from "d3-array";
 interface InteractionChordDiagramProps {
   interactions: number[][];
   labels: string[];
+  bare?: boolean;
 }
 
 const SPEAKER_COLORS = [
@@ -17,7 +18,7 @@ const SPEAKER_COLORS = [
   "hsl(200, 70%, 50%)",
 ];
 
-export const InteractionChordDiagram = ({ interactions, labels }: InteractionChordDiagramProps) => {
+export const InteractionChordDiagram = ({ interactions, labels, bare = false }: InteractionChordDiagramProps) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isAnimated, setIsAnimated] = useState(false);
 
@@ -65,157 +66,171 @@ export const InteractionChordDiagram = ({ interactions, labels }: InteractionCho
     return { x, y, angle };
   };
 
+  const svgContent = (
+    <div className="flex justify-center">
+      <svg width={size} height={size} viewBox={`${-size/2} ${-size/2} ${size} ${size}`}>
+        <defs>
+          <style>{`
+            @keyframes arcGrow {
+              from {
+                transform: scale(0);
+                opacity: 0;
+              }
+              to {
+                transform: scale(1);
+                opacity: 1;
+              }
+            }
+            @keyframes ribbonFade {
+              from {
+                opacity: 0;
+                transform: scale(0.8);
+              }
+              to {
+                opacity: 0.65;
+                transform: scale(1);
+              }
+            }
+            @keyframes labelFade {
+              from {
+                opacity: 0;
+              }
+              to {
+                opacity: 1;
+              }
+            }
+          `}</style>
+        </defs>
+
+        {/* Arcs (outer segments for each speaker) */}
+        {chordData.groups.map((group, i) => {
+          const path = arcGenerator(group);
+          const isSelected = selectedIndex === i;
+          const isOtherSelected = selectedIndex !== null && selectedIndex !== i;
+          
+          return (
+            <g key={`arc-${i}`}>
+              <path
+                d={path || ""}
+                fill={getColor(i)}
+                opacity={isOtherSelected ? 0.3 : 1}
+                stroke={isSelected ? "hsl(var(--foreground))" : "hsl(var(--background))"}
+                strokeWidth={isSelected ? 2 : 1}
+                onClick={() => handleSpeakerClick(i)}
+                className="cursor-pointer transition-all duration-200"
+                style={{
+                  transformOrigin: 'center',
+                  animation: isAnimated ? `arcGrow 0.5s ease-out ${i * 0.08}s forwards` : 'none',
+                  opacity: isAnimated ? undefined : 0,
+                }}
+              />
+            </g>
+          );
+        })}
+
+        {/* Ribbons (connections between speakers) */}
+        {chordData.map((chordItem, i) => {
+          const ribbonGen = ribbon().radius(innerRadius);
+          // @ts-ignore - d3-chord types are overly complex, this works at runtime
+          const pathData: string | null = ribbonGen(chordItem);
+          const isHighlighted = selectedIndex === null || 
+            selectedIndex === chordItem.source.index || 
+            selectedIndex === chordItem.target.index;
+          
+          const sourceColor = getColor(chordItem.source.index);
+          
+          if (!pathData) return null;
+          
+          const baseDelay = chordData.groups.length * 0.08 + 0.2;
+          
+          return (
+            <path
+              key={`ribbon-${i}`}
+              d={pathData}
+              fill={sourceColor}
+              stroke={sourceColor}
+              strokeWidth={isHighlighted ? 0.5 : 0}
+              className="transition-all duration-200 pointer-events-none"
+              style={{
+                transformOrigin: 'center',
+                animation: isAnimated ? `ribbonFade 0.4s ease-out ${baseDelay + i * 0.05}s forwards` : 'none',
+                opacity: isAnimated ? (isHighlighted ? 0.65 : 0.1) : 0,
+              }}
+            />
+          );
+        })}
+
+        {/* Labels */}
+        {chordData.groups.map((group, i) => {
+          const { x, y, angle } = getLabelPosition(group);
+          const rotationDeg = angle * 180 / Math.PI;
+          const shouldFlip = rotationDeg > 90 && rotationDeg < 270;
+          const finalRotation = shouldFlip ? rotationDeg + 180 : rotationDeg;
+          
+          return (
+            <text
+              key={`label-${i}`}
+              x={x}
+              y={y}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              className="text-[10px] font-medium fill-foreground"
+              transform={`rotate(${finalRotation}, ${x}, ${y})`}
+              style={{
+                animation: isAnimated ? `labelFade 0.3s ease-out ${0.3 + i * 0.08}s forwards` : 'none',
+                opacity: isAnimated ? undefined : 0,
+              }}
+            >
+              {labels[i]}
+            </text>
+          );
+        })}
+      </svg>
+    </div>
+  );
+
+  const legendContent = (
+    <div className="flex flex-wrap items-center justify-center gap-3 mt-4 pt-3 border-t border-border">
+      {labels.map((label, i) => {
+        const isSelected = selectedIndex === i;
+        return (
+          <div 
+            key={label} 
+            className={`flex items-center gap-1.5 cursor-pointer px-2 py-1 rounded-full transition-all duration-200 ${
+              isSelected ? 'bg-muted ring-1 ring-primary' : 'hover:bg-muted/50'
+            }`}
+            onClick={() => handleSpeakerClick(i)}
+          >
+            <div 
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: getColor(i) }}
+            />
+            <span className={`text-[10px] ${isSelected ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+              {label}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  if (bare) {
+    return (
+      <div>
+        {svgContent}
+        {legendContent}
+      </div>
+    );
+  }
+
   return (
     <div className="bg-card rounded-xl border border-border p-4">
       <h4 className="font-medium text-sm text-foreground mb-2">Speaker Interaction Flow</h4>
       <p className="text-xs text-muted-foreground mb-4">
         Shows interaction patterns between speakers. Thicker ribbons indicate more interactions.
       </p>
-
-      <div className="flex justify-center">
-        <svg width={size} height={size} viewBox={`${-size/2} ${-size/2} ${size} ${size}`}>
-          <defs>
-            <style>{`
-              @keyframes arcGrow {
-                from {
-                  transform: scale(0);
-                  opacity: 0;
-                }
-                to {
-                  transform: scale(1);
-                  opacity: 1;
-                }
-              }
-              @keyframes ribbonFade {
-                from {
-                  opacity: 0;
-                  transform: scale(0.8);
-                }
-                to {
-                  opacity: 0.65;
-                  transform: scale(1);
-                }
-              }
-              @keyframes labelFade {
-                from {
-                  opacity: 0;
-                }
-                to {
-                  opacity: 1;
-                }
-              }
-            `}</style>
-          </defs>
-
-          {/* Arcs (outer segments for each speaker) */}
-          {chordData.groups.map((group, i) => {
-            const path = arcGenerator(group);
-            const isSelected = selectedIndex === i;
-            const isOtherSelected = selectedIndex !== null && selectedIndex !== i;
-            
-            return (
-              <g key={`arc-${i}`}>
-                <path
-                  d={path || ""}
-                  fill={getColor(i)}
-                  opacity={isOtherSelected ? 0.3 : 1}
-                  stroke={isSelected ? "hsl(var(--foreground))" : "hsl(var(--background))"}
-                  strokeWidth={isSelected ? 2 : 1}
-                  onClick={() => handleSpeakerClick(i)}
-                  className="cursor-pointer transition-all duration-200"
-                  style={{
-                    transformOrigin: 'center',
-                    animation: isAnimated ? `arcGrow 0.5s ease-out ${i * 0.08}s forwards` : 'none',
-                    opacity: isAnimated ? undefined : 0,
-                  }}
-                />
-              </g>
-            );
-          })}
-
-          {/* Ribbons (connections between speakers) */}
-          {chordData.map((chordItem, i) => {
-            const ribbonGen = ribbon().radius(innerRadius);
-            // @ts-ignore - d3-chord types are overly complex, this works at runtime
-            const pathData: string | null = ribbonGen(chordItem);
-            const isHighlighted = selectedIndex === null || 
-              selectedIndex === chordItem.source.index || 
-              selectedIndex === chordItem.target.index;
-            
-            const sourceColor = getColor(chordItem.source.index);
-            
-            if (!pathData) return null;
-            
-            const baseDelay = chordData.groups.length * 0.08 + 0.2;
-            
-            return (
-              <path
-                key={`ribbon-${i}`}
-                d={pathData}
-                fill={sourceColor}
-                stroke={sourceColor}
-                strokeWidth={isHighlighted ? 0.5 : 0}
-                className="transition-all duration-200 pointer-events-none"
-                style={{
-                  transformOrigin: 'center',
-                  animation: isAnimated ? `ribbonFade 0.4s ease-out ${baseDelay + i * 0.05}s forwards` : 'none',
-                  opacity: isAnimated ? (isHighlighted ? 0.65 : 0.1) : 0,
-                }}
-              />
-            );
-          })}
-
-          {/* Labels */}
-          {chordData.groups.map((group, i) => {
-            const { x, y, angle } = getLabelPosition(group);
-            const rotationDeg = angle * 180 / Math.PI;
-            const shouldFlip = rotationDeg > 90 && rotationDeg < 270;
-            const finalRotation = shouldFlip ? rotationDeg + 180 : rotationDeg;
-            
-            return (
-              <text
-                key={`label-${i}`}
-                x={x}
-                y={y}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                className="text-[10px] font-medium fill-foreground"
-                transform={`rotate(${finalRotation}, ${x}, ${y})`}
-                style={{
-                  animation: isAnimated ? `labelFade 0.3s ease-out ${0.3 + i * 0.08}s forwards` : 'none',
-                  opacity: isAnimated ? undefined : 0,
-                }}
-              >
-                {labels[i]}
-              </text>
-            );
-          })}
-        </svg>
-      </div>
-
-      {/* Legend */}
-      <div className="flex flex-wrap items-center justify-center gap-3 mt-4 pt-3 border-t border-border">
-        {labels.map((label, i) => {
-          const isSelected = selectedIndex === i;
-          return (
-            <div 
-              key={label} 
-              className={`flex items-center gap-1.5 cursor-pointer px-2 py-1 rounded-full transition-all duration-200 ${
-                isSelected ? 'bg-muted ring-1 ring-primary' : 'hover:bg-muted/50'
-              }`}
-              onClick={() => handleSpeakerClick(i)}
-            >
-              <div 
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: getColor(i) }}
-              />
-              <span className={`text-[10px] ${isSelected ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
-                {label}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+      {svgContent}
+      {legendContent}
     </div>
   );
 };

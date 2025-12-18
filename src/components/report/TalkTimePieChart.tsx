@@ -9,6 +9,8 @@ interface TalkTimeData {
 
 interface TalkTimePieChartProps {
   data: TalkTimeData[];
+  bare?: boolean;
+  compact?: boolean;
 }
 
 const COLORS = [
@@ -44,7 +46,7 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-export const TalkTimePieChart = ({ data }: TalkTimePieChartProps) => {
+export const TalkTimePieChart = ({ data, bare = false, compact = false }: TalkTimePieChartProps) => {
   const chartData = data.map((item, index) => ({
     ...item,
     name: item.speaker,
@@ -52,28 +54,31 @@ export const TalkTimePieChart = ({ data }: TalkTimePieChartProps) => {
     fill: COLORS[index % COLORS.length],
   }));
 
-  return (
-    <div className="bg-card rounded-xl border border-border p-4">
-      <h4 className="font-medium text-sm text-foreground mb-2 text-center">Talk Time Distribution</h4>
-      <div className="w-full h-[280px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={chartData}
-              cx="50%"
-              cy="45%"
-              innerRadius={45}
-              outerRadius={80}
-              paddingAngle={2}
-              dataKey="value"
-              label={({ speaker, percentage }) => `${percentage}%`}
-              labelLine={false}
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.fill} />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
+  const chartHeight = compact ? 160 : 280;
+  const innerRadius = compact ? 30 : 45;
+  const outerRadius = compact ? 55 : 80;
+
+  const chartContent = (
+    <div className="w-full" style={{ height: chartHeight }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={chartData}
+            cx="50%"
+            cy="45%"
+            innerRadius={innerRadius}
+            outerRadius={outerRadius}
+            paddingAngle={2}
+            dataKey="value"
+            label={compact ? false : ({ percentage }) => `${percentage}%`}
+            labelLine={false}
+          >
+            {chartData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.fill} />
+            ))}
+          </Pie>
+          <Tooltip content={<CustomTooltip />} />
+          {!compact && (
             <Legend
               layout="horizontal"
               verticalAlign="bottom"
@@ -83,9 +88,20 @@ export const TalkTimePieChart = ({ data }: TalkTimePieChartProps) => {
                 <span className="text-muted-foreground">{value}</span>
               )}
             />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
+          )}
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  );
+
+  if (bare) {
+    return chartContent;
+  }
+
+  return (
+    <div className="bg-card rounded-xl border border-border p-4">
+      <h4 className="font-medium text-sm text-foreground mb-2 text-center">Talk Time Distribution</h4>
+      {chartContent}
     </div>
   );
 };
