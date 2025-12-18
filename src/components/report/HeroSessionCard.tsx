@@ -1,5 +1,9 @@
 import { MapPin, Calendar, Users, BookOpen, Target, MessageCircle } from "lucide-react";
-import { ReactNode } from "react";
+
+interface TopMarker {
+  label: string;
+  score: number;
+}
 
 interface HeroSessionCardProps {
   title: string;
@@ -7,12 +11,8 @@ interface HeroSessionCardProps {
   date: string;
   participants: number;
   activityType: string;
-  scenarioAvg?: number;
-  dialogueAvg?: number;
-  trendBadges?: {
-    scenario?: ReactNode;
-    dialogue?: ReactNode;
-  };
+  topScenarioMarkers?: TopMarker[];
+  topDialogueMarkers?: TopMarker[];
 }
 
 export const HeroSessionCard = ({ 
@@ -21,9 +21,8 @@ export const HeroSessionCard = ({
   date, 
   participants, 
   activityType,
-  scenarioAvg,
-  dialogueAvg,
-  trendBadges,
+  topScenarioMarkers = [],
+  topDialogueMarkers = [],
 }: HeroSessionCardProps) => {
   const details = [
     { icon: MapPin, label: "Course", value: useSite },
@@ -32,40 +31,60 @@ export const HeroSessionCard = ({
     { icon: BookOpen, label: "Activity", value: activityType },
   ];
 
+  const truncateLabel = (label: string, maxLength: number = 14) => {
+    return label.length > maxLength ? label.slice(0, maxLength) + "…" : label;
+  };
+
   return (
     <div className="bg-gradient-to-br from-teal-500 to-blue-600 rounded-2xl p-5 text-white shadow-lg">
       <div className="flex items-start justify-between mb-4">
         <h1 className="text-xl font-bold">{title}</h1>
       </div>
 
-      {/* Dual Score Display */}
-      {(scenarioAvg !== undefined || dialogueAvg !== undefined) && (
+      {/* Top Performing Markers Display */}
+      {(topScenarioMarkers.length > 0 || topDialogueMarkers.length > 0) && (
         <div className="grid grid-cols-2 gap-3 mb-4">
-          {/* Scenario Score */}
+          {/* Scenario Top Markers */}
           <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-2">
               <div className="w-6 h-6 rounded-full bg-orange-500/30 flex items-center justify-center">
                 <Target className="h-3.5 w-3.5 text-orange-200" />
               </div>
-              <span className="text-xs text-white/80">Scenario</span>
+              <span className="text-xs text-white/80">Top Scenario</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold">{scenarioAvg?.toFixed(1)}/4</span>
-              {trendBadges?.scenario}
+            <div className="space-y-1.5">
+              {topScenarioMarkers.map((marker, idx) => (
+                <div key={idx} className="flex items-center justify-between">
+                  <span className="text-xs text-white/90 truncate mr-2">
+                    {truncateLabel(marker.label)}
+                  </span>
+                  <span className="text-xs font-semibold bg-white/20 px-1.5 py-0.5 rounded">
+                    {marker.score.toFixed(1)}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Dialogue Score */}
+          {/* Dialogue Top Markers */}
           <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-2">
               <div className="w-6 h-6 rounded-full bg-teal-300/30 flex items-center justify-center">
                 <MessageCircle className="h-3.5 w-3.5 text-teal-100" />
               </div>
-              <span className="text-xs text-white/80">Dialogue</span>
+              <span className="text-xs text-white/80">Top Dialogue</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold">{dialogueAvg?.toFixed(1)}/4</span>
-              {trendBadges?.dialogue}
+            <div className="space-y-1.5">
+              {topDialogueMarkers.map((marker, idx) => (
+                <div key={idx} className="flex items-center justify-between">
+                  <span className="text-xs text-white/90 truncate mr-2">
+                    {truncateLabel(marker.label)}
+                  </span>
+                  <span className="text-xs font-semibold bg-white/20 px-1.5 py-0.5 rounded">
+                    {marker.score.toFixed(1)}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
