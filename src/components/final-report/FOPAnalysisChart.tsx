@@ -59,17 +59,24 @@ export const FOPAnalysisChart = ({
     return point;
   });
 
-  // Calculate averages per session
-  const averagesBySession = data.map((session) => ({
-    session: session.sessionLabel,
-    average:
-      session.markers.reduce((sum, m) => sum + m.score, 0) / 
-      (session.markers.length || 1),
-  }));
+  // Find most improved marker (comparing first to latest session)
+  const firstSession = data[0];
+  const latestSession = data[data.length - 1];
+  const hasMultipleSessions = data.length > 1;
 
-  const firstAvg = averagesBySession[0]?.average || 0;
-  const lastAvg = averagesBySession[averagesBySession.length - 1]?.average || 0;
-  const avgChange = lastAvg - firstAvg;
+  const markerChanges = markerNames.map((name) => {
+    const firstScore = firstSession?.markers.find((m) => m.name === name)?.score || 0;
+    const latestScore = latestSession?.markers.find((m) => m.name === name)?.score || 0;
+    return { name, change: latestScore - firstScore, latestScore };
+  });
+
+  const mostImproved = markerChanges.reduce((best, current) => 
+    current.change > best.change ? current : best
+  , markerChanges[0]);
+
+  const topPerformer = latestSession?.markers.reduce((best, current) => 
+    current.score > best.score ? current : best
+  , latestSession?.markers[0]);
 
   return (
     <div className="space-y-4">
@@ -79,29 +86,26 @@ export const FOPAnalysisChart = ({
         <p className="text-sm text-muted-foreground mt-1">{description}</p>
       </div>
 
-      {/* Summary */}
-      <div className="flex items-center gap-4 bg-muted/50 rounded-xl p-3">
-        <div className="text-center">
-          <p className="text-xl font-bold text-primary">{Math.round(firstAvg)}</p>
-          <p className="text-xs text-muted-foreground">First</p>
-        </div>
-        <div className="flex-1 flex items-center justify-center">
-          <div 
-            className={`px-3 py-1 rounded-full text-sm font-medium ${
-              avgChange > 0 
-                ? "bg-green-100 text-green-700" 
-                : avgChange < 0 
-                ? "bg-red-100 text-red-700"
-                : "bg-muted text-muted-foreground"
-            }`}
-          >
-            {avgChange > 0 ? "+" : ""}{Math.round(avgChange)}
+      {/* Summary - Individual Marker Insights */}
+      <div className="grid grid-cols-2 gap-2">
+        {hasMultipleSessions && mostImproved && (
+          <div className="bg-green-50 dark:bg-green-950/30 rounded-xl p-3 border border-green-200 dark:border-green-800">
+            <p className="text-[10px] uppercase tracking-wide text-green-600 dark:text-green-400 font-medium">Most Improved</p>
+            <p className="text-sm font-medium text-foreground truncate mt-1">{mostImproved.name}</p>
+            <p className="text-xs text-green-600 dark:text-green-400 mt-0.5">
+              ↑ +{Math.round(mostImproved.change)} growth
+            </p>
           </div>
-        </div>
-        <div className="text-center">
-          <p className="text-xl font-bold text-secondary">{Math.round(lastAvg)}</p>
-          <p className="text-xs text-muted-foreground">Latest</p>
-        </div>
+        )}
+        {topPerformer && (
+          <div className={`bg-primary/5 rounded-xl p-3 border border-primary/20 ${!hasMultipleSessions ? 'col-span-2' : ''}`}>
+            <p className="text-[10px] uppercase tracking-wide text-primary font-medium">Top Performer</p>
+            <p className="text-sm font-medium text-foreground truncate mt-1">{topPerformer.name}</p>
+            <p className="text-xs text-primary mt-0.5">
+              Score: {Math.round(topPerformer.score)}/4
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Chart */}
