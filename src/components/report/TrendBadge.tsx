@@ -11,7 +11,6 @@ interface TrendBadgeProps {
 export const TrendBadge = ({
   currentValue,
   previousValue,
-  precision = 1,
   size = "sm",
 }: TrendBadgeProps) => {
   const diff = currentValue - previousValue;
@@ -19,7 +18,7 @@ export const TrendBadge = ({
   const isNegative = diff < 0;
   const isNeutral = diff === 0;
 
-  const formattedDiff = Math.abs(diff).toFixed(precision);
+  const formattedDiff = Math.round(Math.abs(diff));
   
   const sizeClasses = size === "sm" 
     ? "text-[10px] px-1.5 py-0.5 gap-0.5" 

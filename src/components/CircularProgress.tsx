@@ -59,7 +59,7 @@ export const CircularProgress = ({
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div className="flex items-baseline">
-          <span className="text-base font-bold text-foreground">{value.toFixed(1)}</span>
+          <span className="text-base font-bold text-foreground">{Math.round(value)}</span>
           <span className="text-[10px] text-muted-foreground ml-0.5">/{maxValue}</span>
         </div>
         {label && <span className="text-[9px] text-muted-foreground">{label}</span>}

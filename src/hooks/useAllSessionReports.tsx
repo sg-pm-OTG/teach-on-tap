@@ -270,8 +270,8 @@ export const useAllSessionReports = () => {
         dialogueScores,
         dialogueAnalysis,
         finalSummary,
-        scenarioAvg: parseFloat(scenarioAvg.toFixed(1)),
-        dialogueAvg: parseFloat(dialogueAvg.toFixed(1)),
+        scenarioAvg: Math.round(scenarioAvg),
+        dialogueAvg: Math.round(dialogueAvg),
       };
     });
   }, [rawReports]);
@@ -411,8 +411,8 @@ export const useAllSessionReports = () => {
       dialogueScores,
       dialogueAnalysis,
       finalSummary,
-      scenarioAvg: parseFloat(scenarioAvg.toFixed(1)),
-      dialogueAvg: parseFloat(dialogueAvg.toFixed(1)),
+      scenarioAvg: Math.round(scenarioAvg),
+      dialogueAvg: Math.round(dialogueAvg),
       isBaseline: true,
     } as SessionReport & { isBaseline: boolean };
   }, [rawBaselineReport]);
