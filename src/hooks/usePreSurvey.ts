@@ -24,14 +24,16 @@ export const usePreSurvey = () => {
     return responses.get(key);
   };
 
-  const calculateResults = (): PreSurveyResult[] => {
+  const calculateResults = (overrideResponses?: Map<string, number>): PreSurveyResult[] => {
+    const responsesToUse = overrideResponses || responses;
     const results: PreSurveyResult[] = [];
 
     for (const category of preSurveyCategories) {
       const categoryResponses: number[] = [];
       
       for (let i = 0; i < category.questions.length; i++) {
-        const response = getResponse(category.code, i);
+        const key = `${category.code}_${i}`;
+        const response = responsesToUse.get(key);
         if (response !== undefined) {
           categoryResponses.push(response);
         }
@@ -55,14 +57,27 @@ export const usePreSurvey = () => {
     return results;
   };
 
-  const submitSurvey = async (): Promise<boolean> => {
+  const submitSurvey = async (overrideResponses?: Map<string, number>): Promise<boolean> => {
     if (!user) return false;
+    
+    const responsesToSubmit = overrideResponses || responses;
+    
+    // Validate we have responses to submit
+    if (responsesToSubmit.size === 0) {
+      console.error('No responses to submit');
+      toast({
+        title: "Error",
+        description: "No responses to submit. Please answer the questions first.",
+        variant: "destructive",
+      });
+      return false;
+    }
     
     setIsSubmitting(true);
     try {
       // Save individual responses
       const responseEntries: PreSurveyResponse[] = [];
-      responses.forEach((value, key) => {
+      responsesToSubmit.forEach((value, key) => {
         const [categoryCode, questionIndexStr] = key.split('_');
         responseEntries.push({
           categoryCode,
@@ -70,6 +85,8 @@ export const usePreSurvey = () => {
           responseValue: value,
         });
       });
+
+      console.log(`Submitting ${responseEntries.length} pre-survey responses`);
 
       // Insert responses
       const { error: responseError } = await supabase
@@ -87,8 +104,10 @@ export const usePreSurvey = () => {
       if (responseError) throw responseError;
 
       // Calculate and save results
-      const calculatedResults = calculateResults();
+      const calculatedResults = calculateResults(responsesToSubmit);
       
+      console.log(`Calculated ${calculatedResults.length} pre-survey results`);
+
       const { error: resultsError } = await supabase
         .from('pre_survey_results')
         .upsert(
@@ -114,6 +133,7 @@ export const usePreSurvey = () => {
 
       if (profileError) throw profileError;
 
+      console.log('Pre-survey submission completed successfully');
       setResults(calculatedResults);
       return true;
     } catch (error) {
@@ -182,10 +202,9 @@ export const usePreSurvey = () => {
   };
 
   const submitDemoSurvey = async (): Promise<boolean> => {
-    generateRandomResponses();
-    // Need a small delay to let state update before calculating results
-    await new Promise(resolve => setTimeout(resolve, 100));
-    return submitSurvey();
+    const generatedResponses = generateRandomResponses();
+    // Pass responses directly to avoid race condition with async state updates
+    return submitSurvey(generatedResponses);
   };
 
   return {
