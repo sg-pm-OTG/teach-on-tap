@@ -70,9 +70,9 @@ export const StructuralAnalysis = ({
       <div className="space-y-3">
         <h4 className="text-sm font-medium text-foreground">Talk Time Distribution</h4>
         
-        {/* Latest session - large chart */}
+        {/* Latest session - uses full TalkTimePieChart with its own wrapper */}
         {latestSession && latestSession.data.length > 0 && (
-          <div className="bg-card rounded-xl border border-border p-4">
+          <div>
             <p className="text-xs text-muted-foreground mb-2 text-center">
               {latestSession.sessionLabel} (Latest)
             </p>
@@ -80,24 +80,22 @@ export const StructuralAnalysis = ({
           </div>
         )}
 
-        {/* Previous sessions - small charts */}
+        {/* Previous sessions - compact bare charts in scrollable row */}
         {talkTimeBySession.length > 1 && (
           <div className="overflow-x-auto -mx-4 px-4">
             <div className="flex gap-3" style={{ minWidth: "max-content" }}>
               {talkTimeBySession.slice(0, -1).map((session) => (
                 <div 
                   key={session.session}
-                  className="flex-shrink-0 w-48 bg-muted/30 rounded-xl p-3"
+                  className="flex-shrink-0 w-44 bg-muted/30 rounded-xl p-3"
                 >
                   <p className="text-xs text-muted-foreground mb-2 text-center">
                     {session.sessionLabel}
                   </p>
                   {session.data.length > 0 ? (
-                    <div className="h-32">
-                      <TalkTimePieChart data={session.data} />
-                    </div>
+                    <TalkTimePieChart data={session.data} bare compact />
                   ) : (
-                    <div className="h-32 flex items-center justify-center text-xs text-muted-foreground">
+                    <div className="h-40 flex items-center justify-center text-xs text-muted-foreground">
                       No data
                     </div>
                   )}
@@ -114,15 +112,13 @@ export const StructuralAnalysis = ({
        latestSpeakerInteractions.speakers?.length > 0 && (
         <div className="space-y-3">
           <h4 className="text-sm font-medium text-foreground">Speaker Interaction Flow</h4>
-          <div className="bg-card rounded-xl border border-border p-4">
-            <p className="text-xs text-muted-foreground mb-3 text-center">
-              Latest Session Interaction Patterns
-            </p>
-            <InteractionChordDiagram
-              interactions={latestSpeakerInteractions.interactions}
-              labels={latestSpeakerInteractions.speakers}
-            />
-          </div>
+          <p className="text-xs text-muted-foreground text-center mb-2">
+            Latest Session Interaction Patterns
+          </p>
+          <InteractionChordDiagram
+            interactions={latestSpeakerInteractions.interactions}
+            labels={latestSpeakerInteractions.speakers}
+          />
           <p className="text-xs text-muted-foreground text-center">
             Tap on a speaker to highlight their interactions
           </p>
