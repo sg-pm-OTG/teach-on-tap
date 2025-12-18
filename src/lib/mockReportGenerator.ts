@@ -182,7 +182,7 @@ export function generateMockReport(sessionDetails: SessionDetails) {
   const overallScore = (avgScenarioScore + avgDialogueScore) / 2;
   
   const finalSummary = {
-    overallScore: parseFloat(overallScore.toFixed(1)),
+    overallScore: Math.round(overallScore),
     strengths: scenarioScores.concat(dialogueScores)
       .filter(s => s.score >= 3)
       .sort((a, b) => b.score - a.score)

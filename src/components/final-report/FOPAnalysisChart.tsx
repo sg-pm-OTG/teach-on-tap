@@ -82,7 +82,7 @@ export const FOPAnalysisChart = ({
       {/* Summary */}
       <div className="flex items-center gap-4 bg-muted/50 rounded-xl p-3">
         <div className="text-center">
-          <p className="text-xl font-bold text-primary">{firstAvg.toFixed(1)}</p>
+          <p className="text-xl font-bold text-primary">{Math.round(firstAvg)}</p>
           <p className="text-xs text-muted-foreground">First</p>
         </div>
         <div className="flex-1 flex items-center justify-center">
@@ -95,11 +95,11 @@ export const FOPAnalysisChart = ({
                 : "bg-muted text-muted-foreground"
             }`}
           >
-            {avgChange > 0 ? "+" : ""}{avgChange.toFixed(2)}
+            {avgChange > 0 ? "+" : ""}{Math.round(avgChange)}
           </div>
         </div>
         <div className="text-center">
-          <p className="text-xl font-bold text-secondary">{lastAvg.toFixed(1)}</p>
+          <p className="text-xl font-bold text-secondary">{Math.round(lastAvg)}</p>
           <p className="text-xs text-muted-foreground">Latest</p>
         </div>
       </div>
@@ -131,7 +131,7 @@ export const FOPAnalysisChart = ({
                 formatter={(value: number, name: string, props: any) => {
                   const idx = parseInt(name.replace("marker", ""));
                   const markerName = props.payload[`marker${idx}Name`];
-                  return [value.toFixed(2), markerName];
+                  return [Math.round(value), markerName];
                 }}
               />
               {markerNames.map((_, idx) => (
@@ -182,7 +182,7 @@ export const FOPAnalysisChart = ({
                 {marker.name}
               </span>
               <span className="text-xs font-medium text-foreground">
-                {marker.score.toFixed(1)}
+                {Math.round(marker.score)}
               </span>
             </div>
           ))}
