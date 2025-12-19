@@ -112,6 +112,7 @@ const themeIcons = ["Target", "Wrench", "Brain", "Compass", "Users"];
 const themeColors = ["bg-rose-100", "bg-amber-100", "bg-purple-100", "bg-blue-100", "bg-emerald-100"];
 
 export const useAllSessionReports = () => {
+  console.log(import.meta.env.VITE_API_URL)
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [comparisonReportIds, setComparisonReportIds] = useState<string[]>([]);
 
@@ -133,7 +134,7 @@ export const useAllSessionReports = () => {
 
       const token = await getAccessToken();
       const allSession = await axios.get(
-        `https://be-sussial.otg-lab.xyz/api/v1/analyze/sessions`,
+        `${import.meta.env.VITE_API_URL}/api/v1/analyze/sessions`,
         {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 30_000,
@@ -143,7 +144,7 @@ export const useAllSessionReports = () => {
       const rawData = await Promise.all(
         allSession.data.data.map(async (item: any) => {
         const res = await axios.get(
-          `https://be-sussial.otg-lab.xyz/api/v1/analyze/result?session_id=${item.session_id}`,
+          `${import.meta.env.VITE_API_URL}/api/v1/analyze/result?session_id=${item.session_id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
             timeout: 30_000,
@@ -266,7 +267,7 @@ export const useAllSessionReports = () => {
 
       const token = await getAccessToken();
       const allSession = await axios.get(
-        `https://be-sussial.otg-lab.xyz/api/v1/analyze/sessions`,
+        `${import.meta.env.VITE_API_URL}/api/v1/analyze/sessions`,
         {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 30_000,
@@ -277,7 +278,7 @@ export const useAllSessionReports = () => {
       const rawData = await Promise.all(
         allSession.data.data.map(async (item: any) => {
         const res = await axios.get(
-          `https://be-sussial.otg-lab.xyz/api/v1/analyze/result?session_id=${item.session_id}`,
+          `${import.meta.env.VITE_API_URL}/api/v1/analyze/result?session_id=${item.session_id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
             timeout: 30_000,

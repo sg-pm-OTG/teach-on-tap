@@ -65,7 +65,7 @@ export const useAudioRecorder = (): UseAudioRecorderReturn => {
 
     try {
       const res = await axios.post(
-        "https://be-sussial.otg-lab.xyz/api/v1/analyze/upload",
+        `${import.meta.env.VITE_API_URL}/api/v1/analyze/upload`,
         formData,
         {
           headers: {

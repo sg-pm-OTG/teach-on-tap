@@ -67,7 +67,7 @@ const Processing = () => {
           try {
             const token = await getAccessToken();
             const res = await axios.get(
-              `https://be-sussial.otg-lab.xyz/api/v1/analyze/result?session_id=${sessionId}`,
+              `${import.meta.env.VITE_API_URL}/api/v1/analyze/result?session_id=${sessionId}`,
               {
                 headers: { Authorization: `Bearer ${token}` },
                 timeout: 30_000,

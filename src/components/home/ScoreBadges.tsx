@@ -21,7 +21,7 @@ export const ScoreBadges = ({ topScenarioMarkers, topDialogueMarkers, hasData }:
   }
 
   const truncateLabel = (label: string, maxLength: number = 12) => {
-    return label.length > maxLength ? label.substring(0, maxLength) + "…" : label;
+    return label?.length > maxLength ? label.substring(0, maxLength) + "…" : label;
   };
 
   return (
