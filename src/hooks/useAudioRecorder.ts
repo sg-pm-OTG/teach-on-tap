@@ -12,7 +12,7 @@ interface UseAudioRecorderReturn {
   resetRecording: () => void;
 }
 
-const CHUNK_DURATION_MS = 60_000
+const CHUNK_DURATION_MS = 600_000
 
 export const useAudioRecorder = (): UseAudioRecorderReturn => {
   const [isRecording, setIsRecording] = useState(false);
@@ -71,7 +71,7 @@ export const useAudioRecorder = (): UseAudioRecorderReturn => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          timeout: 30_000,
+          timeout: 60_000,
         }
       );
 
