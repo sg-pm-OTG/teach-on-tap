@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
+import axios from 'axios';
 
 const SESSION_TYPES = [
   "Classroom Lesson",
@@ -51,6 +52,7 @@ const Record = () => {
   const [sessionDate, setSessionDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
   const [isBaseline] = useState(presetBaseline);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const sessionRef = useRef(null)
 
   const isFormValid =
     useSite.trim() !== "" &&
@@ -67,7 +69,30 @@ const Record = () => {
 
   const handleRecord = async () => {
     if (!isRecording) {
-      await startRecording();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("You must be logged in to submit a session");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const { data: session, error } = await supabase
+        .from("sessions")
+        .insert({
+          user_id: user.id,
+          use_site: useSite.trim(),
+          number_of_participants: numberOfParticipants,
+          session_type: sessionType,
+          session_date: sessionDate,
+          emergent_scenario: hasEmergentScenario === false ? "AUTO_DETECT" : (emergentScenario.trim() || null),
+          status: "pending",
+          is_baseline: isBaseline,
+        })
+        .select()
+        .single();
+  
+      sessionRef.current = session
+      await startRecording(session.id);
     }
   };
 
@@ -92,7 +117,6 @@ const Record = () => {
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
       if (!user) {
         toast.error("You must be logged in to submit a session");
         setIsSubmitting(false);
@@ -101,55 +125,9 @@ const Record = () => {
 
       let audioFileUrl: string | null = null;
 
-      // Upload audio file if available
-      if (audioBlob) {
-        const timestamp = Date.now();
-        const fileExtension = audioBlob.type.includes("webm") ? "webm" : "mp4";
-        const fileName = `${user.id}/${timestamp}.${fileExtension}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("session-recordings")
-          .upload(fileName, audioBlob, {
-            contentType: audioBlob.type,
-            upsert: false,
-          });
-
-        if (uploadError) {
-          console.error("Error uploading audio:", uploadError);
-          toast.error("Failed to upload audio recording");
-          setIsSubmitting(false);
-          return;
-        }
-
-        // Get the file URL
-        const { data: urlData } = supabase.storage
-          .from("session-recordings")
-          .getPublicUrl(fileName);
-
-        audioFileUrl = urlData.publicUrl;
-      }
-
-      const { data: session, error } = await supabase
-        .from("sessions")
-        .insert({
-          user_id: user.id,
-          use_site: useSite.trim(),
-          number_of_participants: numberOfParticipants,
-          session_type: sessionType,
-          session_date: sessionDate,
-          emergent_scenario: hasEmergentScenario === false ? "AUTO_DETECT" : (emergentScenario.trim() || null),
-          status: "pending",
-          is_baseline: isBaseline,
-          audio_file_url: audioFileUrl,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
       navigate("/processing", {
         state: {
-          sessionId: session.id,
+          sessionId: sessionRef.current.id,
           isBaseline,
           sessionDetails: {
             use_site: useSite.trim(),

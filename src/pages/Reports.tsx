@@ -27,6 +27,7 @@ import { Target, Wrench, Brain, Compass, Users, LucideIcon } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import axios from "axios";
 
 // Icon mapping for themes
 const iconMap: Record<string, LucideIcon> = {
@@ -118,6 +119,16 @@ const Reports = () => {
     }
   };
 
+  const getAccessToken = async (): Promise<string> => {
+    const { data, error } = await supabase.auth.getSession();
+
+    if (error || !data.session?.access_token) {
+      throw new Error("Not authenticated");
+    }
+
+    return data.session.access_token;
+  };
+
   // Get top N performing markers from a scores array
   const getTopMarkers = (scores: typeof selectedReport.scenarioScores, count: number = 2) => {
     return [...scores]
@@ -132,44 +143,70 @@ const Reports = () => {
       return;
     }
 
+  try {
+    setIsDownloading(true);
+    const token = await getAccessToken();
+
+    const res = await axios.get(
+      selectedReport.audioFileUrl,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        responseType: "blob", 
+        timeout: 60_000,
+      }
+    );
+
+    const blob = new Blob([res.data], { type: "audio/wav" });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `session-${selectedReport.sessionId}.wav`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
+
+  } catch (err) {
+    console.error(err);
+    toast.error("Download failed");
+  } finally {
+    setIsDownloading(false);
+  }
+  };
+
+  const handleDownloadTranscript = async () => {
     try {
-      setIsDownloading(true);
-      toast.info("Downloading audio...");
-
-      // Extract file path from the full URL
-      const urlParts = selectedReport.audioFileUrl.split('/session-recordings/');
-      if (urlParts.length < 2) {
-        toast.error("Invalid audio URL format");
-        return;
-      }
-      const filePath = urlParts[1];
-
-      // Call edge function to download
-      const { data, error } = await supabase.functions.invoke('convert-audio-to-mp3', {
-        body: { filePath },
-      });
-
-      if (error) {
-        console.error("Download error:", error);
-        toast.error(`Download failed: ${error.message}`);
+      if (!selectedReport?.transcript) {
+        toast.error("Transcript not available");
         return;
       }
 
-      // The response is the audio blob (WebM format)
-      const blob = new Blob([data], { type: 'audio/webm' });
+      toast.info("Downloading transcript...");
+
+      const content = selectedReport.transcript;
+
+      const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
+
       const a = document.createElement("a");
       a.href = url;
-      a.download = `session-${format(parseISO(selectedReport.sessionDate), "yyyy-MM-dd")}.webm`;
+      a.download = `transcript-${selectedReport.sessionId}.txt`;
+
       document.body.appendChild(a);
       a.click();
+
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      
-      toast.success("Audio downloaded successfully");
-    } catch (error: any) {
-      console.error("Download error:", error);
-      toast.error(error?.message || "Failed to download audio file");
+
+      toast.success("Transcript downloaded successfully");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to download transcript");
     } finally {
       setIsDownloading(false);
     }
@@ -457,7 +494,8 @@ const Reports = () => {
               <Button
                 variant="ghost"
                 className="w-full justify-start text-muted-foreground hover:text-foreground"
-                onClick={() => toast.info("Transcript download coming soon")}
+                onClick={handleDownloadTranscript}
+                disabled={isDownloading}
               >
                 <FileText className="h-4 w-4 mr-3" />
                 Download Transcript

@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { generateMockReport } from "@/lib/mockReportGenerator";
 import { toast } from "sonner";
 import type { SurveyData } from "@/types/survey";
+import axios from 'axios';
 
 interface LocationState {
   sessionId: string;
@@ -36,6 +37,15 @@ const Processing = () => {
   const isBaseline = state?.isBaseline || false;
   const sessionDetails = state?.sessionDetails;
 
+  const getAccessToken = async (): Promise<string> => {
+    const { data, error } = await supabase.auth.getSession();
+
+    if (error || !data.session?.access_token) {
+      throw new Error("Not authenticated");
+    }
+
+    return data.session.access_token;
+  };
   // Update session status to processing and generate report
   useEffect(() => {
     const processSession = async () => {
@@ -53,73 +63,35 @@ const Processing = () => {
           .eq("id", sessionId);
 
         // Simulate processing progress
-        const interval = setInterval(() => {
-          setProgress((prev) => {
-            if (prev >= 100) {
-              clearInterval(interval);
-              return 100;
-            }
-            return prev + 10;
-          });
-        }, 500);
-
-        // Generate mock report after "processing" completes
-        setTimeout(async () => {
+        const interval = setInterval(async () => {
           try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error("User not authenticated");
+            const token = await getAccessToken();
+            const res = await axios.get(
+              `${import.meta.env.VITE_API_URL}/api/v1/analyze/result?session_id=${sessionId}`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: 30_000,
+              }
+            );
 
-            // Generate mock report data (for both baseline and regular sessions)
-            const reportData = generateMockReport(sessionDetails);
-
-            // Insert report into database
-            const { error: reportError } = await supabase
-              .from("session_reports")
-              .insert({
-                session_id: sessionId,
-                user_id: user.id,
-                scenario_scores: reportData.scenario_scores,
-                dialogue_scores: reportData.dialogue_scores,
-                scenario_analysis: reportData.scenario_analysis,
-                dialogue_analysis: reportData.dialogue_analysis,
-                talk_time_data: reportData.talk_time_data,
-                themes: reportData.themes,
-                conclusions: reportData.conclusions,
-                speaker_interactions: reportData.speaker_interactions,
-                speakers: reportData.speakers,
-                scenario_content: reportData.scenario_content,
-                final_summary: reportData.final_summary,
-              });
-
-            if (reportError) throw reportError;
-
-            // Update session status to completed
-            await supabase
-              .from("sessions")
-              .update({ status: "completed" })
-              .eq("id", sessionId);
-
-            // If baseline, update profile to mark baseline completed
-            if (isBaseline) {
-              await supabase
-                .from("profiles")
-                .update({ baseline_completed: true })
-                .eq("user_id", user.id);
+            if (res.data.status === "completed") {
+              clearInterval(interval);
+              setProgress(100);
+              await handleCompleted(res.data.session.audio_file_url);
+              return;
             }
 
-            setReportGenerated(true);
-            setProcessingComplete(true);
-          } catch (error) {
-            console.error("Error generating report:", error);
-            toast.error("Failed to generate report");
-            
-            // Update session status to failed
+            setProgress(res.data.progress ?? 0);
+          } catch (err) {
+            console.error("Polling error:", err);
             await supabase
               .from("sessions")
               .update({ status: "failed" })
               .eq("id", sessionId);
-          }
-        }, 5000); // 5 seconds to simulate processing
+            }
+        }, 10000);
+
+        // Generate mock report after "processing" completes
 
         return () => clearInterval(interval);
       } catch (error) {
@@ -127,6 +99,39 @@ const Processing = () => {
         toast.error("Failed to process session");
       }
     };
+
+    const handleCompleted = async (audio_file_url: string) => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
+        // Update session status to completed
+        await supabase
+          .from("sessions")
+          .update({ status: "completed", audio_file_url: audio_file_url })
+          .eq("id", sessionId);
+
+        // If baseline, update profile to mark baseline completed
+        if (isBaseline) {
+          await supabase
+            .from("profiles")
+            .update({ baseline_completed: true })
+            .eq("user_id", user.id);
+        }
+
+        setReportGenerated(true);
+        setProcessingComplete(true);
+      } catch (error) {
+        console.error("Error generating report:", error);
+        toast.error("Failed to generate report");
+        
+        // Update session status to failed
+        await supabase
+          .from("sessions")
+          .update({ status: "failed" })
+          .eq("id", sessionId);
+      }
+    }
 
     processSession();
   }, [sessionId, sessionDetails, isBaseline, navigate]);
