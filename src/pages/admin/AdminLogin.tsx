@@ -48,7 +48,10 @@ const AdminLogin = () => {
     <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-4">
-          <img src={alcLogo} alt="ALC Logo" className="h-16 mx-auto" />
+          <div className="flex items-center justify-center gap-2">
+            <img src={alcLogo} alt="ALC Logo" className="h-8" />
+            <span className="text-lg font-semibold text-foreground">FOP Companion Admin</span>
+          </div>
           <div className="flex items-center justify-center gap-2">
             <Shield className="h-6 w-6 text-primary" />
             <CardTitle className="text-2xl">Admin Portal</CardTitle>

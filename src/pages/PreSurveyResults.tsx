@@ -59,11 +59,14 @@ const PreSurveyResults = () => {
     <div className="min-h-screen min-h-[100dvh] flex flex-col bg-background pt-[max(env(safe-area-inset-top),24px)] pb-[env(safe-area-inset-bottom)]">
       {/* Header - Celebration */}
       <div className="pt-6 pb-4 px-6 text-center">
-        <img 
-          src={alcLogo} 
-          alt="Adult Learning Collaboratory" 
-          className="h-10 w-auto mx-auto mb-4"
-        />
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <img 
+            src={alcLogo} 
+            alt="Adult Learning Collaboratory" 
+            className="h-8 w-auto"
+          />
+          <span className="text-lg font-semibold text-foreground">FOP Companion</span>
+        </div>
         <div className="w-14 h-14 bg-gradient-to-br from-success/20 to-primary/20 rounded-full flex items-center justify-center mx-auto mb-3 relative">
           <CheckCircle2 className="w-7 h-7 text-success" />
           <Sparkles className="w-4 h-4 text-primary absolute -top-1 -right-1" />
