@@ -29,7 +29,7 @@ const JourneyMilestones = () => {
       label: "Baseline Recording",
       icon: Mic,
       status: progress.baseline,
-      description: "Record your first teaching session before the masterclass",
+      description: "Record a session of your usual practice.",
       actionLabel: progress.baseline === "current" ? "Record Baseline" : undefined,
       onAction: progress.baseline === "current" 
         ? () => navigate("/record", { state: { presetBaseline: true } })
@@ -37,10 +37,10 @@ const JourneyMilestones = () => {
     },
     {
       id: "masterclass",
-      label: "Master Class",
+      label: "Future Orientation Masterclass (FOM)",
       icon: GraduationCap,
       status: progress.masterclass,
-      description: "Attend the in-person training session",
+      description: "Attend an in-person workshop where you will develop practical strategies to apply future-oriented pedagogies in your practice.",
       date: progress.masterclassDate || undefined,
       location: progress.masterclassLocation || undefined,
     },
@@ -49,7 +49,7 @@ const JourneyMilestones = () => {
       label: "Session Recordings",
       icon: Video,
       status: progress.sessions,
-      description: "Record teaching sessions and attend Learning Huddles",
+      description: "Record sessions of your evolving practice in future-oriented pedagogies.",
       progress: `${progress.sessionCount}/3`,
     },
     {
@@ -57,7 +57,7 @@ const JourneyMilestones = () => {
       label: "Learning Huddle",
       icon: Users,
       status: progress.learningHuddle,
-      description: "Attend the mid-program learning session",
+      description: "Attend an in-person, collective sensemaking session with peers to share insights from your growing experience with future-oriented pedagogies.",
       date: progress.learningHuddleDate || undefined,
       location: progress.learningHuddleLocation || undefined,
     },
@@ -91,7 +91,7 @@ const JourneyMilestones = () => {
       label: "Launch Huddle",
       icon: Users,
       status: progress.launchHuddle,
-      description: "Celebrate your completion at the final session",
+      description: "You are now ready to take future-oriented pedagogies further and beyond! Join an in-person, reflective and collaborative session with peers to explore continuing support and growth in our practice of future-oriented pedagogies.",
       date: progress.launchHuddleDate || undefined,
       location: progress.launchHuddleLocation || undefined,
     },

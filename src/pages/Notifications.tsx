@@ -75,7 +75,7 @@ const Notifications = () => {
         notifications.push({
           id: 'baseline-completed',
           icon: Mic,
-          title: "Baseline Recording Complete",
+          title: "Baseline Recording Completed",
           message: "Your baseline has been established for comparison.",
           time: formatDistanceToNow(new Date(profile.updated_at), { addSuffix: true }),
           timestamp: new Date(profile.updated_at),
