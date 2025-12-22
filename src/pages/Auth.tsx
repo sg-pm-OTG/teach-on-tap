@@ -155,11 +155,14 @@ const Auth = () => {
       <div className="w-full max-w-md space-y-8">
         {/* Logo */}
         <div className="text-center space-y-3">
-          <img 
-            src={alcLogo} 
-            alt="Adult Learning Collaboratory" 
-            className="h-20 w-auto mx-auto"
-          />
+          <div className="flex items-center justify-center gap-2">
+            <img 
+              src={alcLogo} 
+              alt="Adult Learning Collaboratory" 
+              className="h-8 w-auto"
+            />
+            <span className="text-xl font-semibold text-foreground">FOP Companion</span>
+          </div>
           <p className="text-muted-foreground">Track your teaching excellence</p>
         </div>
 

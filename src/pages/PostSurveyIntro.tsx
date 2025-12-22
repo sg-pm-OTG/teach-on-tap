@@ -17,11 +17,14 @@ const PostSurveyIntro = () => {
     <div className="min-h-screen min-h-[100dvh] flex flex-col bg-gradient-to-b from-primary/5 via-background to-background pt-[max(env(safe-area-inset-top),24px)] pb-[env(safe-area-inset-bottom)]">
       {/* Header */}
       <div className="pt-8 pb-6 px-6 text-center">
-        <img 
-          src={alcLogo} 
-          alt="Adult Learning Collaboratory" 
-          className="h-12 w-auto mx-auto mb-6"
-        />
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <img 
+            src={alcLogo} 
+            alt="Adult Learning Collaboratory" 
+            className="h-8 w-auto"
+          />
+          <span className="text-lg font-semibold text-foreground">FOP Companion</span>
+        </div>
         
         {/* Celebratory Icon */}
         <div className="relative w-16 h-16 mx-auto mb-4">
