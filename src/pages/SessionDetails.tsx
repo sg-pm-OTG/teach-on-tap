@@ -248,7 +248,7 @@ const SessionDetails = () => {
           <Button
             variant="record"
             size="lg"
-            className="w-full mt-6"
+            className="w-full mt-6 min-h-[60px]"
             onClick={handleSubmit}
             disabled={!isFormValid || isSubmitting}
           >
