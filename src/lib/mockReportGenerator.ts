@@ -8,23 +8,25 @@ interface SessionDetails {
   emergent_scenario?: string;
 }
 
+// Emergent Scenario Markers (6)
 const scenarioLabels = [
-  "Authentic Context",
-  "Authentic Resources",
-  "Ownership",
-  "Ill-defined Problem",
-  "Relevant to Adults",
-  "Final Product"
+  "Real-world relevance",
+  "High enough level of complexity",
+  "Critical thinking and reasoning",
+  "Perspective-taking",
+  "Appreciation of interdisciplinarity and need for collaboration",
+  "Challenging and change-making"
 ];
 
+// Generative Dialogue Markers (7)
 const dialogueLabels = [
-  "Open Questions",
-  "Wait Time",
-  "Probing",
-  "Uptake",
-  "Connections",
-  "Meta-Dialogue",
-  "Constructive Challenge"
+  "Active Engagement",
+  "Open-Ended Questions",
+  "Reflective Elements",
+  "Collaborative Problem Solving",
+  "Respectful Listening",
+  "Emergent Ideas",
+  "Emotional/Cognitive Engagement"
 ];
 
 const themeTemplates = [
@@ -46,15 +48,22 @@ const conclusionTemplates = [
 ];
 
 const scenarioAnalysisTemplates = [
-  { summary: "Strong use of authentic context and resources", details: "The session effectively situated learning within a realistic professional context." },
-  { summary: "Learner ownership could be enhanced", details: "Consider providing more opportunities for participants to direct their own learning journey." },
-  { summary: "Well-designed ill-defined problem", details: "The problem presented allowed for multiple solution pathways and encouraged critical thinking." }
+  { summary: "Strong real-world relevance", details: "The scenario directly mirrors situations commonly faced in professional settings and is immediately applicable." },
+  { summary: "Appropriate level of complexity", details: "The scenario presents multiple layers that encourage deeper analysis and discussion." },
+  { summary: "Encourages critical thinking", details: "Participants must analyze the situation from multiple angles and consider consequences of various approaches." },
+  { summary: "Promotes perspective-taking", details: "The scenario naturally prompts consideration of multiple viewpoints and stakeholder positions." },
+  { summary: "Supports interdisciplinary thinking", details: "Integration of multiple disciplines enriches the learning experience and discussion." },
+  { summary: "Challenges existing assumptions", details: "The scenario has potential to shift mindsets and encourage transformative thinking." }
 ];
 
 const dialogueAnalysisTemplates = [
+  { summary: "High levels of active engagement", details: "Participants demonstrated substantive contributions and built on each other's ideas." },
   { summary: "Effective use of open-ended questions", details: "Questions invited exploration and multiple perspectives from participants." },
-  { summary: "Wait time could be extended", details: "Allow more silence after questions to give participants time to formulate thoughtful responses." },
-  { summary: "Strong probing and follow-up", details: "Facilitator effectively deepened discussions by asking clarifying and extending questions." }
+  { summary: "Strong reflective practice", details: "Participants connected the discussion to their own experiences and examined their assumptions." },
+  { summary: "Collaborative problem-solving evident", details: "Participants worked together to generate solutions and shared approaches." },
+  { summary: "Respectful listening demonstrated", details: "Speakers listened attentively and built upon each other's contributions." },
+  { summary: "Emergent ideas developed", details: "New concepts and approaches emerged organically from the group discussion." },
+  { summary: "High emotional/cognitive engagement", details: "Participants showed personal investment and meaningful connection to the topic." }
 ];
 
 function randomScore(): number {

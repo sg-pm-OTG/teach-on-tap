@@ -116,12 +116,13 @@ export const scenarioContent = {
   ],
 };
 
+// Emergent Scenario Markers (6)
 export const scenarioScores = [
   { label: "Real-world relevance", score: 3 },
   { label: "High enough level of complexity", score: 2 },
   { label: "Critical thinking and reasoning", score: 2 },
   { label: "Perspective-taking", score: 3 },
-  { label: "Interdisciplinarity", score: 2 },
+  { label: "Appreciation of interdisciplinarity and need for collaboration", score: 2 },
   { label: "Challenging and change-making", score: 2 },
 ];
 
@@ -147,7 +148,7 @@ export const scenarioAnalysis = [
     content: "The scenario naturally prompts consideration of multiple viewpoints: the facilitator's, the disruptive participant's, other participants', and potentially institutional stakeholders. This multi-perspective approach enriches discussion.",
   },
   {
-    title: "Interdisciplinarity",
+    title: "Appreciation of interdisciplinarity and need for collaboration",
     score: 2,
     content: "The scenario touches on psychology, adult learning theory, group dynamics, and conflict resolution. Integration of these disciplines could be made more explicit to deepen learning.",
   },
@@ -158,6 +159,7 @@ export const scenarioAnalysis = [
   },
 ];
 
+// Generative Dialogue Markers (7)
 export const dialogueScores = [
   { label: "Active Engagement", score: 3 },
   { label: "Open-Ended Questions", score: 2 },
