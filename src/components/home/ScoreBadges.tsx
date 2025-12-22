@@ -21,8 +21,8 @@ export const ScoreBadges = ({ topScenarioMarkers, topDialogueMarkers, hasData }:
   }
 
   return (
-    <div className="space-y-3 animate-slide-in-up">
-      {/* Scenario Top Markers */}
+    <div className="grid grid-cols-2 gap-4 animate-slide-in-up">
+      {/* Scenario Top Markers - Left Column */}
       <div className="space-y-1.5">
         <span className="text-xs font-medium text-primary">Top Emergent Scenario markers</span>
         <div className="flex flex-col gap-1.5">
