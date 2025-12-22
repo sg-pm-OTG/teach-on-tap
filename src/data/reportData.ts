@@ -1,7 +1,7 @@
 import { Target, Wrench, Brain, Compass, Users } from "lucide-react";
 
 export const sessionDetails = {
-  title: "FOP Analysis Full Report",
+  title: "FOP Analysis Session Report",
   useSite: "US01",
   date: "October 11, 2025",
   participants: 13,

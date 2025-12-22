@@ -288,7 +288,7 @@ const Reports = () => {
           {/* Hero Session Card */}
           <div className="animate-slide-in-up">
             <HeroSessionCard
-              title="FOP Analysis Full Report"
+              title="FOP Analysis Session Report"
               useSite={selectedReport.useSite}
               date={formatSessionDate(selectedReport.sessionDate)}
               participants={selectedReport.participants}
