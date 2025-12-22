@@ -20,22 +20,18 @@ export const ScoreBadges = ({ topScenarioMarkers, topDialogueMarkers, hasData }:
     );
   }
 
-  const truncateLabel = (label: string, maxLength: number = 12) => {
-    return label?.length > maxLength ? label.substring(0, maxLength) + "…" : label;
-  };
-
   return (
-    <div className="space-y-2 animate-slide-in-up">
+    <div className="space-y-3 animate-slide-in-up">
       {/* Scenario Top Markers */}
-      <div className="flex items-center gap-2">
+      <div className="space-y-1.5">
         <span className="text-xs font-medium text-primary">Top Emergent Scenario markers</span>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-col gap-1.5">
           {topScenarioMarkers.slice(0, 2).map((marker, i) => (
             <div 
               key={i}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 border border-primary/20"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 border border-primary/20 w-fit"
             >
-              <span className="text-xs text-primary/80">{truncateLabel(marker.label)}</span>
+              <span className="text-xs text-primary/80">{marker.label}</span>
               <span className="text-xs font-bold text-foreground">{Math.round(marker.score)}/4</span>
             </div>
           ))}
@@ -43,15 +39,15 @@ export const ScoreBadges = ({ topScenarioMarkers, topDialogueMarkers, hasData }:
       </div>
       
       {/* Dialogue Top Markers */}
-      <div className="flex items-center gap-2">
+      <div className="space-y-1.5">
         <span className="text-xs font-medium text-secondary">Top Generative Dialogue markers</span>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-col gap-1.5">
           {topDialogueMarkers.slice(0, 2).map((marker, i) => (
             <div 
               key={i}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-secondary/10 border border-secondary/20"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-secondary/10 border border-secondary/20 w-fit"
             >
-              <span className="text-xs text-secondary/80">{truncateLabel(marker.label)}</span>
+              <span className="text-xs text-secondary/80">{marker.label}</span>
               <span className="text-xs font-bold text-foreground">{Math.round(marker.score)}/4</span>
             </div>
           ))}
