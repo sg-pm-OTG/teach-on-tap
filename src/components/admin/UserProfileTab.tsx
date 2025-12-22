@@ -91,9 +91,8 @@ export const UserProfileTab = ({ profile, userId }: UserProfileTabProps) => {
   const handleResetPassword = async () => {
     setIsResetting(true);
     try {
-      // Get user email from auth (we need to query it)
       const { data, error } = await supabase.functions.invoke("admin-reset-password", {
-        body: { email: profile.name }, // We'll update this to get email properly
+        body: { userId }, // Pass userId, edge function will look up email
       });
 
       if (error) throw error;
