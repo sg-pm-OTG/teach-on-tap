@@ -40,17 +40,37 @@ serve(async (req) => {
       });
     }
 
-    const { email } = await req.json();
+    const { userId, email } = await req.json();
 
-    if (!email) {
-      return new Response(JSON.stringify({ error: 'Email required' }), {
+    // Support both userId (preferred) and email (legacy)
+    let targetEmail = email;
+    
+    if (userId && !email) {
+      // Look up the user's email by userId
+      const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
+      
+      if (userError || !userData?.user?.email) {
+        console.error('Error fetching user:', userError);
+        return new Response(JSON.stringify({ error: 'User not found or has no email' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      targetEmail = userData.user.email;
+    }
+
+    if (!targetEmail) {
+      return new Response(JSON.stringify({ error: 'userId or email required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
+    console.log('Sending password reset to:', targetEmail);
+
     // Send password reset email
-    const { error: resetError } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
+    const { error: resetError } = await supabaseAdmin.auth.resetPasswordForEmail(targetEmail, {
       redirectTo: `${req.headers.get('origin')}/auth`,
     });
 
@@ -62,7 +82,7 @@ serve(async (req) => {
       });
     }
 
-    console.log('Password reset email sent to:', email);
+    console.log('Password reset email sent successfully to:', targetEmail);
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
