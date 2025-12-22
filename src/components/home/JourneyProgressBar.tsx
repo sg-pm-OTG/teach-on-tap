@@ -17,6 +17,7 @@ const JourneyProgressBar = ({ onViewClick }: JourneyProgressBarProps) => {
     { id: "baseline", label: "Baseline", status: progress.baseline },
     { id: "masterclass", label: "Masterclass", status: progress.masterclass },
     { id: "sessions", label: "Sessions", status: progress.sessions },
+    { id: "learningHuddle", label: "Learning Huddle", status: progress.learningHuddle },
     { id: "postSurvey", label: "Questionnaire", status: progress.postSurvey },
     { id: "finalReport", label: "Final Report", status: progress.finalReport },
     { id: "launchHuddle", label: "Launch Huddle", status: progress.launchHuddle },
@@ -33,7 +34,7 @@ const JourneyProgressBar = ({ onViewClick }: JourneyProgressBarProps) => {
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-medium text-muted-foreground">Your Journey</span>
         <span className="text-xs font-medium text-muted-foreground">
-          {completedCount}/6 Steps
+          {completedCount}/7 Steps
         </span>
       </div>
 

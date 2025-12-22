@@ -24,6 +24,10 @@ export const UserEventsTab = ({ profile, userId }: UserEventsTabProps) => {
       ? format(new Date(profile.masterclass_datetime), "yyyy-MM-dd'T'HH:mm")
       : "",
     masterclass_location: profile.masterclass_location || "",
+    learning_huddle_datetime: profile.learning_huddle_datetime
+      ? format(new Date(profile.learning_huddle_datetime), "yyyy-MM-dd'T'HH:mm")
+      : "",
+    learning_huddle_location: profile.learning_huddle_location || "",
     launch_huddle_datetime: profile.launch_huddle_datetime
       ? format(new Date(profile.launch_huddle_datetime), "yyyy-MM-dd'T'HH:mm")
       : "",
@@ -35,6 +39,7 @@ export const UserEventsTab = ({ profile, userId }: UserEventsTabProps) => {
     try {
       const updateData: any = {
         masterclass_location: formData.masterclass_location || null,
+        learning_huddle_location: formData.learning_huddle_location || null,
         launch_huddle_location: formData.launch_huddle_location || null,
       };
 
@@ -42,6 +47,12 @@ export const UserEventsTab = ({ profile, userId }: UserEventsTabProps) => {
         updateData.masterclass_datetime = new Date(formData.masterclass_datetime).toISOString();
       } else {
         updateData.masterclass_datetime = null;
+      }
+
+      if (formData.learning_huddle_datetime) {
+        updateData.learning_huddle_datetime = new Date(formData.learning_huddle_datetime).toISOString();
+      } else {
+        updateData.learning_huddle_datetime = null;
       }
 
       if (formData.launch_huddle_datetime) {
@@ -67,7 +78,7 @@ export const UserEventsTab = ({ profile, userId }: UserEventsTabProps) => {
   };
 
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -101,6 +112,47 @@ export const UserEventsTab = ({ profile, userId }: UserEventsTabProps) => {
               value={formData.masterclass_location}
               onChange={(e) =>
                 setFormData({ ...formData, masterclass_location: e.target.value })
+              }
+              placeholder="Enter venue address..."
+              rows={3}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Learning Huddle
+          </CardTitle>
+          <CardDescription>
+            Schedule the learning huddle event for this user
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="learningh-datetime">Date & Time</Label>
+            <Input
+              id="learningh-datetime"
+              type="datetime-local"
+              value={formData.learning_huddle_datetime}
+              onChange={(e) =>
+                setFormData({ ...formData, learning_huddle_datetime: e.target.value })
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="learningh-location" className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              Location
+            </Label>
+            <Textarea
+              id="learningh-location"
+              value={formData.learning_huddle_location}
+              onChange={(e) =>
+                setFormData({ ...formData, learning_huddle_location: e.target.value })
               }
               placeholder="Enter venue address..."
               rows={3}
@@ -150,7 +202,7 @@ export const UserEventsTab = ({ profile, userId }: UserEventsTabProps) => {
         </CardContent>
       </Card>
 
-      <div className="md:col-span-2">
+      <div className="md:col-span-2 lg:col-span-3">
         <Button onClick={handleSave} disabled={isSaving}>
           {isSaving ? (
             <>

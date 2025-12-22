@@ -151,6 +151,9 @@ export type Database = {
           launch_huddle_attended: boolean
           launch_huddle_datetime: string | null
           launch_huddle_location: string | null
+          learning_huddle_attended: boolean
+          learning_huddle_datetime: string | null
+          learning_huddle_location: string | null
           masterclass_attended: boolean
           masterclass_datetime: string | null
           masterclass_location: string | null
@@ -171,6 +174,9 @@ export type Database = {
           launch_huddle_attended?: boolean
           launch_huddle_datetime?: string | null
           launch_huddle_location?: string | null
+          learning_huddle_attended?: boolean
+          learning_huddle_datetime?: string | null
+          learning_huddle_location?: string | null
           masterclass_attended?: boolean
           masterclass_datetime?: string | null
           masterclass_location?: string | null
@@ -191,6 +197,9 @@ export type Database = {
           launch_huddle_attended?: boolean
           launch_huddle_datetime?: string | null
           launch_huddle_location?: string | null
+          learning_huddle_attended?: boolean
+          learning_huddle_datetime?: string | null
+          learning_huddle_location?: string | null
           masterclass_attended?: boolean
           masterclass_datetime?: string | null
           masterclass_location?: string | null
