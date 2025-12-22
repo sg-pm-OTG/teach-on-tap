@@ -28,7 +28,7 @@ export const ScoreBadges = ({ topScenarioMarkers, topDialogueMarkers, hasData }:
     <div className="space-y-2 animate-slide-in-up">
       {/* Scenario Top Markers */}
       <div className="flex items-center gap-2">
-        <span className="text-xs font-medium text-primary w-16">Scenario</span>
+        <span className="text-xs font-medium text-primary">Top Emergent Scenario markers</span>
         <div className="flex flex-wrap gap-1.5">
           {topScenarioMarkers.slice(0, 2).map((marker, i) => (
             <div 
@@ -44,7 +44,7 @@ export const ScoreBadges = ({ topScenarioMarkers, topDialogueMarkers, hasData }:
       
       {/* Dialogue Top Markers */}
       <div className="flex items-center gap-2">
-        <span className="text-xs font-medium text-secondary w-16">Dialogue</span>
+        <span className="text-xs font-medium text-secondary">Top Generative Dialogue markers</span>
         <div className="flex flex-wrap gap-1.5">
           {topDialogueMarkers.slice(0, 2).map((marker, i) => (
             <div 

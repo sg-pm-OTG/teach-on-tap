@@ -34,7 +34,7 @@ export const AIInsightCard = ({ strengths, focusAreas }: AIInsightCardProps) => 
             Your Coach Says
             <Sparkles className="h-4 w-4 text-secondary" />
           </h3>
-          <p className="text-xs text-muted-foreground">Personalized for you</p>
+          
         </div>
       </div>
       

@@ -50,7 +50,7 @@ export const HeroSessionCard = ({
               <div className="w-6 h-6 rounded-full bg-orange-500/30 flex items-center justify-center">
                 <Target className="h-3.5 w-3.5 text-orange-200" />
               </div>
-              <span className="text-xs text-white/80">Top Scenario</span>
+              <span className="text-xs text-white/80">Top Emergent Scenario markers</span>
             </div>
             <div className="space-y-1.5">
               {topScenarioMarkers.map((marker, idx) => (
@@ -72,7 +72,7 @@ export const HeroSessionCard = ({
               <div className="w-6 h-6 rounded-full bg-teal-300/30 flex items-center justify-center">
                 <MessageCircle className="h-3.5 w-3.5 text-teal-100" />
               </div>
-              <span className="text-xs text-white/80">Top Dialogue</span>
+              <span className="text-xs text-white/80">Top Generative Dialogue markers</span>
             </div>
             <div className="space-y-1.5">
               {topDialogueMarkers.map((marker, idx) => (
