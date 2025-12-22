@@ -36,7 +36,7 @@ const getEncouragementContent = (
     return {
       icon: Sparkles,
       title: "Keep the momentum going!",
-      message: `${3 - sessionCount} more session${3 - sessionCount !== 1 ? 's' : ''} until you can unlock your personalized Final Report.`,
+      message: `${3 - sessionCount} more session${3 - sessionCount !== 1 ? 's' : ''} and you can unlock your personalized Final Report.`,
       emoji: "✨",
     };
   }
