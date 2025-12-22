@@ -22,15 +22,16 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Play, Download, Trash2, Mic, Pause } from "lucide-react";
+import { Loader2, Play, Download, Trash2, Mic, Pause, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
 interface UserSessionsTabProps {
   userId: string;
+  finalReportStatus?: string;
 }
 
-export const UserSessionsTab = ({ userId }: UserSessionsTabProps) => {
+export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabProps) => {
   const queryClient = useQueryClient();
   const [deleteSessionId, setDeleteSessionId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -50,6 +51,34 @@ export const UserSessionsTab = ({ userId }: UserSessionsTabProps) => {
       return data;
     },
   });
+
+  // Fetch session reports to know which sessions have reports
+  const { data: sessionReportIds } = useQuery({
+    queryKey: ["admin-user-session-reports", userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("session_reports")
+        .select("session_id")
+        .eq("user_id", userId);
+
+      if (error) throw error;
+      return data?.map((r) => r.session_id) || [];
+    },
+  });
+
+  const hasReport = (sessionId: string) => sessionReportIds?.includes(sessionId);
+
+  const handleDownloadSessionPdf = (sessionId: string) => {
+    // Placeholder - will be implemented via GitHub
+    toast.info("Session PDF download - to be implemented");
+    console.log("Download session PDF for:", sessionId);
+  };
+
+  const handleDownloadFinalReportPdf = () => {
+    // Placeholder - will be implemented via GitHub
+    toast.info("Final Report PDF download - to be implemented");
+    console.log("Download final report PDF for user:", userId);
+  };
 
   const handlePlayAudio = async (audioUrl: string) => {
     if (playingAudioUrl === audioUrl && audioElement) {
@@ -148,6 +177,7 @@ export const UserSessionsTab = ({ userId }: UserSessionsTabProps) => {
 
       toast.success("Session deleted");
       queryClient.invalidateQueries({ queryKey: ["admin-user-sessions", userId] });
+      queryClient.invalidateQueries({ queryKey: ["admin-user-session-reports", userId] });
     } catch (error: any) {
       toast.error(error.message || "Failed to delete session");
     } finally {
@@ -180,7 +210,7 @@ export const UserSessionsTab = ({ userId }: UserSessionsTabProps) => {
           View and manage user's recorded sessions
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-6">
         {isLoading ? (
           <div className="flex justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -200,6 +230,7 @@ export const UserSessionsTab = ({ userId }: UserSessionsTabProps) => {
                   <TableHead>Participants</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Baseline</TableHead>
+                  <TableHead>Report</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -218,6 +249,20 @@ export const UserSessionsTab = ({ userId }: UserSessionsTabProps) => {
                         <Badge variant="secondary">Yes</Badge>
                       ) : (
                         <span className="text-muted-foreground">No</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {hasReport(session.id) ? (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDownloadSessionPdf(session.id)}
+                          title="Download Session Report PDF"
+                        >
+                          <FileText className="h-4 w-4 text-primary" />
+                        </Button>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">—</span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -258,6 +303,27 @@ export const UserSessionsTab = ({ userId }: UserSessionsTabProps) => {
                 ))}
               </TableBody>
             </Table>
+          </div>
+        )}
+
+        {/* Final Report Download Section */}
+        {finalReportStatus === "generated" && (
+          <div className="rounded-lg border bg-muted/30 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <FileText className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="font-medium">Final Report</p>
+                  <p className="text-sm text-muted-foreground">
+                    Journey summary report has been generated
+                  </p>
+                </div>
+              </div>
+              <Button onClick={handleDownloadFinalReportPdf}>
+                <Download className="h-4 w-4 mr-2" />
+                Download PDF
+              </Button>
+            </div>
           </div>
         )}
 

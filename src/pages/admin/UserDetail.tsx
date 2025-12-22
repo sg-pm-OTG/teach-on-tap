@@ -86,7 +86,7 @@ const UserDetail = () => {
         </TabsContent>
 
         <TabsContent value="sessions">
-          <UserSessionsTab userId={userId!} />
+          <UserSessionsTab userId={userId!} finalReportStatus={profile.final_report_status} />
         </TabsContent>
       </Tabs>
     </div>
