@@ -25,17 +25,14 @@ export const AIInsightCard = ({ strengths, focusAreas }: AIInsightCardProps) => 
 
   return (
     <div className="bg-gradient-to-br from-primary/10 via-secondary/5 to-accent/5 rounded-2xl p-5 border border-border animate-slide-in-up">
-      <div className="flex items-start gap-3 mb-4">
+      <div className="flex items-start gap-3 mb-3">
         <div className="w-11 h-11 rounded-full gradient-primary flex items-center justify-center flex-shrink-0 shadow-lg">
           <MessageCircle className="h-5 w-5 text-primary-foreground" />
         </div>
-        <div>
-          <h3 className="font-semibold text-foreground flex items-center gap-1.5">
-            Your Coach Says
-            <Sparkles className="h-4 w-4 text-secondary" />
-          </h3>
-          
-        </div>
+        <h3 className="font-semibold text-foreground flex items-center gap-1.5 mt-2.5">
+          Your Coach Says
+          <Sparkles className="h-4 w-4 text-secondary" />
+        </h3>
       </div>
       
       <div className="space-y-3">
