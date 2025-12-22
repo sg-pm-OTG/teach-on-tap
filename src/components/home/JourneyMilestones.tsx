@@ -53,6 +53,15 @@ const JourneyMilestones = () => {
       progress: `${progress.sessionCount}/3`,
     },
     {
+      id: "learningHuddle",
+      label: "Learning Huddle",
+      icon: Users,
+      status: progress.learningHuddle,
+      description: "Attend the mid-program learning session",
+      date: progress.learningHuddleDate || undefined,
+      location: progress.learningHuddleLocation || undefined,
+    },
+    {
       id: "postSurvey",
       label: "Post-Program Questionnaire",
       icon: ClipboardList,

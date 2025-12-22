@@ -9,6 +9,7 @@ export interface JourneyProgress {
   baseline: MilestoneStatus;
   masterclass: MilestoneStatus;
   sessions: MilestoneStatus;
+  learningHuddle: MilestoneStatus;
   postSurvey: MilestoneStatus;
   finalReport: MilestoneStatus;
   launchHuddle: MilestoneStatus;
@@ -17,6 +18,8 @@ export interface JourneyProgress {
   // Per-user event data
   masterclassDate: string | null;
   masterclassLocation: string | null;
+  learningHuddleDate: string | null;
+  learningHuddleLocation: string | null;
   launchHuddleDate: string | null;
   launchHuddleLocation: string | null;
 }
@@ -30,7 +33,7 @@ export const useJourneyProgress = () => {
       if (!user) return null;
       const { data, error } = await supabase
         .from("profiles")
-        .select("baseline_completed, masterclass_attended, post_survey_completed, final_report_status, launch_huddle_attended, masterclass_datetime, masterclass_location, launch_huddle_datetime, launch_huddle_location")
+        .select("baseline_completed, masterclass_attended, post_survey_completed, final_report_status, launch_huddle_attended, masterclass_datetime, masterclass_location, launch_huddle_datetime, launch_huddle_location, learning_huddle_attended, learning_huddle_datetime, learning_huddle_location")
         .eq("user_id", user.id)
         .single();
       if (error) throw error;
@@ -70,6 +73,7 @@ export const useJourneyProgress = () => {
         baseline: "current",
         masterclass: "locked",
         sessions: "locked",
+        learningHuddle: "locked",
         postSurvey: "locked",
         finalReport: "locked",
         launchHuddle: "locked",
@@ -77,6 +81,8 @@ export const useJourneyProgress = () => {
         finalReportStatus: "not_started",
         masterclassDate: null,
         masterclassLocation: null,
+        learningHuddleDate: null,
+        learningHuddleLocation: null,
         launchHuddleDate: null,
         launchHuddleLocation: null,
       };
@@ -92,6 +98,9 @@ export const useJourneyProgress = () => {
       masterclass_location,
       launch_huddle_datetime,
       launch_huddle_location,
+      learning_huddle_attended,
+      learning_huddle_datetime,
+      learning_huddle_location,
     } = profile;
 
     // Determine each milestone status based on progression
@@ -107,6 +116,13 @@ export const useJourneyProgress = () => {
       ? "locked" 
       : sessionCount >= 3 
         ? "complete" 
+        : "current";
+    
+    // Learning Huddle: unlocks after Session 1, informational only
+    const learningHuddle: MilestoneStatus = sessionCount < 1
+      ? "locked"
+      : learning_huddle_attended
+        ? "complete"
         : "current";
     
     const postSurvey: MilestoneStatus = sessionCount < 3 
@@ -131,6 +147,7 @@ export const useJourneyProgress = () => {
       baseline,
       masterclass,
       sessions,
+      learningHuddle,
       postSurvey,
       finalReport,
       launchHuddle,
@@ -138,6 +155,8 @@ export const useJourneyProgress = () => {
       finalReportStatus: final_report_status,
       masterclassDate: formatEventDate(masterclass_datetime),
       masterclassLocation: masterclass_location,
+      learningHuddleDate: formatEventDate(learning_huddle_datetime),
+      learningHuddleLocation: learning_huddle_location,
       launchHuddleDate: formatEventDate(launch_huddle_datetime),
       launchHuddleLocation: launch_huddle_location,
     };

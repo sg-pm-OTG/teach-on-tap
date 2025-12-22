@@ -28,6 +28,7 @@ export const UserMilestonesTab = ({ profile, userId }: UserMilestonesTabProps) =
     pre_survey_completed: profile.pre_survey_completed,
     baseline_completed: profile.baseline_completed,
     masterclass_attended: profile.masterclass_attended,
+    learning_huddle_attended: profile.learning_huddle_attended,
     post_survey_completed: profile.post_survey_completed,
     final_report_status: profile.final_report_status,
     launch_huddle_attended: profile.launch_huddle_attended,
@@ -67,6 +68,11 @@ export const UserMilestonesTab = ({ profile, userId }: UserMilestonesTabProps) =
       key: "masterclass_attended",
       label: "Masterclass Attended",
       description: "User has attended the masterclass event",
+    },
+    {
+      key: "learning_huddle_attended",
+      label: "Learning Huddle Attended",
+      description: "User has attended the learning huddle event",
     },
     {
       key: "post_survey_completed",
