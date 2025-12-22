@@ -1,4 +1,4 @@
-import { MapPin, Calendar, Users, BookOpen, Target, MessageCircle } from "lucide-react";
+import { MapPin, Calendar, Users, BookOpen, Target, MessageCircle, Clock } from "lucide-react";
 
 interface TopMarker {
   label: string;
@@ -11,6 +11,7 @@ interface HeroSessionCardProps {
   date: string;
   participants: number;
   activityType: string;
+  duration?: number;
   topScenarioMarkers?: TopMarker[];
   topDialogueMarkers?: TopMarker[];
 }
@@ -21,15 +22,17 @@ export const HeroSessionCard = ({
   date, 
   participants, 
   activityType,
+  duration,
   topScenarioMarkers = [],
   topDialogueMarkers = [],
 }: HeroSessionCardProps) => {
   const details = [
     { icon: MapPin, label: "Course", value: useSite },
     { icon: Calendar, label: "Date", value: date },
-    { icon: Users, label: "Participants", value: `${participants} Participants` },
+    { icon: Users, label: "Participants", value: `${participants}` },
+    { icon: Clock, label: "Duration", value: duration ? `${duration} min` : undefined },
     { icon: BookOpen, label: "Activity", value: activityType },
-  ];
+  ].filter(item => item.value);
 
   const truncateLabel = (label: string, maxLength: number = 14) => {
     return label.length > maxLength ? label.slice(0, maxLength) + "…" : label;

@@ -293,6 +293,7 @@ const Reports = () => {
               date={formatSessionDate(selectedReport.sessionDate)}
               participants={selectedReport.participants}
               activityType={selectedReport.sessionType}
+              duration={selectedReport.totalTime ? Math.round(selectedReport.totalTime / 60) : undefined}
               topScenarioMarkers={getTopMarkers(selectedReport.scenarioScores)}
               topDialogueMarkers={getTopMarkers(selectedReport.dialogueScores)}
             />
