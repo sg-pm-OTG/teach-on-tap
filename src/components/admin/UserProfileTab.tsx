@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -23,9 +23,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Save, Trash2, Key } from "lucide-react";
+import { Loader2, Save, Trash2, Key, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface UserProfileTabProps {
   profile: any;
@@ -40,6 +41,18 @@ export const UserProfileTab = ({ profile, userId }: UserProfileTabProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  // Fetch user email from auth
+  const { data: authData, isLoading: isLoadingEmail } = useQuery({
+    queryKey: ["admin-user-email", userId],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("admin-get-user-email", {
+        body: { userId },
+      });
+      if (error) throw error;
+      return data as { email: string; emailConfirmedAt: string | null; lastSignInAt: string | null };
+    },
+  });
 
   const [formData, setFormData] = useState({
     name: profile.name,
@@ -202,9 +215,21 @@ export const UserProfileTab = ({ profile, userId }: UserProfileTabProps) => {
           <CardTitle>Account Actions</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="text-sm text-muted-foreground">
-            <p>User ID: <span className="font-mono">{userId}</span></p>
+          <div className="text-sm text-muted-foreground space-y-1">
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4" />
+              <span>Email:</span>
+              {isLoadingEmail ? (
+                <Skeleton className="h-4 w-40" />
+              ) : (
+                <span className="font-mono">{authData?.email || "Not available"}</span>
+              )}
+            </div>
+            <p>User ID: <span className="font-mono text-xs">{userId}</span></p>
             <p>Joined: {format(new Date(profile.created_at), "MMMM d, yyyy")}</p>
+            {authData?.lastSignInAt && (
+              <p>Last Sign In: {format(new Date(authData.lastSignInAt), "MMMM d, yyyy 'at' h:mm a")}</p>
+            )}
           </div>
 
           <div className="space-y-2">
