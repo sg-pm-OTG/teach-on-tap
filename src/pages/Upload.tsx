@@ -24,15 +24,19 @@ const SESSION_TYPES = [
 const ACCEPTED_AUDIO_TYPES = [
   "audio/mp3",
   "audio/mpeg",
+  "audio/x-mpeg",      // iOS variant for MP3
   "audio/wav",
   "audio/wave",
   "audio/x-wav",
   "audio/m4a",
   "audio/x-m4a",
-  "audio/mp4",
-  "audio/webm",
-  "audio/ogg",
+  "audio/mp4",         // M4A container
+  "audio/x-mp4",       // iOS variant
+  "audio/aac",         // M4A can use AAC codec
+  "",                  // iOS sometimes reports empty MIME type
 ];
+
+const ACCEPTED_AUDIO_EXTENSIONS = [".mp3", ".wav", ".m4a"];
 
 const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
 
@@ -80,9 +84,15 @@ const Upload = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    if (!ACCEPTED_AUDIO_TYPES.includes(file.type)) {
-      toast.error("Please select a valid audio file (MP3, WAV, M4A, WebM)");
+    // Get file extension for fallback validation (iOS often reports empty/wrong MIME types)
+    const fileExtension = '.' + (file.name.split('.').pop()?.toLowerCase() || '');
+    
+    // Validate: accept if MIME type matches OR if extension matches (iOS fallback)
+    const isValidMimeType = ACCEPTED_AUDIO_TYPES.includes(file.type);
+    const isValidExtension = ACCEPTED_AUDIO_EXTENSIONS.includes(fileExtension);
+    
+    if (!isValidMimeType && !isValidExtension) {
+      toast.error("Please select a valid audio file (MP3, WAV, or M4A)");
       return;
     }
 
@@ -460,13 +470,13 @@ const Upload = () => {
                     Tap to select audio file
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    MP3, WAV, M4A, WebM • Max 500MB
+                    MP3, WAV, M4A • Max 500MB
                   </p>
                 </div>
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="audio/*"
+                  accept="audio/*,.mp3,.wav,.m4a"
                   onChange={handleFileSelect}
                   className="hidden"
                 />
