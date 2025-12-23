@@ -148,13 +148,13 @@ const Processing = () => {
           toast.error("Processing failed. You can retry below.");
           setStatus("failed");
         }
-      }, 10000);
+      }, 5000);
 
       timeoutRef.current = window.setTimeout(() => {
         clearTimers();
         toast.error("Processing is taking longer than expected.");
         setStatus("timeout");
-      }, 300000);
+      }, 600000);
 
     } catch (error) {
       console.error("Error processing session:", error);

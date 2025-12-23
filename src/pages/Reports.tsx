@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import axios from "axios";
-
+import PdfExportFeature from "@/components/report/TemplateExportPDF";
 // Icon mapping for themes
 const iconMap: Record<string, LucideIcon> = {
   Target,
@@ -138,73 +138,83 @@ const Reports = () => {
       return;
     }
 
-  try {
-    setIsDownloading(true);
-    const token = await getAccessToken();
-
-    const res = await axios.get(
-      selectedReport.audioFileUrl,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        responseType: "blob", 
-        timeout: 60_000,
-      }
-    );
-
-    const blob = new Blob([res.data], { type: "audio/wav" });
-
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `session-${selectedReport.sessionId}.wav`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    URL.revokeObjectURL(url);
-
-  } catch (err) {
-    console.error(err);
-    toast.error("Download failed");
-  } finally {
-    setIsDownloading(false);
-  }
-  };
-
-  const handleDownloadTranscript = async () => {
     try {
-      if (!selectedReport?.transcript) {
-        toast.error("Transcript not available");
-        return;
-      }
+      setIsDownloading(true);
+      const token = await getAccessToken();
 
-      toast.info("Downloading transcript...");
+      const res = await axios.get(
+        selectedReport.audioFileUrl,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          responseType: "blob", 
+          timeout: 60_000,
+        }
+      );
 
-      const content = selectedReport.transcript;
+      const blob = new Blob([res.data], { type: "audio/wav" });
 
-      const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
 
       const a = document.createElement("a");
       a.href = url;
-      a.download = `transcript-${selectedReport.sessionId}.txt`;
+      a.download = `session-${selectedReport.sessionId}.wav`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
 
+      URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Download failed");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleDownloadTranscript = async () => {
+    try {
+      setIsDownloading(true);
+      const token = await getAccessToken();
+
+      const res = await axios.get(
+        selectedReport.csvFileUrl,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          responseType: "blob", 
+          timeout: 60_000,
+        }
+      );
+
+      // CSV MIME type
+      const blob = new Blob([res.data], {
+        type: "text/csv;charset=utf-8;",
+      });
+
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `session-${selectedReport.sessionId}.csv`;
       document.body.appendChild(a);
       a.click();
 
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-
-      toast.success("Transcript downloaded successfully");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to download transcript");
+      toast.error("Download failed");
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  const handleDownloadPDF = () => {
+    window.print();
   };
 
   return (
@@ -478,14 +488,7 @@ const Reports = () => {
                 Download Transcript
               </Button>
 
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-muted-foreground hover:text-foreground"
-                onClick={() => toast.info("PDF report download coming soon")}
-              >
-                <FileDown className="h-4 w-4 mr-3" />
-                Download PDF Report
-              </Button>
+              <PdfExportFeature exportData={selectedReport} />
             </div>
           </div>
         </div>

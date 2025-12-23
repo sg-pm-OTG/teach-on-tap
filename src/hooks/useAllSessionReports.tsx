@@ -113,6 +113,8 @@ export interface SessionReport {
   scenarioAvg: number;
   dialogueAvg: number;
   transcript: string;
+  filename: string;
+  csvFileUrl: string;
 }
 
 const themeIcons = ["Target", "Wrench", "Brain", "Compass", "Users"];
@@ -261,7 +263,6 @@ export const useAllSessionReports = () => {
           return null;
         }
       }).filter(item => item !== null && !item.isBaseline); // Filter out baseline sessions
-
       // if (error) throw error;
       return data || [];
     },
@@ -413,6 +414,9 @@ export const useAllSessionReports = () => {
         number_of_participants: number;
         audio_file_url: string | null;
         created_at: string;
+        is_baseline: boolean;
+        session_name: string;
+        csv_file_url: string;
       };
 
       // Transform scenario scores
@@ -529,6 +533,8 @@ export const useAllSessionReports = () => {
         gdSummary: report.gd_summary,
         scenarioAvg: Math.round(scenarioAvg),
         dialogueAvg: Math.round(dialogueAvg),
+        filename: session.session_name,
+        csvFileUrl: session.csv_file_url,
       };
     });
   }, [rawReports]);
@@ -559,6 +565,9 @@ export const useAllSessionReports = () => {
       number_of_participants: number;
       audio_file_url: string | null;
       created_at: string;
+      is_baseline: boolean;
+      session_name: string;
+      csv_file_url: string;
     };
 
     // Transform scenario scores
@@ -676,6 +685,8 @@ export const useAllSessionReports = () => {
       scenarioAvg: Math.round(scenarioAvg),
       dialogueAvg: Math.round(dialogueAvg),
       isBaseline: true,
+      filename: session.session_name,
+      csvFileUrl: session.csv_file_url,
     } as SessionReport & { isBaseline: boolean };
   }, [rawBaselineReport]);
 
