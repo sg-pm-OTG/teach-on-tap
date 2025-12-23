@@ -18,9 +18,18 @@ export const ConclusionCard = ({ title, conclusions, variant = "default" }: Conc
         </div>
         <div className="space-y-3">
           {conclusions.map((conclusion, index) => (
-            <p key={index} className="text-sm text-foreground leading-relaxed">
-              {conclusion}
-            </p>
+            <ul key={index} className="text-sm text-foreground leading-relaxed">
+              {conclusion.split('\n').map((line, i) => (
+                i === 0 
+                ? <li key={i} className="mb-1 font-medium">
+                  {line}
+                </li>  
+                : 
+                <li key={i} className="mb-1 ml-4 list-disc">
+                  {line}
+                </li>
+              ))}
+            </ul>
           ))}
         </div>
       </div>
