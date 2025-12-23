@@ -162,16 +162,16 @@ const Processing = () => {
     };
   }, [sessionId, sessionDetails, isBaseline, navigate]);
 
-  // Fallback: if stuck at 100% for 5 seconds, force completion
+  // Fallback: if stuck at 100% for 5 seconds, force completion with DB update
   useEffect(() => {
-    if (progress >= 100 && !processingComplete) {
-      const fallbackTimer = setTimeout(() => {
+    if (progress >= 100 && !processingComplete && !reportGenerated) {
+      const fallbackTimer = setTimeout(async () => {
         console.log("Fallback: forcing completion after progress reached 100%");
-        setProcessingComplete(true);
+        await handleCompleted(null);
       }, 5000);
       return () => clearTimeout(fallbackTimer);
     }
-  }, [progress, processingComplete]);
+  }, [progress, processingComplete, reportGenerated]);
 
   useEffect(() => {
     // For baseline: navigate home once processing is complete (no survey needed)
