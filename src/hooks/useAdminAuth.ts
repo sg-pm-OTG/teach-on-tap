@@ -48,40 +48,62 @@ export const useAdminAuth = () => {
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
+    
     const loadingTimeoutId = window.setTimeout(() => {
-      setState((prev) => {
-        if (!prev.loading) return prev;
-        console.warn("Admin auth loading timed out; forcing loading=false");
-        return { ...prev, loading: false };
-      });
+      if (isMounted) {
+        setState((prev) => {
+          if (!prev.loading) return prev;
+          console.warn("Admin auth loading timed out; forcing loading=false");
+          return { ...prev, loading: false };
+        });
+      }
     }, 8000);
 
     const safeSetState = (next: AdminAuthState) => {
-      window.clearTimeout(loadingTimeoutId);
-      setState(next);
+      if (isMounted) {
+        window.clearTimeout(loadingTimeoutId);
+        setState(next);
+      }
     };
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        try {
-          const isAdmin = await checkAdminStatus(session.user.id);
+    // Helper function to handle admin check - called via setTimeout to avoid deadlock
+    const handleAdminCheck = (session: Session) => {
+      checkAdminStatus(session.user.id)
+        .then((isAdmin) => {
           safeSetState({
             user: session.user,
             session,
             isAdmin,
             loading: false,
           });
-        } catch (error) {
-          console.error("Error checking admin status (auth change):", error);
+        })
+        .catch((error) => {
+          console.error("Error checking admin status:", error);
           safeSetState({
             user: session.user,
             session,
             isAdmin: false,
             loading: false,
           });
-        }
+        });
+    };
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      // CRITICAL: Do NOT use async callback here - causes deadlocks
+      // Synchronous state update first, then defer Supabase calls
+      if (session?.user) {
+        // Set intermediate state immediately (keeps loading true until admin check completes)
+        setState((prev) => ({
+          ...prev,
+          user: session.user,
+          session,
+        }));
+        
+        // Defer admin check with setTimeout(0) to avoid Supabase deadlock
+        setTimeout(() => handleAdminCheck(session), 0);
       } else {
         safeSetState({
           user: null,
@@ -95,25 +117,17 @@ export const useAdminAuth = () => {
     // Check existing session
     supabase.auth
       .getSession()
-      .then(async ({ data: { session } }) => {
+      .then(({ data: { session } }) => {
         if (session?.user) {
-          try {
-            const isAdmin = await checkAdminStatus(session.user.id);
-            safeSetState({
-              user: session.user,
-              session,
-              isAdmin,
-              loading: false,
-            });
-          } catch (error) {
-            console.error("Error checking admin status (getSession):", error);
-            safeSetState({
-              user: session.user,
-              session,
-              isAdmin: false,
-              loading: false,
-            });
-          }
+          // Set intermediate state
+          setState((prev) => ({
+            ...prev,
+            user: session.user,
+            session,
+          }));
+          
+          // Defer admin check
+          setTimeout(() => handleAdminCheck(session), 0);
         } else {
           safeSetState({
             user: null,
@@ -134,6 +148,7 @@ export const useAdminAuth = () => {
       });
 
     return () => {
+      isMounted = false;
       window.clearTimeout(loadingTimeoutId);
       subscription.unsubscribe();
     };
