@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import axios from "axios";
 import PdfExportFeature from "@/components/report/TemplateExportPDF";
+import { SpeakerCard } from "@/components/report/SpeakerCard";
 // Icon mapping for themes
 const iconMap: Record<string, LucideIcon> = {
   Target,
@@ -327,6 +328,18 @@ const Reports = () => {
                 percentage={item.percentage}
                 seconds={item.seconds}
                 color={item.color}
+              />
+            ))}
+          </div>
+
+          {/* Speaker Summary */}
+          <div className="bg-card rounded-xl border border-border p-4 space-y-3 animate-slide-in-up">
+            <h4 className="font-medium text-sm text-foreground mb-3">Speaker Summary</h4>
+            {selectedReport.speakers.map((speaker, index) => (
+              <SpeakerCard
+                key={speaker.id}
+                id={speakerLabels[index] || speaker.id}
+                description={speaker.description}
               />
             ))}
           </div>
