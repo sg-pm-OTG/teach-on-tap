@@ -392,7 +392,7 @@ const Record = () => {
                     <ul className="text-xs text-muted-foreground space-y-1">
                       <li>• Place phone near you during the lesson</li>
                       <li>• Ensure minimal background noise</li>
-                      <li>• Record for at least 45 minutes</li>
+                      <li>• Recommended: 45 minutes – 2 hours</li>
                     </ul>
                   </div>
                 </div>
