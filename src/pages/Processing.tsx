@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { TopBar } from "@/components/TopBar";
 import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { SurveyData } from "@/types/survey";
 import { Button } from "@/components/ui/button";
-import axios from 'axios';
+import axios from "axios";
 
 interface LocationState {
   sessionId: string;
@@ -31,6 +31,10 @@ const Processing = () => {
   const [showSurveyResults, setShowSurveyResults] = useState(false);
   const [surveyData, setSurveyData] = useState<SurveyData | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
+
+  const intervalRef = useRef<number | null>(null);
+  const timeoutRef = useRef<number | null>(null);
+
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -38,6 +42,17 @@ const Processing = () => {
   const sessionId = state?.sessionId;
   const isBaseline = state?.isBaseline || false;
   const sessionDetails = state?.sessionDetails;
+
+  const clearTimers = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
 
   const getAccessToken = async (): Promise<string> => {
     const { data, error } = await supabase.auth.getSession();
@@ -84,94 +99,74 @@ const Processing = () => {
     }
   }, [sessionId, isBaseline]);
 
-  // Polling logic extracted for reuse
-  const startPolling = useCallback(() => {
-    let intervalId: ReturnType<typeof setInterval> | null = null;
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  const startPolling = useCallback(async () => {
+    if (!sessionId || !sessionDetails) {
+      toast.error("Session data not found");
+      navigate("/");
+      return;
+    }
 
-    const poll = async () => {
-      if (!sessionId || !sessionDetails) {
-        toast.error("Session data not found");
-        navigate("/");
-        return { intervalId: null, timeoutId: null };
-      }
+    clearTimers();
 
-      try {
-        // Update session status to processing
-        await supabase
-          .from("sessions")
-          .update({ status: "processing" })
-          .eq("id", sessionId);
+    try {
+      await supabase
+        .from("sessions")
+        .update({ status: "processing" })
+        .eq("id", sessionId);
 
-        setStatus("processing");
-        setProgress(0);
+      setStatus("processing");
+      setProgress(0);
 
-        // Poll for processing progress
-        intervalId = setInterval(async () => {
-          try {
-            const token = await getAccessToken();
-            const res = await axios.get(
-              `${import.meta.env.VITE_API_URL}/api/v1/analyze/result?session_id=${sessionId}`,
-              {
-                headers: { Authorization: `Bearer ${token}` },
-                timeout: 30_000,
-              }
-            );
-
-            const currentProgress = res.data.progress ?? 0;
-            setProgress(currentProgress);
-
-            // Check for completed status OR progress >= 100
-            if (res.data.status === "completed" || currentProgress >= 100) {
-              if (intervalId) clearInterval(intervalId);
-              if (timeoutId) clearTimeout(timeoutId);
-              setProgress(100);
-              await handleCompleted(res.data.session?.audio_file_url || null);
-              return;
+      intervalRef.current = window.setInterval(async () => {
+        try {
+          const token = await getAccessToken();
+          const res = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/v1/analyze/result?session_id=${sessionId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              timeout: 30_000,
             }
-          } catch (err) {
-            console.error("Polling error:", err);
-            if (intervalId) clearInterval(intervalId);
-            if (timeoutId) clearTimeout(timeoutId);
-            
-            await supabase
-              .from("sessions")
-              .update({ status: "failed" })
-              .eq("id", sessionId);
-            
-            toast.error("Processing failed. You can retry below.");
-            setStatus("failed");
+          );
+
+          const currentProgress = res.data.progress ?? 0;
+          setProgress(currentProgress);
+
+          if (res.data.status === "completed" || currentProgress >= 100) {
+            clearTimers();
+            setProgress(100);
+            await handleCompleted(res.data.session?.audio_file_url || null);
           }
-        }, 10000);
+        } catch (err) {
+          console.error("Polling error:", err);
+          clearTimers();
 
-        // Overall timeout (5 minutes)
-        timeoutId = setTimeout(() => {
-          if (intervalId) clearInterval(intervalId);
-          toast.error("Processing is taking longer than expected.");
-          setStatus("timeout");
-        }, 300000);
+          await supabase
+            .from("sessions")
+            .update({ status: "failed" })
+            .eq("id", sessionId);
 
-      } catch (error) {
-        console.error("Error processing session:", error);
-        toast.error("Failed to process session");
-        setStatus("failed");
-      }
-    };
+          toast.error("Processing failed. You can retry below.");
+          setStatus("failed");
+        }
+      }, 10000);
 
-    poll();
+      timeoutRef.current = window.setTimeout(() => {
+        clearTimers();
+        toast.error("Processing is taking longer than expected.");
+        setStatus("timeout");
+      }, 300000);
 
-    return { intervalId, timeoutId };
-  }, [sessionId, sessionDetails, navigate, handleCompleted]);
+    } catch (error) {
+      console.error("Error processing session:", error);
+      toast.error("Failed to process session");
+      setStatus("failed");
+    }
+  }, [sessionId, sessionDetails, navigate, clearTimers, handleCompleted]);
 
-  // Initial polling on mount
   useEffect(() => {
-    const { intervalId, timeoutId } = startPolling();
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, [startPolling]);
+    startPolling();
+    return () => clearTimers();
+  }, [startPolling, clearTimers]);
 
   // Fallback: if stuck at 100% for 5 seconds, force completion
   useEffect(() => {
@@ -208,9 +203,8 @@ const Processing = () => {
     setIsRetrying(true);
     setStatus("processing");
     setProgress(0);
-    
-    // Re-start polling
-    startPolling();
+
+    await startPolling();
     setIsRetrying(false);
   };
 

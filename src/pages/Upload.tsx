@@ -202,13 +202,15 @@ const Upload = () => {
       if (error) throw error;
 
       // Upload audio file to analysis API (triggers processing)
+      // Mirror the recorder's first-chunk format (no temp_id / no session payload on first request)
       const formData = new FormData();
       formData.append("session_id", session.id);
       formData.append("index", "0");
       formData.append("is_final", "1");
-      formData.append("audio_chunk_file", audioFile, audioFile.name);
-      formData.append("upload_mode", "single");
-      formData.append("session", JSON.stringify(session));
+
+      const ext = (audioFile.name.split(".").pop() || "webm").toLowerCase();
+      formData.append("audio_chunk_file", audioFile, `chunk-${session.id}-0.${ext}`);
+      formData.append("upload_mode", "stream");
 
       try {
         await axios.post(
@@ -228,8 +230,9 @@ const Upload = () => {
           .from("sessions")
           .update({ status: "failed" })
           .eq("id", session.id);
-        
-        toast.error("Failed to start analysis. Please try again.");
+
+        const statusCode = axios.isAxiosError(uploadError) ? uploadError.response?.status : undefined;
+        toast.error(statusCode ? `Failed to start analysis (${statusCode}). Please try again.` : "Failed to start analysis. Please try again.");
         setIsSubmitting(false);
         return;
       }
