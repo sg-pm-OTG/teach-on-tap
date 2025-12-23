@@ -34,9 +34,6 @@ export const HeroSessionCard = ({
     { icon: BookOpen, label: "Activity", value: activityType },
   ].filter(item => item.value);
 
-  const truncateLabel = (label: string, maxLength: number = 14) => {
-    return label.length > maxLength ? label.slice(0, maxLength) + "…" : label;
-  };
 
   return (
     <div className="bg-gradient-to-br from-teal-500 to-blue-600 rounded-2xl p-5 text-white shadow-lg">
@@ -57,11 +54,11 @@ export const HeroSessionCard = ({
             </div>
             <div className="space-y-1.5">
               {topScenarioMarkers.map((marker, idx) => (
-                <div key={idx} className="flex items-center justify-between">
-                  <span className="text-xs text-white/90 truncate mr-2">
-                    {truncateLabel(marker.label)}
+                <div key={idx} className="flex items-center justify-between gap-2">
+                  <span className="text-xs text-white/90 leading-tight">
+                    {marker.label}
                   </span>
-                  <span className="text-xs font-semibold bg-white/20 px-1.5 py-0.5 rounded">
+                  <span className="text-xs font-semibold bg-white/20 px-1.5 py-0.5 rounded flex-shrink-0">
                     {Math.round(marker.score)}
                   </span>
                 </div>
@@ -79,11 +76,11 @@ export const HeroSessionCard = ({
             </div>
             <div className="space-y-1.5">
               {topDialogueMarkers.map((marker, idx) => (
-                <div key={idx} className="flex items-center justify-between">
-                  <span className="text-xs text-white/90 truncate mr-2">
-                    {truncateLabel(marker.label)}
+                <div key={idx} className="flex items-center justify-between gap-2">
+                  <span className="text-xs text-white/90 leading-tight">
+                    {marker.label}
                   </span>
-                  <span className="text-xs font-semibold bg-white/20 px-1.5 py-0.5 rounded">
+                  <span className="text-xs font-semibold bg-white/20 px-1.5 py-0.5 rounded flex-shrink-0">
                     {Math.round(marker.score)}
                   </span>
                 </div>

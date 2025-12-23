@@ -2,7 +2,6 @@ import { useState } from "react";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { HeroSessionCard } from "@/components/report/HeroSessionCard";
-import { SpeakerCard } from "@/components/report/SpeakerCard";
 import { ThemeCard } from "@/components/report/ThemeCard";
 import { ConclusionCard } from "@/components/report/ConclusionCard";
 import { TalkTimeBar } from "@/components/report/TalkTimeBar";
@@ -20,8 +19,7 @@ import { TrendBadge } from "@/components/report/TrendBadge";
 import ImportantSectionWrapper from "@/components/report/ImportantSectionWrapper";
 import { ComparisonSummaryCard } from "@/components/report/ComparisonSummaryCard";
 import { useAllSessionReports } from "@/hooks/useAllSessionReports";
-import { ChevronDown, FileText, Download, Music, FileDown, MessageCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { FileText, Download, Music, FileDown, MessageCircle } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Target, Wrench, Brain, Compass, Users, LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -39,7 +37,7 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 const Reports = () => {
-  const [showAllSpeakers, setShowAllSpeakers] = useState(false);
+  
   const [compareMode, setCompareMode] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -102,10 +100,6 @@ const Reports = () => {
   }
 
   if (!selectedReport) return null;
-
-  const displayedSpeakers = showAllSpeakers 
-    ? selectedReport.speakers 
-    : selectedReport.speakers.slice(0, 3);
 
   const speakerLabels = selectedReport.speakers.map((s, i) => 
     i === 0 ? "F" : `P${i}`
@@ -299,53 +293,6 @@ const Reports = () => {
             />
           </div>
 
-          <SectionDivider title="Speakers" />
-
-          {/* Speaker Summary */}
-          <div className="space-y-2 animate-slide-in-up">
-            {displayedSpeakers.map((speaker) => (
-              <SpeakerCard
-                key={speaker.id}
-                id={speaker.id}
-                description={speaker.description}
-              />
-            ))}
-            {selectedReport.speakers.length > 3 && (
-              <button
-                onClick={() => setShowAllSpeakers(!showAllSpeakers)}
-                className="w-full py-2 text-sm text-primary font-medium flex items-center justify-center gap-1 hover:bg-muted/50 rounded-lg transition-colors"
-              >
-                {showAllSpeakers ? "Show Less" : `Show All ${selectedReport.speakers.length} Speakers`}
-                <ChevronDown className={cn("h-4 w-4 transition-transform", showAllSpeakers && "rotate-180")} />
-              </button>
-            )}
-          </div>
-
-          <SectionDivider title="Main Themes" />
-
-          {/* Main Discussion Themes */}
-          <div className="space-y-3 animate-slide-in-up">
-            {selectedReport.themes.map((theme, index) => {
-              const IconComponent = iconMap[theme.icon] || Target;
-              return (
-                <ThemeCard
-                  key={index}
-                  title={theme.title}
-                  icon={IconComponent}
-                  bullets={theme.bullets}
-                  accentColor={theme.accentColor}
-                />
-              );
-            })}
-          </div>
-
-          <SectionDivider title="Conclusions" />
-
-          {/* Overall Conclusions */}
-          <div className="animate-slide-in-up">
-            <ConclusionCard title="Overall Conclusions" conclusions={selectedReport.conclusions} />
-          </div>
-
           <SectionDivider title="Structural Analysis" />
 
           {/* Talk Time Distribution - Pie Chart */}
@@ -373,6 +320,24 @@ const Reports = () => {
               interactions={selectedReport.speakerInteractions}
               labels={speakerLabels}
             />
+          </div>
+
+          <SectionDivider title="Main Themes" />
+
+          {/* Main Discussion Themes */}
+          <div className="space-y-3 animate-slide-in-up">
+            {selectedReport.themes.map((theme, index) => {
+              const IconComponent = iconMap[theme.icon] || Target;
+              return (
+                <ThemeCard
+                  key={index}
+                  title={theme.title}
+                  icon={IconComponent}
+                  bullets={theme.bullets}
+                  accentColor={theme.accentColor}
+                />
+              );
+            })}
           </div>
 
           {/* Emergent Scenario Section */}
