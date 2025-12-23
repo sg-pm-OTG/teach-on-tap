@@ -340,6 +340,14 @@ const Reports = () => {
             })}
           </div>
 
+          {/* Conclusions - Summary of Main Themes */}
+          <div className="animate-slide-in-up">
+            <ConclusionCard
+              title="Key Takeaways"
+              conclusions={selectedReport.conclusions}
+            />
+          </div>
+
           {/* Emergent Scenario Section */}
           <ImportantSectionWrapper
             title="Emergent Scenario"
