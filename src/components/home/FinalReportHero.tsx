@@ -32,7 +32,7 @@ const FinalReportHero = () => {
         </div>
         
         {/* CTA Button */}
-        <Button onClick={() => navigate("/final-report")} size="lg" className="w-full bg-background hover:bg-background/95 font-semibold text-foreground shadow-lg">
+        <Button onClick={() => navigate("/final-report")} size="lg" className="w-full bg-white hover:bg-white/95 font-semibold text-primary shadow-lg">
           View My Final Report
           <ArrowRight className="h-5 w-5 ml-2" />
         </Button>
