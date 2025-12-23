@@ -352,20 +352,13 @@ const Reports = () => {
           </div>
 
           {/* Key Takeaways - Using ThemeCard design */}
-          <div className="space-y-3 animate-slide-in-up">
-            {selectedReport.conclusions.map((conclusion, index) => {
-              const colors = ['bg-purple-100', 'bg-yellow-100', 'bg-pink-100', 'bg-emerald-100'];
-              const icons = [Lightbulb, Star, Target, CheckCircle2];
-              return (
-                <ThemeCard
-                  key={index}
-                  title={`Takeaway ${index + 1}`}
-                  icon={icons[index % icons.length]}
-                  bullets={[conclusion]}
-                  accentColor={colors[index % colors.length]}
-                />
-              );
-            })}
+          <div className="animate-slide-in-up">
+            <ThemeCard
+              title="Key Takeaways"
+              icon={Lightbulb}
+              bullets={selectedReport.conclusions}
+              accentColor="bg-purple-100"
+            />
           </div>
 
           <SectionDivider title="FOP Analysis" />
