@@ -417,10 +417,10 @@ const wrapText = (text: string, maxChars: number) => {
 
 const getRating = (score: number) => {
   switch (score) {
-    case 4: return { text: 'Effective' };
+    case 4: return { text: 'Clearly Evident' };
     case 3: return { text: 'Visible' };
     case 2: return { text: 'Developing' };
-    case 1: return { text: 'Weak' };
+    case 1: return { text: 'Minimally Evident' };
     default: return { text: 'Not Evident' };
   }
 };
