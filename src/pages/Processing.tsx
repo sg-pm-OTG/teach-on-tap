@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { TopBar } from "@/components/TopBar";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { SurveyContainer } from "@/components/survey/SurveyContainer";
 import { SurveyResultsFeedback } from "@/components/survey/SurveyResultsFeedback";
 import { supabase } from "@/integrations/supabase/client";
-import { generateMockReport } from "@/lib/mockReportGenerator";
 import { toast } from "sonner";
 import type { SurveyData } from "@/types/survey";
+import { Button } from "@/components/ui/button";
 import axios from 'axios';
 
 interface LocationState {
@@ -22,13 +22,15 @@ interface LocationState {
   };
 }
 
+type ProcessingStatus = "processing" | "completed" | "failed" | "timeout";
+
 const Processing = () => {
   const [progress, setProgress] = useState(0);
-  const [processingComplete, setProcessingComplete] = useState(false);
+  const [status, setStatus] = useState<ProcessingStatus>("processing");
   const [surveyComplete, setSurveyComplete] = useState(false);
   const [showSurveyResults, setShowSurveyResults] = useState(false);
   const [surveyData, setSurveyData] = useState<SurveyData | null>(null);
-  const [reportGenerated, setReportGenerated] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -46,8 +48,9 @@ const Processing = () => {
 
     return data.session.access_token;
   };
+
   // Handle completion logic
-  const handleCompleted = async (audio_file_url: string | null) => {
+  const handleCompleted = useCallback(async (audio_file_url: string | null) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("User not authenticated");
@@ -66,8 +69,7 @@ const Processing = () => {
           .eq("user_id", user.id);
       }
 
-      setReportGenerated(true);
-      setProcessingComplete(true);
+      setStatus("completed");
     } catch (error) {
       console.error("Error generating report:", error);
       toast.error("Failed to generate report");
@@ -78,21 +80,20 @@ const Processing = () => {
         .update({ status: "failed" })
         .eq("id", sessionId);
       
-      // Still allow navigation on error
-      setProcessingComplete(true);
+      setStatus("failed");
     }
-  };
+  }, [sessionId, isBaseline]);
 
-  // Update session status to processing and poll for results
-  useEffect(() => {
+  // Polling logic extracted for reuse
+  const startPolling = useCallback(() => {
     let intervalId: ReturnType<typeof setInterval> | null = null;
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
-    const processSession = async () => {
+    const poll = async () => {
       if (!sessionId || !sessionDetails) {
         toast.error("Session data not found");
         navigate("/");
-        return;
+        return { intervalId: null, timeoutId: null };
       }
 
       try {
@@ -101,6 +102,9 @@ const Processing = () => {
           .from("sessions")
           .update({ status: "processing" })
           .eq("id", sessionId);
+
+        setStatus("processing");
+        setProgress(0);
 
         // Poll for processing progress
         intervalId = setInterval(async () => {
@@ -135,53 +139,60 @@ const Processing = () => {
               .update({ status: "failed" })
               .eq("id", sessionId);
             
-            toast.error("Processing failed. Please try again.");
-            setProcessingComplete(true);
+            toast.error("Processing failed. You can retry below.");
+            setStatus("failed");
           }
         }, 10000);
 
         // Overall timeout (5 minutes)
         timeoutId = setTimeout(() => {
           if (intervalId) clearInterval(intervalId);
-          toast.error("Processing is taking longer than expected. Please try again later.");
-          setProcessingComplete(true);
+          toast.error("Processing is taking longer than expected.");
+          setStatus("timeout");
         }, 300000);
 
       } catch (error) {
         console.error("Error processing session:", error);
         toast.error("Failed to process session");
-        setProcessingComplete(true);
+        setStatus("failed");
       }
     };
 
-    processSession();
+    poll();
+
+    return { intervalId, timeoutId };
+  }, [sessionId, sessionDetails, navigate, handleCompleted]);
+
+  // Initial polling on mount
+  useEffect(() => {
+    const { intervalId, timeoutId } = startPolling();
 
     return () => {
       if (intervalId) clearInterval(intervalId);
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [sessionId, sessionDetails, isBaseline, navigate]);
+  }, [startPolling]);
 
-  // Fallback: if stuck at 100% for 5 seconds, force completion with DB update
+  // Fallback: if stuck at 100% for 5 seconds, force completion
   useEffect(() => {
-    if (progress >= 100 && !processingComplete && !reportGenerated) {
+    if (progress >= 100 && status === "processing") {
       const fallbackTimer = setTimeout(async () => {
         console.log("Fallback: forcing completion after progress reached 100%");
         await handleCompleted(null);
       }, 5000);
       return () => clearTimeout(fallbackTimer);
     }
-  }, [progress, processingComplete, reportGenerated]);
+  }, [progress, status, handleCompleted]);
 
   useEffect(() => {
     // For baseline: navigate home once processing is complete (no survey needed)
-    if (isBaseline && processingComplete) {
+    if (isBaseline && status === "completed") {
       setTimeout(() => {
         navigate("/baseline-success");
       }, 1000);
     }
     // Regular sessions now show survey results first, then user clicks to navigate
-  }, [processingComplete, isBaseline, navigate]);
+  }, [status, isBaseline, navigate]);
 
   const handleSurveyComplete = (data: SurveyData) => {
     setSurveyData(data);
@@ -193,35 +204,65 @@ const Processing = () => {
     navigate("/reports");
   };
 
+  const handleRetry = async () => {
+    setIsRetrying(true);
+    setStatus("processing");
+    setProgress(0);
+    
+    // Re-start polling
+    startPolling();
+    setIsRetrying(false);
+  };
+
   if (!sessionId) {
     return null;
   }
+
+  const isProcessing = status === "processing";
+  const isCompleted = status === "completed";
+  const isFailed = status === "failed" || status === "timeout";
 
   return (
     <div className="min-h-screen min-h-[100dvh] bg-background flex flex-col pb-24">
       <TopBar />
 
       <main className="container max-w-md mx-auto px-4 py-6 flex-1 overflow-y-auto">
-        {/* Compact Processing Indicator */}
-        <div className="mb-6 p-4 bg-card rounded-xl border border-border">
+        {/* Processing Indicator */}
+        <div className={`mb-6 p-4 bg-card rounded-xl border ${isFailed ? 'border-destructive/50' : 'border-border'}`}>
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center animate-pulse-slow">
-              <Loader2 className="h-6 w-6 text-primary-foreground animate-spin" />
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+              isFailed 
+                ? 'bg-destructive/10' 
+                : isCompleted 
+                  ? 'bg-success/10' 
+                  : 'gradient-primary animate-pulse-slow'
+            }`}>
+              {isFailed ? (
+                <AlertCircle className="h-6 w-6 text-destructive" />
+              ) : isCompleted ? (
+                <Loader2 className="h-6 w-6 text-success" />
+              ) : (
+                <Loader2 className="h-6 w-6 text-primary-foreground animate-spin" />
+              )}
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-foreground mb-1">
-                {processingComplete 
-                  ? isBaseline 
-                    ? "Baseline recorded!" 
-                    : "Analysis complete!" 
-                  : isBaseline 
-                    ? "Saving your baseline..." 
-                    : "Processing your session..."}
+                {isFailed 
+                  ? "Processing failed" 
+                  : isCompleted 
+                    ? isBaseline 
+                      ? "Baseline recorded!" 
+                      : "Analysis complete!" 
+                    : isBaseline 
+                      ? "Saving your baseline..." 
+                      : "Processing your session..."}
               </h3>
               <div className="flex items-center gap-2">
                 <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full gradient-secondary transition-all duration-300 ease-out"
+                    className={`h-full transition-all duration-300 ease-out ${
+                      isFailed ? 'bg-destructive' : 'gradient-secondary'
+                    }`}
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -231,6 +272,41 @@ const Processing = () => {
               </div>
             </div>
           </div>
+
+          {/* Retry button for failed sessions */}
+          {isFailed && (
+            <div className="mt-4 pt-4 border-t border-border">
+              <p className="text-sm text-muted-foreground mb-3">
+                {status === "timeout" 
+                  ? "The processing timed out. You can try again or return to reports."
+                  : "Something went wrong during processing. You can retry or return to reports."}
+              </p>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleRetry}
+                  disabled={isRetrying}
+                  className="flex-1"
+                >
+                  {isRetrying ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                  )}
+                  Retry Processing
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigate("/reports")}
+                  className="flex-1"
+                >
+                  Go to Reports
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Survey Results Feedback - Show after survey is submitted */}
@@ -259,7 +335,7 @@ const Processing = () => {
         )}
 
         {/* Baseline info message */}
-        {isBaseline && !processingComplete && (
+        {isBaseline && isProcessing && (
           <div className="p-4 bg-muted/50 rounded-xl text-center">
             <p className="text-sm text-muted-foreground">
               This baseline recording will be saved for comparison after you complete the program.
@@ -268,7 +344,7 @@ const Processing = () => {
         )}
 
         {/* Waiting Message - Show when survey results are displayed but processing not complete */}
-        {!isBaseline && showSurveyResults && !processingComplete && (
+        {!isBaseline && showSurveyResults && isProcessing && (
           <div className="mt-6 p-4 bg-muted/50 rounded-lg text-center animate-fade-in">
             <p className="text-sm text-muted-foreground">
               Processing your session in the background...
