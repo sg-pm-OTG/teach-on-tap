@@ -135,10 +135,11 @@ export const ScoreRadarChart = ({
       </div>
       {/* Score Legend */}
       <div className="flex flex-wrap justify-center gap-2 mt-2 pt-2 border-t border-border">
-        <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">4 Effective</span>
+        <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">4 Clearly Evident</span>
         <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">3 Visible</span>
         <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">2 Developing</span>
-        <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">1 Weak</span>
+        <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">1 Minimally Evident</span>
+        <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">0 Not Evident</span>
       </div>
     </div>
   );
