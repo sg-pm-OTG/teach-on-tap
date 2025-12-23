@@ -23,10 +23,10 @@ const getScoreBadge = (score: number) => {
     0: "bg-gray-100 text-gray-600",
   };
   const labels: Record<number, string> = {
-    4: "Effective",
+    4: "Clearly Evident",
     3: "Visible",
     2: "Developing",
-    1: "Weak",
+    1: "Minimally Evident",
     0: "Not Evident",
   };
   return { color: colors[score] || colors[0], label: labels[score] || labels[0] };
