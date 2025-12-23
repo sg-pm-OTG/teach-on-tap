@@ -47,6 +47,7 @@ const Upload = () => {
 
   // Audio file state
   const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioDuration, setAudioDuration] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -91,16 +92,23 @@ const Upload = () => {
 
     setAudioFile(file);
 
-    // Get audio duration
-    const audio = new Audio();
-    audio.src = URL.createObjectURL(file);
+    // Create object URL once and store it
+    const url = URL.createObjectURL(file);
+    setAudioUrl(url);
+
+    // Get audio duration using a temporary audio element
+    const audio = new Audio(url);
     audio.onloadedmetadata = () => {
       setAudioDuration(audio.duration);
-      URL.revokeObjectURL(audio.src);
     };
   };
 
   const handleRemoveFile = () => {
+    // Revoke URL to free memory
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+    }
+    setAudioUrl(null);
     setAudioFile(null);
     setAudioDuration(null);
     setIsPlaying(false);
@@ -109,15 +117,22 @@ const Upload = () => {
     }
   };
 
-  const togglePlayback = () => {
+  const togglePlayback = async () => {
     if (!audioRef.current) return;
     
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
+    try {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        await audioRef.current.play();
+        setIsPlaying(true);
+      }
+    } catch (error) {
+      console.error("Playback error:", error);
+      toast.error("Unable to play audio preview");
+      setIsPlaying(false);
     }
-    setIsPlaying(!isPlaying);
   };
 
   const handleContinueToConfirm = () => {
@@ -474,7 +489,7 @@ const Upload = () => {
 
                 <audio
                   ref={audioRef}
-                  src={audioFile ? URL.createObjectURL(audioFile) : undefined}
+                  src={audioUrl || undefined}
                   onEnded={() => setIsPlaying(false)}
                   className="hidden"
                 />
