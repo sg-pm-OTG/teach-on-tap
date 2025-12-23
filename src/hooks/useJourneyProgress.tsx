@@ -8,8 +8,9 @@ export type MilestoneStatus = "complete" | "current" | "locked";
 export interface JourneyProgress {
   baseline: MilestoneStatus;
   masterclass: MilestoneStatus;
-  sessions: MilestoneStatus;
+  session1: MilestoneStatus;
   learningHuddle: MilestoneStatus;
+  sessions23: MilestoneStatus;
   postSurvey: MilestoneStatus;
   finalReport: MilestoneStatus;
   launchHuddle: MilestoneStatus;
@@ -72,8 +73,9 @@ export const useJourneyProgress = () => {
       return {
         baseline: "current",
         masterclass: "locked",
-        sessions: "locked",
+        session1: "locked",
         learningHuddle: "locked",
+        sessions23: "locked",
         postSurvey: "locked",
         finalReport: "locked",
         launchHuddle: "locked",
@@ -112,20 +114,29 @@ export const useJourneyProgress = () => {
         ? "complete" 
         : "current";
     
-    const sessions: MilestoneStatus = !masterclass_attended 
+    // Session 1: unlocks after masterclass, complete when sessionCount >= 1
+    const session1: MilestoneStatus = !masterclass_attended 
       ? "locked" 
-      : sessionCount >= 3 
+      : sessionCount >= 1 
         ? "complete" 
         : "current";
     
-    // Learning Huddle: unlocks after Session 1, informational only
+    // Learning Huddle: unlocks after Session 1 complete, REQUIRED gate
     const learningHuddle: MilestoneStatus = sessionCount < 1
       ? "locked"
       : learning_huddle_attended
         ? "complete"
         : "current";
     
-    const postSurvey: MilestoneStatus = sessionCount < 3 
+    // Sessions 2-3: BLOCKED until Learning Huddle attended
+    const sessions23: MilestoneStatus = !learning_huddle_attended
+      ? "locked"
+      : sessionCount >= 3 
+        ? "complete" 
+        : "current";
+    
+    // Post Survey: requires all 3 sessions AND learning huddle attended
+    const postSurvey: MilestoneStatus = (sessionCount < 3 || !learning_huddle_attended)
       ? "locked" 
       : post_survey_completed 
         ? "complete" 
@@ -146,8 +157,9 @@ export const useJourneyProgress = () => {
     return {
       baseline,
       masterclass,
-      sessions,
+      session1,
       learningHuddle,
+      sessions23,
       postSurvey,
       finalReport,
       launchHuddle,

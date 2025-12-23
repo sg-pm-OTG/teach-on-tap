@@ -16,8 +16,9 @@ const JourneyProgressBar = ({ onViewClick }: JourneyProgressBarProps) => {
   const milestones: { id: string; label: string; status: MilestoneStatus }[] = [
     { id: "baseline", label: "Baseline", status: progress.baseline },
     { id: "masterclass", label: "Masterclass", status: progress.masterclass },
-    { id: "sessions", label: "Sessions", status: progress.sessions },
+    { id: "session1", label: "Session 1", status: progress.session1 },
     { id: "learningHuddle", label: "Learning Huddle", status: progress.learningHuddle },
+    { id: "sessions23", label: "Sessions 2-3", status: progress.sessions23 },
     { id: "postSurvey", label: "Questionnaire", status: progress.postSurvey },
     { id: "finalReport", label: "Final Report", status: progress.finalReport },
     { id: "launchHuddle", label: "Launch Huddle", status: progress.launchHuddle },
@@ -34,7 +35,7 @@ const JourneyProgressBar = ({ onViewClick }: JourneyProgressBarProps) => {
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-medium text-muted-foreground">Your Journey</span>
         <span className="text-xs font-medium text-muted-foreground">
-          {completedCount}/7 Steps
+          {completedCount}/8 Steps
         </span>
       </div>
 
@@ -72,7 +73,8 @@ const JourneyProgressBar = ({ onViewClick }: JourneyProgressBarProps) => {
               </span>
               <span className="text-sm font-medium text-foreground">
                 {currentMilestone.label}
-                {currentMilestone.id === "sessions" && ` (${progress.sessionCount}/3)`}
+                {currentMilestone.id === "session1" && ` (${Math.min(progress.sessionCount, 1)}/1)`}
+                {currentMilestone.id === "sessions23" && ` (${Math.max(0, progress.sessionCount - 1)}/2)`}
               </span>
             </>
           )}

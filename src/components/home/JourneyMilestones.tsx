@@ -45,21 +45,37 @@ const JourneyMilestones = () => {
       location: progress.masterclassLocation || undefined,
     },
     {
-      id: "sessions",
-      label: "Session Recordings",
+      id: "session1",
+      label: "Session 1 Recording",
       icon: Video,
-      status: progress.sessions,
-      description: "Record sessions of your evolving practice in future-oriented pedagogies.",
-      progress: `${progress.sessionCount}/3`,
+      status: progress.session1,
+      description: "Record your first session applying future-oriented pedagogies.",
+      progress: `${Math.min(progress.sessionCount, 1)}/1`,
+      actionLabel: progress.session1 === "current" ? "Record Session" : undefined,
+      onAction: progress.session1 === "current" 
+        ? () => navigate("/record")
+        : undefined,
     },
     {
       id: "learningHuddle",
       label: "Learning Huddle",
       icon: Users,
       status: progress.learningHuddle,
-      description: "Attend an in-person, collective sensemaking session with peers to share insights from your growing experience with future-oriented pedagogies.",
+      description: "Attend the Learning Huddle before continuing with Sessions 2-3. This is an in-person, collective sensemaking session with peers to share insights from your growing experience with future-oriented pedagogies.",
       date: progress.learningHuddleDate || undefined,
       location: progress.learningHuddleLocation || undefined,
+    },
+    {
+      id: "sessions23",
+      label: "Sessions 2-3 Recordings",
+      icon: Video,
+      status: progress.sessions23,
+      description: "Continue recording sessions applying future-oriented pedagogies.",
+      progress: `${Math.max(0, progress.sessionCount - 1)}/2`,
+      actionLabel: progress.sessions23 === "current" ? "Record Session" : undefined,
+      onAction: progress.sessions23 === "current" 
+        ? () => navigate("/record")
+        : undefined,
     },
     {
       id: "postSurvey",
