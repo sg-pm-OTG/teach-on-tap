@@ -211,35 +211,6 @@ const Reports = () => {
     } finally {
       setIsDownloading(false);
     }
-    //   if (!selectedReport?.transcript) {
-    //     toast.error("Transcript not available");
-    //     return;
-    //   }
-
-    //   toast.info("Downloading transcript...");
-
-    //   const content = selectedReport.transcript;
-
-    //   const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    //   const url = URL.createObjectURL(blob);
-
-    //   const a = document.createElement("a");
-    //   a.href = url;
-    //   a.download = `transcript-${selectedReport.sessionId}.txt`;
-
-    //   document.body.appendChild(a);
-    //   a.click();
-
-    //   document.body.removeChild(a);
-    //   URL.revokeObjectURL(url);
-
-    //   toast.success("Transcript downloaded successfully");
-    // } catch (err) {
-    //   console.error(err);
-    //   toast.error("Failed to download transcript");
-    // } finally {
-    //   setIsDownloading(false);
-    // }
   };
 
   const handleDownloadPDF = () => {

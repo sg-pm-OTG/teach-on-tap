@@ -61,6 +61,7 @@ const Upload = () => {
   const [sessionDate, setSessionDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
   const [isBaseline] = useState(presetBaseline);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitProgress, setSubmitProgress] = useState<number>(0);
 
   const isFormValid =
     useSite.trim() !== "" &&
@@ -162,7 +163,7 @@ const Upload = () => {
 
   const handleSubmit = async () => {
     if (!isFormValid || !audioFile || isSubmitting) return;
-
+    setSubmitProgress(0);
     setIsSubmitting(true);
 
     try {
@@ -225,6 +226,10 @@ const Upload = () => {
               Authorization: `Bearer ${accessToken}`,
             },
             // timeout: 120_000, // 2 minutes for larger files
+            onUploadProgress(progressEvent) {
+              const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1));
+              setSubmitProgress(percentCompleted);
+            },
           }
         );
       } catch (uploadError) {
@@ -743,8 +748,7 @@ const Upload = () => {
               onClick={handleSubmit}
               disabled={!isFormValid || !audioFile || isSubmitting}
             >
-              {/* {isSubmitting ? "Submitting..." : "Submit Session"} */}
-              {!isSubmitting ? "Submitting..." : "Submit Session"}
+              {!isSubmitting ? `${submitProgress}% Submitting...` : "Submit Session"}
             </Button>
           </div>
         </div>
