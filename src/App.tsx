@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import { AuthProvider } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminAuthProvider } from "./components/admin/AdminAuthProvider";
@@ -33,6 +33,13 @@ import UserDetail from "./pages/admin/UserDetail";
 
 const queryClient = new QueryClient();
 
+// Layout component that wraps admin routes with a single AdminAuthProvider
+const AdminRouteWrapper = () => (
+  <AdminAuthProvider>
+    <Outlet />
+  </AdminAuthProvider>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -41,18 +48,14 @@ const App = () => (
       <div className="min-h-screen bg-background">
         <BrowserRouter>
           <Routes>
-            {/* Admin Routes */}
-            <Route path="/admin" element={<AdminAuthProvider><AdminLogin /></AdminAuthProvider>} />
-            <Route path="/admin/*" element={
-              <AdminAuthProvider>
-                <AdminProtectedRoute>
-                  <AdminLayout />
-                </AdminProtectedRoute>
-              </AdminAuthProvider>
-            }>
-              <Route path="staff" element={<StaffManagement />} />
-              <Route path="users" element={<UsersList />} />
-              <Route path="users/:userId" element={<UserDetail />} />
+            {/* Admin Routes - Single AdminAuthProvider for all admin routes */}
+            <Route element={<AdminRouteWrapper />}>
+              <Route path="/admin" element={<AdminLogin />} />
+              <Route path="/admin" element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
+                <Route path="staff" element={<StaffManagement />} />
+                <Route path="users" element={<UsersList />} />
+                <Route path="users/:userId" element={<UserDetail />} />
+              </Route>
             </Route>
 
             {/* User Routes */}
