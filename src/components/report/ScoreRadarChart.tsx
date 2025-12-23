@@ -85,7 +85,7 @@ export const ScoreRadarChart = ({
       <div className="w-full h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="70%" data={chartData}>
-            <PolarGrid stroke="hsl(var(--border))" />
+            <PolarGrid gridType="circle" stroke="hsl(var(--border))" />
             <PolarAngleAxis
               dataKey="subject"
               tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
