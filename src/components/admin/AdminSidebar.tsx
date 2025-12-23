@@ -15,11 +15,9 @@ export const AdminSidebar = () => {
   return (
     <aside className="w-64 bg-card border-r border-border min-h-screen flex flex-col">
       <div className="p-6 border-b border-border">
-        <div className="flex items-center gap-3">
-          <img src={alcLogo} alt="Adult Learning Collaboratory" className="h-8" />
-          <span className="text-xl font-bold text-foreground">FOP Companion</span>
-        </div>
-        <p className="text-sm text-muted-foreground mt-1">Admin Portal</p>
+        <img src={alcLogo} alt="Adult Learning Collaboratory" className="h-10" />
+        <h1 className="text-xl font-bold text-foreground mt-2">FOP Companion</h1>
+        <p className="text-sm text-muted-foreground">Admin Portal</p>
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
