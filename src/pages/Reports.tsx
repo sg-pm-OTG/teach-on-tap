@@ -106,6 +106,12 @@ const Reports = () => {
     i === 0 ? "Facilitator" : `Participant ${i}`
   );
 
+  // Transform talk time data to use proper labels
+  const transformedTalkTimeData = selectedReport.talkTimeData.map((item, index) => ({
+    ...item,
+    speaker: speakerLabels[index] || item.speaker
+  }));
+
   const formatSessionDate = (dateStr: string) => {
     try {
       return format(parseISO(dateStr), "MMMM d, yyyy");
@@ -308,13 +314,13 @@ const Reports = () => {
 
           {/* Talk Time Distribution - Pie Chart */}
           <div className="animate-slide-in-up">
-            <TalkTimePieChart data={selectedReport.talkTimeData} />
+            <TalkTimePieChart data={transformedTalkTimeData} />
           </div>
 
           {/* Talk Time Bars */}
           <div className="bg-card rounded-xl border border-border p-4 space-y-3 animate-slide-in-up">
             <h4 className="font-medium text-sm text-foreground mb-3">Speaker Talk Time Details</h4>
-            {selectedReport.talkTimeData.map((item) => (
+            {transformedTalkTimeData.map((item) => (
               <TalkTimeBar
                 key={item.speaker}
                 speaker={item.speaker}
