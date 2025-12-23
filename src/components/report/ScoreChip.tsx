@@ -24,13 +24,13 @@ const getScoreColor = (score: number) => {
 const getScoreLabel = (score: number) => {
   switch (score) {
     case 4:
-      return "Effective";
+      return "Clearly Evident";
     case 3:
       return "Visible";
     case 2:
       return "Developing";
     case 1:
-      return "Weak";
+      return "Minimally Evident";
     default:
       return "Not Evident";
   }
