@@ -44,6 +44,11 @@ interface ScenarioContent {
   content: string[];
 }
 
+interface Summary {
+  keyInsights: string[];
+  recommendations: string[];
+}
+
 // Raw DB types
 interface RawSpeaker {
   name: string;
@@ -74,7 +79,7 @@ interface RawFinalSummary {
   overallScore: number;
   keyInsights: string[];
   areasForImprovement: string[];
-  recommendation: string;
+  recommendation: string[];
 }
 
 interface RawSpeakerInteraction {
@@ -103,6 +108,8 @@ export interface SessionReport {
   dialogueScores: ScoreItem[];
   dialogueAnalysis: AnalysisItem[];
   finalSummary: string[];
+  esSummary: Summary;
+  gdSummary: Summary;
   scenarioAvg: number;
   dialogueAvg: number;
   transcript: string;
@@ -112,7 +119,6 @@ const themeIcons = ["Target", "Wrench", "Brain", "Compass", "Users"];
 const themeColors = ["bg-rose-100", "bg-amber-100", "bg-purple-100", "bg-blue-100", "bg-emerald-100"];
 
 export const useAllSessionReports = () => {
-  console.log(import.meta.env.VITE_API_URL)
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [comparisonReportIds, setComparisonReportIds] = useState<string[]>([]);
 
@@ -220,8 +226,8 @@ export const useAllSessionReports = () => {
         }
 
         const final_summary = {
-          keyInsights: item.data.es_data.summary.keyInsights.join('\n') + item.data.gd_data.summary.keyInsights.join('\n'),
-          recommendation: item.data.es_data.summary.recommendations.join('\n') + item.data.gd_data.summary.recommendations.join('\n')
+          keyInsights: [...item.data.es_data.summary.keyInsights, ...item.data.gd_data.summary.keyInsights],
+          recommendation: [...item.data.es_data.summary.recommendations, ...item.data.gd_data.summary.recommendations],
         }
 
         return {
@@ -246,7 +252,9 @@ export const useAllSessionReports = () => {
           speaker_interactions,
           speakers,
           scenario_content,
-          final_summary
+          final_summary,
+          es_summary: item.data.es_data.summary, 
+          gd_summary: item.data.gd_data.summary,
         }
         } catch (err) {
           console.error('Error at item index:', err, item);
@@ -355,8 +363,8 @@ export const useAllSessionReports = () => {
           }
 
           const final_summary = {
-            keyInsights: item.data.es_data.summary.keyInsights.join('\n') + item.data.gd_data.summary.keyInsights.join('\n')  ,
-            recommendation: item.data.es_data.summary.recommendations.join('\n') + item.data.gd_data.summary.recommendations.join('\n')
+            keyInsights: [...item.data.es_data.summary.keyInsights, ...item.data.gd_data.summary.keyInsights],
+            recommendation: [...item.data.es_data.summary.recommendations, ...item.data.gd_data.summary.recommendations],
           }
           return {
             session_id: item.data.session.id,
@@ -379,7 +387,9 @@ export const useAllSessionReports = () => {
             speaker_interactions,
             speakers,
             scenario_content,
-            final_summary
+            final_summary,
+            es_summary: item.data.es_data.summary, 
+            gd_summary: item.data.gd_data.summary,
           }
         } catch (err) {
           console.error('Error at item index:', err, item);
@@ -486,10 +496,10 @@ export const useAllSessionReports = () => {
       const rawFinalSummary = report.final_summary as unknown as RawFinalSummary;
       const finalSummary: string[] = [
         rawFinalSummary.keyInsights.length > 0 
-          ? `Key Insights: ${rawFinalSummary.keyInsights}` 
+          ? `Key Insights:\n${rawFinalSummary.keyInsights.join('\n')}` 
           : null,
         rawFinalSummary.recommendation.length > 0 
-          ? `Recommendations: ${rawFinalSummary.recommendation}` 
+          ? `Recommendations:\n${rawFinalSummary.recommendation.join('\n')}` 
           : null,
       ].filter(Boolean) as string[];
 
@@ -515,6 +525,8 @@ export const useAllSessionReports = () => {
         dialogueScores,
         dialogueAnalysis,
         finalSummary,
+        esSummary: report.es_summary,
+        gdSummary: report.gd_summary,
         scenarioAvg: Math.round(scenarioAvg),
         dialogueAvg: Math.round(dialogueAvg),
       };
@@ -632,10 +644,10 @@ export const useAllSessionReports = () => {
     const rawFinalSummary = rawBaselineReport.final_summary as unknown as RawFinalSummary;
     const finalSummary: string[] = [
       rawFinalSummary.keyInsights.length > 0 
-        ? `Key Insights: ${rawFinalSummary.keyInsights}` 
+        ? `Key Insights:\n${rawFinalSummary.keyInsights.join('\n')}` 
         : null,
         rawFinalSummary.recommendation.length > 0 
-          ? `Recommendations: ${rawFinalSummary.recommendation}` 
+          ? `Recommendations:\n${rawFinalSummary.recommendation.join('\n')}` 
           : null,
     ].filter(Boolean) as string[];
 
