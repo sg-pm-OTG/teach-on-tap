@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
-import { Upload as UploadIcon, CheckCircle, ArrowRight, ArrowLeft, FileAudio, X, Play, Pause, Sparkles } from "lucide-react";
+import { Upload as UploadIcon, CheckCircle, ArrowRight, ArrowLeft, FileAudio, X, Play, Pause, Sparkles, Loader2 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import axios from "axios";
 
 const SESSION_TYPES = [
   "Classroom Lesson",
@@ -173,32 +174,16 @@ const Upload = () => {
         return;
       }
 
-      // Upload audio file
-      const timestamp = Date.now();
-      const fileExtension = audioFile.name.split(".").pop() || "mp3";
-      const fileName = `${user.id}/${timestamp}.${fileExtension}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("session-recordings")
-        .upload(fileName, audioFile, {
-          contentType: audioFile.type,
-          upsert: false,
-        });
-
-      if (uploadError) {
-        console.error("Error uploading audio:", uploadError);
-        toast.error("Failed to upload audio file");
+      // Get access token for API call
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        toast.error("Authentication error. Please log in again.");
         setIsSubmitting(false);
         return;
       }
 
-      // Get the file URL
-      const { data: urlData } = supabase.storage
-        .from("session-recordings")
-        .getPublicUrl(fileName);
-
-      const audioFileUrl = urlData.publicUrl;
-
+      // Create session record first
       const { data: session, error } = await supabase
         .from("sessions")
         .insert({
@@ -206,17 +191,50 @@ const Upload = () => {
           use_site: useSite.trim(),
           number_of_participants: numberOfParticipants,
           session_type: sessionType,
-            session_date: sessionDate,
-            emergent_scenario: hasEmergentScenario === false ? "AUTO_DETECT" : (emergentScenario.trim() || null),
+          session_date: sessionDate,
+          emergent_scenario: hasEmergentScenario === false ? "AUTO_DETECT" : (emergentScenario.trim() || null),
           status: "pending",
           is_baseline: isBaseline,
-          audio_file_url: audioFileUrl,
         })
         .select()
         .single();
 
       if (error) throw error;
 
+      // Upload audio file to analysis API (triggers processing)
+      const formData = new FormData();
+      formData.append("session_id", session.id);
+      formData.append("index", "0");
+      formData.append("is_final", "1");
+      formData.append("audio_chunk_file", audioFile, audioFile.name);
+      formData.append("upload_mode", "single");
+      formData.append("session", JSON.stringify(session));
+
+      try {
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/v1/analyze/upload`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            timeout: 120_000, // 2 minutes for larger files
+          }
+        );
+      } catch (uploadError) {
+        console.error("Error triggering analysis:", uploadError);
+        // Mark session as failed if analysis trigger fails
+        await supabase
+          .from("sessions")
+          .update({ status: "failed" })
+          .eq("id", session.id);
+        
+        toast.error("Failed to start analysis. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Navigate to processing page
       navigate("/processing", {
         state: {
           sessionId: session.id,
@@ -225,8 +243,8 @@ const Upload = () => {
             use_site: useSite.trim(),
             number_of_participants: numberOfParticipants,
             session_type: sessionType,
-          session_date: sessionDate,
-          emergent_scenario: hasEmergentScenario === false ? "AUTO_DETECT" : (emergentScenario.trim() || null),
+            session_date: sessionDate,
+            emergent_scenario: hasEmergentScenario === false ? "AUTO_DETECT" : (emergentScenario.trim() || null),
           },
         },
       });
