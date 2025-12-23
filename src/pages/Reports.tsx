@@ -21,7 +21,7 @@ import { ComparisonSummaryCard } from "@/components/report/ComparisonSummaryCard
 import { useAllSessionReports } from "@/hooks/useAllSessionReports";
 import { FileText, Download, Music, FileDown, MessageCircle } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { Target, Wrench, Brain, Compass, Users, LucideIcon } from "lucide-react";
+import { Target, Wrench, Brain, Compass, Users, LucideIcon, Lightbulb, Star, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -351,12 +351,21 @@ const Reports = () => {
             })}
           </div>
 
-          {/* Conclusions - Summary of Main Themes */}
-          <div className="animate-slide-in-up">
-            <ConclusionCard
-              title="Key Takeaways"
-              conclusions={selectedReport.conclusions}
-            />
+          {/* Key Takeaways - Using ThemeCard design */}
+          <div className="space-y-3 animate-slide-in-up">
+            {selectedReport.conclusions.map((conclusion, index) => {
+              const colors = ['bg-purple-100', 'bg-yellow-100', 'bg-pink-100', 'bg-emerald-100'];
+              const icons = [Lightbulb, Star, Target, CheckCircle2];
+              return (
+                <ThemeCard
+                  key={index}
+                  title={`Takeaway ${index + 1}`}
+                  icon={icons[index % icons.length]}
+                  bullets={[conclusion]}
+                  accentColor={colors[index % colors.length]}
+                />
+              );
+            })}
           </div>
 
           <SectionDivider title="FOP Analysis" />
