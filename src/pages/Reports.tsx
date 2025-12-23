@@ -74,7 +74,8 @@ const Reports = () => {
             </div>
             <h2 className="text-lg font-semibold text-foreground mb-2">No Reports Yet</h2>
             <p className="text-sm text-muted-foreground">
-              Complete a session recording to see your first report here.
+              Record a session after completing the Baseline to see your first report here.
+              Your baseline recording will be used for comparison.
             </p>
           </div>
         </main>
@@ -347,6 +348,8 @@ const Reports = () => {
               conclusions={selectedReport.conclusions}
             />
           </div>
+
+          <SectionDivider title="FOP Analysis" />
 
           {/* Emergent Scenario Section */}
           <ImportantSectionWrapper
