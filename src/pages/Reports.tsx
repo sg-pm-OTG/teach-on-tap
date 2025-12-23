@@ -103,7 +103,7 @@ const Reports = () => {
   if (!selectedReport) return null;
 
   const speakerLabels = selectedReport.speakers.map((s, i) => 
-    i === 0 ? "F" : `P${i}`
+    i === 0 ? "Facilitator" : `Participant ${i}`
   );
 
   const formatSessionDate = (dateStr: string) => {
