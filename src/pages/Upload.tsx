@@ -488,7 +488,7 @@ const Upload = () => {
                 <div>
                   <p className="text-sm font-medium text-foreground mb-1">Upload Tips</p>
                   <ul className="text-xs text-muted-foreground space-y-1">
-                    <li>• Use recordings at least 45 minutes long</li>
+                    <li>• Recommended length: 45 minutes – 2 hours</li>
                     <li>• Ensure audio quality is clear</li>
                     <li>• Supported formats: MP3, WAV, M4A, WebM</li>
                   </ul>
