@@ -6,6 +6,7 @@ import {
   Radar,
   ResponsiveContainer,
   Legend,
+  Curve,
 } from "recharts";
 import { format, parseISO } from "date-fns";
 
@@ -29,7 +30,27 @@ interface ScoreRadarChartProps {
   comparison?: ComparisonData;
   comparisons?: ComparisonData[]; // Support multiple comparisons
   currentDate?: string;
+  curved?: boolean; // Enable rounded edges
 }
+
+// Custom curved shape for smooth radar edges
+const CurvedRadar = (props: any) => {
+  const { points, stroke, fill, fillOpacity, strokeWidth, strokeDasharray } = props;
+  
+  if (!points || points.length === 0) return null;
+  
+  return (
+    <Curve
+      type="basisClosed"
+      points={points}
+      stroke={stroke}
+      fill={fill}
+      fillOpacity={fillOpacity}
+      strokeWidth={strokeWidth}
+      strokeDasharray={strokeDasharray}
+    />
+  );
+};
 
 // Colors for multiple comparison overlays
 const COMPARISON_COLORS = [
@@ -46,6 +67,7 @@ export const ScoreRadarChart = ({
   comparison,
   comparisons = [],
   currentDate,
+  curved = true, // Default to curved for smooth look
 }: ScoreRadarChartProps) => {
   // Use comparisons array if provided, otherwise fall back to single comparison
   const allComparisons = comparisons.length > 0 
@@ -112,6 +134,7 @@ export const ScoreRadarChart = ({
                   fillOpacity={0.08}
                   strokeWidth={1.5}
                   strokeDasharray={index === 0 ? "4 4" : index === 1 ? "2 2" : "6 2"}
+                  shape={curved ? CurvedRadar : undefined}
                 />
               );
             })}
@@ -123,6 +146,7 @@ export const ScoreRadarChart = ({
               fill={color}
               fillOpacity={0.3}
               strokeWidth={2}
+              shape={curved ? CurvedRadar : undefined}
             />
             {allComparisons.length > 0 && (
               <Legend 
