@@ -46,8 +46,48 @@ const Processing = () => {
 
     return data.session.access_token;
   };
-  // Update session status to processing and generate report
+  // Handle completion logic
+  const handleCompleted = async (audio_file_url: string | null) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
+      // Update session status to completed
+      await supabase
+        .from("sessions")
+        .update({ status: "completed", ...(audio_file_url && { audio_file_url }) })
+        .eq("id", sessionId);
+
+      // If baseline, update profile to mark baseline completed
+      if (isBaseline) {
+        await supabase
+          .from("profiles")
+          .update({ baseline_completed: true })
+          .eq("user_id", user.id);
+      }
+
+      setReportGenerated(true);
+      setProcessingComplete(true);
+    } catch (error) {
+      console.error("Error generating report:", error);
+      toast.error("Failed to generate report");
+      
+      // Update session status to failed
+      await supabase
+        .from("sessions")
+        .update({ status: "failed" })
+        .eq("id", sessionId);
+      
+      // Still allow navigation on error
+      setProcessingComplete(true);
+    }
+  };
+
+  // Update session status to processing and poll for results
   useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
     const processSession = async () => {
       if (!sessionId || !sessionDetails) {
         toast.error("Session data not found");
@@ -62,8 +102,8 @@ const Processing = () => {
           .update({ status: "processing" })
           .eq("id", sessionId);
 
-        // Simulate processing progress
-        const interval = setInterval(async () => {
+        // Poll for processing progress
+        intervalId = setInterval(async () => {
           try {
             const token = await getAccessToken();
             const res = await axios.get(
@@ -74,67 +114,64 @@ const Processing = () => {
               }
             );
 
-            if (res.data.status === "completed") {
-              clearInterval(interval);
+            const currentProgress = res.data.progress ?? 0;
+            setProgress(currentProgress);
+
+            // Check for completed status OR progress >= 100
+            if (res.data.status === "completed" || currentProgress >= 100) {
+              if (intervalId) clearInterval(intervalId);
+              if (timeoutId) clearTimeout(timeoutId);
               setProgress(100);
-              await handleCompleted(res.data.session.audio_file_url);
+              await handleCompleted(res.data.session?.audio_file_url || null);
               return;
             }
-
-            setProgress(res.data.progress ?? 0);
           } catch (err) {
             console.error("Polling error:", err);
+            if (intervalId) clearInterval(intervalId);
+            if (timeoutId) clearTimeout(timeoutId);
+            
             await supabase
               .from("sessions")
               .update({ status: "failed" })
               .eq("id", sessionId);
-            }
+            
+            toast.error("Processing failed. Please try again.");
+            setProcessingComplete(true);
+          }
         }, 10000);
 
-        // Generate mock report after "processing" completes
+        // Overall timeout (5 minutes)
+        timeoutId = setTimeout(() => {
+          if (intervalId) clearInterval(intervalId);
+          toast.error("Processing is taking longer than expected. Please try again later.");
+          setProcessingComplete(true);
+        }, 300000);
 
-        return () => clearInterval(interval);
       } catch (error) {
         console.error("Error processing session:", error);
         toast.error("Failed to process session");
+        setProcessingComplete(true);
       }
     };
 
-    const handleCompleted = async (audio_file_url: string) => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
-
-        // Update session status to completed
-        await supabase
-          .from("sessions")
-          .update({ status: "completed", audio_file_url: audio_file_url })
-          .eq("id", sessionId);
-
-        // If baseline, update profile to mark baseline completed
-        if (isBaseline) {
-          await supabase
-            .from("profiles")
-            .update({ baseline_completed: true })
-            .eq("user_id", user.id);
-        }
-
-        setReportGenerated(true);
-        setProcessingComplete(true);
-      } catch (error) {
-        console.error("Error generating report:", error);
-        toast.error("Failed to generate report");
-        
-        // Update session status to failed
-        await supabase
-          .from("sessions")
-          .update({ status: "failed" })
-          .eq("id", sessionId);
-      }
-    }
-
     processSession();
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [sessionId, sessionDetails, isBaseline, navigate]);
+
+  // Fallback: if stuck at 100% for 5 seconds, force completion
+  useEffect(() => {
+    if (progress >= 100 && !processingComplete) {
+      const fallbackTimer = setTimeout(() => {
+        console.log("Fallback: forcing completion after progress reached 100%");
+        setProcessingComplete(true);
+      }, 5000);
+      return () => clearTimeout(fallbackTimer);
+    }
+  }, [progress, processingComplete]);
 
   useEffect(() => {
     // For baseline: navigate home once processing is complete (no survey needed)
