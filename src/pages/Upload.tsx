@@ -175,14 +175,18 @@ const Upload = () => {
       }
 
       // Get access token for API call
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData.session?.access_token;
-      if (!accessToken) {
-        toast.error("Authentication error. Please log in again.");
-        setIsSubmitting(false);
-        return;
-      }
+      const getAccessToken = async (): Promise<string> => {
+        const { data, error } = await supabase.auth.getSession();
 
+        if (error || !data.session?.access_token) {
+          throw new Error("Not authenticated");
+        }
+
+        return data.session.access_token;
+      };
+
+      const accessToken = await getAccessToken();
+      
       // Create session record first
       const { data: session, error } = await supabase
         .from("sessions")
@@ -205,12 +209,12 @@ const Upload = () => {
       // Mirror the recorder's first-chunk format (no temp_id / no session payload on first request)
       const formData = new FormData();
       formData.append("session_id", session.id);
-      formData.append("index", "0");
       formData.append("is_final", "1");
 
       const ext = (audioFile.name.split(".").pop() || "webm").toLowerCase();
       formData.append("audio_chunk_file", audioFile, `chunk-${session.id}-0.${ext}`);
-      formData.append("upload_mode", "stream");
+      formData.append("upload_mode", "segment");
+      formData.append("session", JSON.stringify(session));
 
       try {
         await axios.post(
@@ -220,7 +224,7 @@ const Upload = () => {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
-            timeout: 120_000, // 2 minutes for larger files
+            // timeout: 120_000, // 2 minutes for larger files
           }
         );
       } catch (uploadError) {
@@ -739,7 +743,8 @@ const Upload = () => {
               onClick={handleSubmit}
               disabled={!isFormValid || !audioFile || isSubmitting}
             >
-              {isSubmitting ? "Submitting..." : "Submit Session"}
+              {/* {isSubmitting ? "Submitting..." : "Submit Session"} */}
+              {!isSubmitting ? "Submitting..." : "Submit Session"}
             </Button>
           </div>
         </div>
