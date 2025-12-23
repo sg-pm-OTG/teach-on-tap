@@ -92,10 +92,22 @@ export const ScoreEvolutionChart = ({
   // Transform data for chart - create data points with individual marker scores
   const chartData = useMemo(() => {
     return displayedSessions.map((session, index) => {
+      // Safely format date label with null check
+      let dateLabel = session.label || `Session ${index + 1}`;
+      if (session.isBaseline) {
+        dateLabel = "Baseline";
+      } else if (session.date) {
+        try {
+          dateLabel = format(parseISO(session.date), "MMM d");
+        } catch {
+          // Keep fallback label if date parsing fails
+        }
+      }
+
       const dataPoint: any = {
         id: session.id,
         date: session.date,
-        dateLabel: session.isBaseline ? "Baseline" : format(parseISO(session.date), "MMM d"),
+        dateLabel,
         isSelected: session.id === selectedSessionId,
         isComparison: comparisonIds.includes(session.id),
         isBaseline: session.isBaseline,
@@ -164,14 +176,26 @@ export const ScoreEvolutionChart = ({
 
     const labels = activeTab === "scenario" ? markerLabels.scenario : markerLabels.dialogue;
 
+    // Safely format date with null check
+    let formattedDate = "";
+    if (session.date) {
+      try {
+        formattedDate = format(parseISO(session.date), "MMM d, yyyy");
+      } catch {
+        formattedDate = session.date;
+      }
+    }
+
     return (
       <div className="bg-card border border-border rounded-lg p-3 shadow-lg max-w-[200px]">
         <p className="text-xs font-medium text-foreground mb-1">
           {session.isBaseline ? "Baseline" : session.label}
         </p>
-        <p className="text-[10px] text-muted-foreground mb-2">
-          {format(parseISO(session.date), "MMM d, yyyy")}
-        </p>
+        {formattedDate && (
+          <p className="text-[10px] text-muted-foreground mb-2">
+            {formattedDate}
+          </p>
+        )}
         <div className="space-y-1">
           {payload.map((entry: any, index: number) => {
             const markerIndex = parseInt(entry.dataKey.split('_')[1]);
