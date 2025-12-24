@@ -236,10 +236,6 @@ const Upload = () => {
               Authorization: `Bearer ${accessToken}`,
             },
             // timeout: 120_000, // 2 minutes for larger files
-            onUploadProgress(progressEvent) {
-              const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1));
-              setSubmitProgress(percentCompleted);
-            },
           }
         );
       } catch (uploadError) {
@@ -758,7 +754,7 @@ const Upload = () => {
               onClick={handleSubmit}
               disabled={!isFormValid || !audioFile || isSubmitting}
             >
-              {!isSubmitting ? `${submitProgress}% Submitting...` : "Submit Session"}
+              {isSubmitting ? `Uploading...` : "Submit Session"}
             </Button>
           </div>
         </div>
