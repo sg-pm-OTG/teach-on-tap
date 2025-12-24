@@ -7,6 +7,8 @@ import { chord, ribbon, ChordGroup } from "d3-chord";
 import { arc } from "d3-shape";
 import { Button } from '../ui/button';
 import { FileDown } from 'lucide-react';
+import colors from 'tailwindcss/colors';
+import { descending } from 'd3-array';
 
 const styles = StyleSheet.create({
 
@@ -93,7 +95,7 @@ const PieChartSvg = ({ data }: { data: any[] }) => {
         const angle = fraction * 2 * Math.PI;
         
         const rOut = 120;
-        const rIn = 60; 
+        const rIn = 50; 
 
         const x1 = rOut * Math.cos(cumulativeAngle);
         const y1 = rOut * Math.sin(cumulativeAngle);
@@ -124,11 +126,11 @@ const PieChartSvg = ({ data }: { data: any[] }) => {
 
         return (
           <G key={i}>
-            <Path d={d} fill={generateColor(i)} stroke="#fff" strokeWidth={1} />
+            <Path d={d} fill={item.color} stroke="#fff" strokeWidth={1} />
             
             {fraction > 0.05 && (
               <G>
-                {wrapText(item.label, 10).map((line, lineIdx) => (
+                {wrapText(getSpeakerLabels(i, item.label), 15).map((line, lineIdx) => (
                   <Text
                     key={lineIdx}
                     x={textX}
@@ -143,9 +145,9 @@ const PieChartSvg = ({ data }: { data: any[] }) => {
     
                 <Text
                   x={textX}
-                  y={textY + (wrapText(item.label, 10).length * 7)} 
+                  y={textY + (wrapText(getSpeakerLabels(i, item.label), 10).length * 2)} 
                   fill="#fff"
-                  style={{ fontSize: 6 }}
+                  style={{ fontSize: 7 }}
                   textAnchor="middle"
                 >
                   {`${Math.round(fraction * 100)}%`}
@@ -225,7 +227,7 @@ const BarChartView = ({ data }: { data: any[] }) => {
                 <View style={{ 
                   width: '70%', 
                   height: `${(item.value / maxVal) * 100}%`, 
-                  backgroundColor: generateColor(i),
+                  backgroundColor: item.color,
                   borderTopLeftRadius: 3,
                   borderTopRightRadius: 3
                 }} />
@@ -234,10 +236,9 @@ const BarChartView = ({ data }: { data: any[] }) => {
                 <View style={{ position: 'absolute', bottom: -20, width: '100%' }}>
                   <Text style={{ 
                     fontSize: 7, 
-                    fontWeight: 'bold',
                     textAlign: 'center' 
                   }}>
-                    {item.label}
+                    {getSpeakerLabels(i, item.label)}
                   </Text>
                 </View>
               </View>
@@ -248,9 +249,9 @@ const BarChartView = ({ data }: { data: any[] }) => {
       <View style={{ flexDirection: 'column', flexWrap: 'wrap', justifyContent: 'flex-start', gap: 5 }}>
         <Text style={{ fontSize: 9 }}>Speakers</Text>
         {data.map((item, i) => (
-          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#f8fafc', padding: '4 8', borderRadius: 4 }}>
-            <View style={{ width: 10, height: 10, backgroundColor: generateColor(i), marginRight: 5, borderRadius: 2 }} />
-            <Text style={{ fontSize: 9 }}>{item.label}</Text>
+          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', padding: '4 8', borderRadius: 4 }}>
+            <View style={{ width: 10, height: 10, backgroundColor: item.color, marginRight: 5, borderRadius: 2 }} />
+            <Text style={{ fontSize: 9 }}>{getSpeakerLabels(i, item.label)}</Text>
           </View>
         ))}
       </View>
@@ -258,13 +259,14 @@ const BarChartView = ({ data }: { data: any[] }) => {
   );
 };
 
-const InteractionChordPdf = ({ interactions, labels }: { interactions: number[][], labels: string[] }) => {
+const InteractionChordPdf = ({ interactions, labels, colors }: { interactions: number[][], labels: string[], colors: string[] }) => {
   const size = 300;
   const outerRadius = 110;
-  const innerRadius = 100;
+  const innerRadius =  outerRadius - 12;
 
   const chordGenerator = chord()
-    .padAngle(0.05);
+    .padAngle(0.05)
+    .sortSubgroups(descending);
   const chords = chordGenerator(interactions);
 
   const arcGenerator = arc<ChordGroup>()
@@ -277,13 +279,14 @@ const InteractionChordPdf = ({ interactions, labels }: { interactions: number[][
     <Svg viewBox="-150 -150 300 300" style={{ width: 300, height: 300 }}>
       {chords.map((c, i) => {
         const pathData = ribbonGenerator(c as any) as unknown as string;
+        const color = colors[c.source.index]; 
         return (
           <Path
             key={`ribbon-${i}`}
             d={pathData || ""}
-            fill={generateColor(c.source.index)}
+            fill={color}
             opacity={0.6}
-            stroke={generateColor(c.source.index)}
+            stroke={color}
             strokeWidth={0.5}
           />
         );
@@ -294,19 +297,19 @@ const InteractionChordPdf = ({ interactions, labels }: { interactions: number[][
         
         const angle = (group.startAngle + group.endAngle) / 2;
         const labelR = outerRadius + 15;
-        const x = Math.cos(angle - Math.PI / 2) * labelR;
-        const y = Math.sin(angle - Math.PI / 2) * labelR;
+        const x = Math.sin(angle) * labelR;
+        const y = -Math.cos(angle) * labelR;
 
         return (
           <G key={`group-${i}`}>
             <Path
               d={pathData || ""}
-              fill={generateColor(i)}
+              fill={colors[i]}
             />
             <Text
               x={x}
               y={y}
-              style={{ fontSize: 8, fill: "#333", textAnchor: "middle", fontWeight: "bold" }}
+              style={{ fontSize: 8, fill: "#333", textAnchor: "middle" }}
             >
               {labels[i]}
             </Text>
@@ -341,7 +344,7 @@ const ScenarioRadarChart = ({ scores, maxScore = 4 }: { scores: any[], maxScore?
           return `${p.x},${p.y}`;
         }).join(' ');
         return (
-          <Polygon key={level} points={points} fill="none" stroke="#e2e8f0" strokeWidth={1} />
+          <Circle key={level} cx={0} cy={0} r={(level / maxScore) * radius} fill="none" stroke="#e2e8f0" strokeWidth={1} />
         );
       })}
 
@@ -391,11 +394,15 @@ const ScenarioRadarChart = ({ scores, maxScore = 4 }: { scores: any[], maxScore?
   );
 };
 
-const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4'];
+const generateColor = (twClass: string): string | null => {
+  // match: text-red-500 | bg-red-500 | border-red-500
+  const match = twClass.match(/-(\w+)-(\d+)/);
+  if (!match) return null;
 
-const generateColor = (index: number) => {
-  const hue = (index * 137.5) % 360; 
-  return `hsl(${hue}, 70%, 50%)`;
+  const [, colorName, shade] = match;
+
+  const color = (colors as any)[colorName]?.[shade];
+  return color ?? null;
 };
 
 const wrapText = (text: string, maxChars: number) => {
@@ -421,15 +428,20 @@ const getRating = (score: number) => {
     case 3: return { text: 'Visible' };
     case 2: return { text: 'Developing' };
     case 1: return { text: 'Minimally Evident' };
-    default: return { text: 'Not Evident' };
+    case 0: return { text: 'Not Evident' };
   }
 };
 
-const ReportDocument = ({ data }: { data: any }) => {
+const getSpeakerLabels = (index: number, id: string) => {
+  return id ? id : "Inaudible or Silent";
+};
+
+const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any, interactions: any }) => {
   if (!data) return null;
   const chartData = data.talkTimeData.map((item: any) => ({
     label: item.speaker,
     value: item.seconds,
+    color: generateColor(item.color),
   }));
   const totalTalkTime = chartData.reduce((a, b) => a + b.value, 0);
 
@@ -471,7 +483,7 @@ const ReportDocument = ({ data }: { data: any }) => {
               style={[styles.tableRow]}
               wrap={true}
             >
-              <Text style={[styles.speakerColId, styles.tableCell]}>{speaker.id}</Text>
+              <Text style={[styles.speakerColId, styles.tableCell]}>{getSpeakerLabels(index, speaker.id)}</Text>
               <Text style={[styles.speakerColDesc, styles.tableCell]}>{speaker.description}</Text>
             </View>
           ))}
@@ -547,9 +559,9 @@ const ReportDocument = ({ data }: { data: any }) => {
             <View style={{ flexDirection: 'column', flexWrap: 'wrap', justifyContent: 'flex-start', gap: 5 }}>
               <Text style={{ fontSize: 9 }}>Speakers</Text>
               {chartData.map((item, i) => (
-                <View key={i} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#f8fafc', padding: '4 8', borderRadius: 4 }}>
-                  <View style={{ width: 10, height: 10, backgroundColor: generateColor(i), marginRight: 5, borderRadius: 2 }} />
-                  <Text style={{ fontSize: 9 }}>{item.label}</Text>
+                <View key={i} style={{ flexDirection: 'row', alignItems: 'center', padding: '4 8', borderRadius: 4 }}>
+                  <View style={{ width: 10, height: 10, backgroundColor: item.color, marginRight: 5, borderRadius: 2 }} />
+                  <Text style={{ fontSize: 9 }}>{getSpeakerLabels(i, item.label)}</Text>
                 </View>
               ))}
             </View>
@@ -579,11 +591,27 @@ const ReportDocument = ({ data }: { data: any }) => {
 
         <View style={{ flex: 1, alignItems: 'center' }}>
           <InteractionChordPdf 
-            interactions={data.speakerInteractions} 
-            labels={data.talkTimeData.map((d: any) => d.speaker)} 
+            interactions={interactions} 
+            labels={labels} 
+            colors={chartData.map(item => item.color)}  
           />
         </View>
         <Text style={styles.footer} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} fixed />
+      </Page>
+      <Page size="A4" style={styles.page}>
+          {
+            chartData.map((item, i) => (
+              <View key={i}>
+                <Text>{item.label}</Text>
+                <Text>{item.color}</Text>
+              </View>
+          ))}         
+          {
+            data.speakerInteractions.map((item, i) => (
+              <View key={i} style={{ flexDirection: 'row', alignItems: 'center', padding: '4 8', borderRadius: 4 }}>
+                <Text>{item},</Text>
+              </View>
+          ))}
       </Page>
 
       // --- PAGE 6: EMERGENT SCENARIOS ---
@@ -867,9 +895,9 @@ const ReportDocument = ({ data }: { data: any }) => {
   );
 };
 
-export const PdfExportFeature = ({ exportData }: { exportData: any }) => {
+export const PdfExportFeature = ({ exportData, labels, interactions }: { exportData: any, labels: any, interactions: any }) => {
   return (
-    <PDFDownloadLink className='block' document={<ReportDocument data={exportData} />} fileName="FOP Analysis Session Report.pdf">
+    <PDFDownloadLink className='block' document={<ReportDocument data={exportData} labels={labels} interactions={interactions} />} fileName="FOP Analysis Session Report.pdf">
       {({ loading }) => (
         <Button
           variant="ghost"

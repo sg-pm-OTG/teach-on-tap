@@ -161,48 +161,54 @@ export const useAllSessionReports = () => {
         return res.data;
       }));
 
-      const data = rawData.map((item: any) => {
+      const data = rawData.map((itemData: any) => {
         try{
-        const scenario_scores = item.data.es_data.markers.map(item => ({
+        const scenario_scores = itemData.data.es_data.markers.map(item => ({
           label: item.markerTitle,
           score: item.score
         }));
 
-        const dialogue_scores = item.data.gd_data.markers.map(item => ({
+        const dialogue_scores = itemData.data.gd_data.markers.map(item => ({
           label: item.markerTitle,
           score: item.score
         }));
 
-        const scenario_analysis = item.data.es_data.markers.map(item => ({
+        const scenario_analysis = itemData.data.es_data.markers.map(item => ({
           marker: item.markerTitle,
           rating: item.score,
           details: item.detailedReasoning?.analysis,
         }));
 
-        const dialogue_analysis = item.data.gd_data.markers.map(item => ({
+        const dialogue_analysis = itemData.data.gd_data.markers.map(item => ({
           marker: item.markerTitle,
           rating: item.score,
           details: item.detailedReasoning?.analysis,
         }));
 
-        const talk_time_data = item.data.talk_time_data.map(item => {
-          const speakerName = item.speaker;
+        // const speaker_map = itemData.data.speaker_map.map((item: any) => );
+        let participant = 1;
+        const speaker_map = Object.fromEntries(Object.entries(itemData.data.speaker_map).map(
+          ([key, value]) => [key, value === 'Facilitator' ? value : `Participant ${participant++}`]
+        ));
+
+        const talk_time_data = itemData.data.talk_time_data.map(item => {
+          const speakerName = speaker_map[item.speaker];
+
 
           return {
             speaker: speakerName,
-            // percentage: Number(item.percentage.toFixed(1)),
             seconds: Math.round(item.talk_time),
           };
         });
 
-        const themes = item.data.trainer_check_parsed.lesson_analysis.main_discussion_themes.map(item => ({
+        const themes = itemData.data.trainer_check_parsed.lesson_analysis.main_discussion_themes.map(item => ({
           title: item.theme,
           description: item.description
         }));
 
-        const conclusions = item.data.trainer_check_parsed.lesson_analysis.overall_conclusions;
+        const conclusions = itemData.data.trainer_check_parsed.lesson_analysis.overall_conclusions;
 
-        const speaker_interactions = item.data.speaker_interaction_matrix.map((row: any, index: number) => {
+        const speaker_interactions = itemData.data.speaker_interaction_matrix.map((row: any, index: number) => {
           const keys = Object.keys(row);
           const fromKey = keys[index];
 
@@ -216,34 +222,34 @@ export const useAllSessionReports = () => {
           };
         });
 
-        const speakers = item.data.trainer_check_parsed.lesson_analysis.speaker_details.map(item => ({
-          name: item.extracted_name || item.speaker_id,
+        const speakers = itemData.data.trainer_check_parsed.lesson_analysis.speaker_details.map(item => ({
+          name: speaker_map[item.speaker_id],
           description: item.ai_description,
         }))      
 
         const scenario_content = {
-          title: item.data.session.use_site,
-          description: item.data.es_data.summary.keyInsights,
-          context: item.data.session.emergent_scenario,
+          title: itemData.data.session.use_site,
+          description: itemData.data.es_data.summary.keyInsights,
+          // context: itemData.data.session.emergent_scenario,
         }
 
         const final_summary = {
-          keyInsights: [...item.data.es_data.summary.keyInsights, ...item.data.gd_data.summary.keyInsights],
-          recommendation: [...item.data.es_data.summary.recommendations, ...item.data.gd_data.summary.recommendations],
+          keyInsights: [...itemData.data.es_data.summary.keyInsights, ...itemData.data.gd_data.summary.keyInsights],
+          recommendation: [...itemData.data.es_data.summary.recommendations, ...itemData.data.gd_data.summary.recommendations],
         }
 
         return {
-          session_id: item.data.session.id,
-          session: item.data.session,
-          sessionDate: item.data.session.session_date,
-          sessionType: item.data.session.session_type,
-          participants: item.data.session.number_of_participants,
-          createdAt: item.data.session.created_at,
-          totalTime: item.data.total_time,
-          audioFileUrl: item.data.session.audio_file_url,
-          transcript: item.data.speaker_data,
+          session_id: itemData.data.session.id,
+          session: itemData.data.session,
+          sessionDate: itemData.data.session.session_date,
+          sessionType: itemData.data.session.session_type,
+          participants: itemData.data.session.number_of_participants,
+          createdAt: itemData.data.session.created_at,
+          totalTime: itemData.data.total_time,
+          audioFileUrl: itemData.data.session.audio_file_url,
+          transcript: itemData.data.speaker_data,
           user_id: user.id,
-          isBaseline: item.data.session.is_baseline || false,
+          isBaseline: itemData.data.session.is_baseline || false,
           scenario_scores, 
           dialogue_scores,
           scenario_analysis,
@@ -255,11 +261,11 @@ export const useAllSessionReports = () => {
           speakers,
           scenario_content,
           final_summary,
-          es_summary: item.data.es_data.summary, 
-          gd_summary: item.data.gd_data.summary,
+          es_summary: itemData.data.es_data.summary, 
+          gd_summary: itemData.data.gd_data.summary,
         }
         } catch (err) {
-          console.error('Error at item index:', err, item);
+          console.error('Error at item index:', err, itemData);
           return null;
         }
       }).filter(item => item !== null && !item.isBaseline); // Filter out baseline sessions
@@ -297,33 +303,37 @@ export const useAllSessionReports = () => {
         return res.data;
       }));
 
-      const data = rawData.map((item: any) => {
+      const data = rawData.map((itemData: any) => {
         try {
-          const scenario_scores = item.data.es_data.markers.map(item => ({
+          const scenario_scores = itemData.data.es_data.markers.map(item => ({
             label: item.markerTitle,
             score: item.score
           }));
 
-          const dialogue_scores = item.data.gd_data.markers.map(item => ({
+          const dialogue_scores = itemData.data.gd_data.markers.map(item => ({
             label: item.markerTitle,
             score: item.score
           }));
 
-          const scenario_analysis = item.data.es_data.markers.map(item => ({
+          const scenario_analysis = itemData.data.es_data.markers.map(item => ({
             marker: item.markerTitle,
             rating: item.score,
             details: item.detailedReasoning?.analysis,
           }));
 
-          const dialogue_analysis = item.data.gd_data.markers.map(item => ({
+          const dialogue_analysis = itemData.data.gd_data.markers.map(item => ({
             marker: item.markerTitle,
             rating: item.score,
             details: item.detailedReasoning?.analysis,
           }));
 
-          const talk_time_data = item.data.talk_time_data.map(item => {
-            const speakerName = item.speaker;
+          let participant = 1;
+          const speaker_map = Object.fromEntries(Object.entries(itemData.data.speaker_map).map(
+            ([key, value]) => [key, value === 'Facilitator' ? value : `Participant ${participant++}`]
+          ));
 
+          const talk_time_data = itemData.data.talk_time_data.map(item => {
+            const speakerName = speaker_map[item.speaker];
             return {
               speaker: speakerName,
               // percentage: Number(item.percentage.toFixed(1)),
@@ -331,14 +341,14 @@ export const useAllSessionReports = () => {
             };
           });
 
-          const themes = item.data.trainer_check_parsed.lesson_analysis.main_discussion_themes.map(item => ({
+          const themes = itemData.data.trainer_check_parsed.lesson_analysis.main_discussion_themes.map(item => ({
             title: item.theme,
             description: item.description
           }));
 
-          const conclusions = item.data.trainer_check_parsed.lesson_analysis.overall_conclusions;
+          const conclusions = itemData.data.trainer_check_parsed.lesson_analysis.overall_conclusions;
 
-          const speaker_interactions = item.data.speaker_interaction_matrix.map((row: any, index: number) => {
+          const speaker_interactions = itemData.data.speaker_interaction_matrix.map((row: any, index: number) => {
             const keys = Object.keys(row);
             const fromKey = keys[index];
 
@@ -352,31 +362,31 @@ export const useAllSessionReports = () => {
             };
           });
 
-          const speakers = item.data.trainer_check_parsed.lesson_analysis.speaker_details.map(item => ({
-            name: item.extracted_name || item.speaker_id,
+          const speakers = itemData.data.trainer_check_parsed.lesson_analysis.speaker_details.map(item => ({
+            name: speaker_map[item.speaker_id],
             description: item.ai_description,
           }))      
 
           const scenario_content = {
-            title: item.data.session.use_site,
-            description: item.data.es_data.summary.keyInsights,
-            context: item.data.session.emergent_scenario,
+            title: itemData.data.session.use_site,
+            description: itemData.data.es_data.summary.keyInsights,
+            // context: itemData.data.session.emergent_scenario,
           }
 
           const final_summary = {
-            keyInsights: [...item.data.es_data.summary.keyInsights, ...item.data.gd_data.summary.keyInsights],
-            recommendation: [...item.data.es_data.summary.recommendations, ...item.data.gd_data.summary.recommendations],
+            keyInsights: [...itemData.data.es_data.summary.keyInsights, ...itemData.data.gd_data.summary.keyInsights],
+            recommendation: [...itemData.data.es_data.summary.recommendations, ...itemData.data.gd_data.summary.recommendations],
           }
           return {
-            session_id: item.data.session.id,
-            session: item.data.session,
-            sessionDate: item.data.session.session_date,
-            sessionType: item.data.session.session_type,
-            participants: item.data.session.number_of_participants,
-            createdAt: item.data.session.created_at,
-            totalTime: item.data.total_time,
-            audioFileUrl: item.data.session.audio_file_url,
-            transcript: item.data.speaker_data,
+            session_id: itemData.data.session.id,
+            session: itemData.data.session,
+            sessionDate: itemData.data.session.session_date,
+            sessionType: itemData.data.session.session_type,
+            participants: itemData.data.session.number_of_participants,
+            createdAt: itemData.data.session.created_at,
+            totalTime: itemData.data.total_time,
+            audioFileUrl: itemData.data.session.audio_file_url,
+            transcript: itemData.data.speaker_data,
             user_id: user.id,
             scenario_scores, 
             dialogue_scores,
@@ -389,11 +399,11 @@ export const useAllSessionReports = () => {
             speakers,
             scenario_content,
             final_summary,
-            es_summary: item.data.es_data.summary, 
-            gd_summary: item.data.gd_data.summary,
+            es_summary: itemData.data.es_data.summary, 
+            gd_summary: itemData.data.gd_data.summary,
           }
         } catch (err) {
-          console.error('Error at item index:', err, item);
+          console.error('Error at item index:', err, itemData);
           return null;
         }
       }) 
