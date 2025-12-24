@@ -145,7 +145,7 @@ const PieChartSvg = ({ data }: { data: any[] }) => {
     
                 <Text
                   x={textX}
-                  y={textY + (wrapText(getSpeakerLabels(i, item.label), 10).length * 2)} 
+                  y={textY + (wrapText(getSpeakerLabels(i, item.label), 10).length * 5)} 
                   fill="#fff"
                   style={{ fontSize: 7 }}
                   textAnchor="middle"
@@ -597,21 +597,6 @@ const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any
           />
         </View>
         <Text style={styles.footer} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} fixed />
-      </Page>
-      <Page size="A4" style={styles.page}>
-          {
-            chartData.map((item, i) => (
-              <View key={i}>
-                <Text>{item.label}</Text>
-                <Text>{item.color}</Text>
-              </View>
-          ))}         
-          {
-            data.speakerInteractions.map((item, i) => (
-              <View key={i} style={{ flexDirection: 'row', alignItems: 'center', padding: '4 8', borderRadius: 4 }}>
-                <Text>{item},</Text>
-              </View>
-          ))}
       </Page>
 
       // --- PAGE 6: EMERGENT SCENARIOS ---
