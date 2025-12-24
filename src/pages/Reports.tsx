@@ -103,14 +103,12 @@ const Reports = () => {
 
   if (!selectedReport) return null;
 
-  const speakerLabels = selectedReport.speakers.map((s, i) => 
-    i === 0 ? "Facilitator" : `Participant ${i}`
-  );
+  const speakerLabels = selectedReport.speakers.map((s) => s.id);
 
   // Transform talk time data to use proper labels
   const transformedTalkTimeData = selectedReport.talkTimeData.map((item, index) => ({
     ...item,
-    speaker: speakerLabels[index] || item.speaker
+    speaker: item.speaker ? item.speaker : "Inaudible or Silent"
   }));
 
   const formatSessionDate = (dateStr: string) => {
@@ -149,6 +147,11 @@ const Reports = () => {
       setIsDownloading(true);
       const token = await getAccessToken();
 
+      if(!selectedReport.audioFileUrl) {
+        toast.error("No audio file available for this session");
+        return;
+      }
+
       const res = await axios.get(
         selectedReport.audioFileUrl,
         {
@@ -183,8 +186,12 @@ const Reports = () => {
 
   const handleDownloadTranscript = async () => {
     try {
-      setIsDownloading(true);
       const token = await getAccessToken();
+
+      if(!selectedReport.csvFileUrl) {
+        toast.error("No transcript available for this session");
+        return;
+      }
 
       const res = await axios.get(
         selectedReport.csvFileUrl,
@@ -206,7 +213,7 @@ const Reports = () => {
 
       const a = document.createElement("a");
       a.href = url;
-      a.download = `session-${selectedReport.sessionId}.csv`;
+      a.download = `session-${selectedReport.filename}.csv`;
       document.body.appendChild(a);
       a.click();
 
@@ -218,10 +225,6 @@ const Reports = () => {
     } finally {
       setIsDownloading(false);
     }
-  };
-
-  const handleDownloadPDF = () => {
-    window.print();
   };
 
   return (
@@ -338,7 +341,7 @@ const Reports = () => {
             {selectedReport.speakers.map((speaker, index) => (
               <SpeakerCard
                 key={speaker.id}
-                id={speakerLabels[index] || speaker.id}
+                id={speaker.id}
                 description={speaker.description}
               />
             ))}
@@ -509,7 +512,7 @@ const Reports = () => {
                 Download Transcript
               </Button>
 
-              <PdfExportFeature exportData={selectedReport} />
+              <PdfExportFeature exportData={selectedReport} labels={speakerLabels} interactions={selectedReport.speakerInteractions} />
             </div>
           </div>
         </div>
