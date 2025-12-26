@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { useMemo } from "react";
+import axios from "axios";
 
 interface SessionJourneyItem {
   sessionNumber: number;
@@ -46,7 +47,15 @@ interface DifficultyProgression {
 
 export const useFinalReportData = () => {
   const { user } = useAuth();
+  const getAccessToken = async (): Promise<string> => {
+    const { data, error } = await supabase.auth.getSession();
 
+    if (error || !data.session?.access_token) {
+      throw new Error("Not authenticated");
+    }
+
+    return data.session.access_token;
+  };
   // Fetch all sessions (including baseline)
   const { data: sessions, isLoading: sessionsLoading } = useQuery({
     queryKey: ["final-report-sessions", user?.id],
@@ -68,13 +77,136 @@ export const useFinalReportData = () => {
   const { data: sessionReports, isLoading: reportsLoading } = useQuery({
     queryKey: ["final-report-reports", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("session_reports")
-        .select("*, sessions!inner(session_date, use_site, is_baseline, session_type)")
-        .eq("user_id", user?.id)
-        .order("created_at", { ascending: true });
+      const token = await getAccessToken();
+      const allSession = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/v1/analyze/sessions`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          timeout: 30_000,
+        }
+      );
 
-      if (error) throw error;
+      const rawData = await Promise.all(
+        allSession.data.data.map(async (item: any) => {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/v1/analyze/result?session_id=${item.session_id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            timeout: 30_000,
+          }
+        );
+        return res.data;
+      }));
+
+      const data = rawData.map((itemData: any) => {
+        try{
+          const scenario_scores = itemData.data.es_data.markers.map(item => ({
+            label: item.markerTitle,
+            score: item.score
+          }));
+
+          const dialogue_scores = itemData.data.gd_data.markers.map(item => ({
+            label: item.markerTitle,
+            score: item.score
+          }));
+
+          const scenario_analysis = itemData.data.es_data.markers.map(item => ({
+            marker: item.markerTitle,
+            rating: item.score,
+            details: item.detailedReasoning?.analysis,
+          }));
+
+          const dialogue_analysis = itemData.data.gd_data.markers.map(item => ({
+            marker: item.markerTitle,
+            rating: item.score,
+            details: item.detailedReasoning?.analysis,
+          }));
+
+          // const speaker_map = itemData.data.speaker_map.map((item: any) => );
+          let participant = 1;
+          const speaker_map = Object.fromEntries(Object.entries(itemData.data.speaker_map).map(
+            ([key, value]) => [key, value === 'Facilitator' ? value : `Participant ${participant++}`]
+          ));
+
+          const talk_time_data = itemData.data.talk_time_data.map(item => {
+            const speakerName = speaker_map[item.speaker];
+
+
+            return {
+              speaker: speakerName,
+              seconds: Math.round(item.talk_time),
+            };
+          });
+
+          const themes = itemData.data.trainer_check_parsed.lesson_analysis.main_discussion_themes.map(item => ({
+            title: item.theme,
+            description: item.description
+          }));
+
+          const conclusions = itemData.data.trainer_check_parsed.lesson_analysis.overall_conclusions;
+
+          const speaker_interactions = itemData.data.speaker_interaction_matrix.map((row: any, index: number) => {
+            const keys = Object.keys(row);
+            const fromKey = keys[index];
+
+            return {
+              from: fromKey,
+              interactions: keys
+                .map(k => ({
+                  to: k,
+                  count: row[k]
+                }))
+            };
+          });
+
+          const speakers = itemData.data.trainer_check_parsed.lesson_analysis.speaker_details.map(item => ({
+            name: speaker_map[item.speaker_id],
+            description: item.ai_description,
+          }))      
+
+          const scenario_content = {
+            title: itemData.data.session.use_site,
+            description: itemData.data.es_data.summary.keyInsights,
+            // context: itemData.data.session.emergent_scenario,
+          }
+
+          const final_summary = {
+            keyInsights: [...itemData.data.es_data.summary.keyInsights, ...itemData.data.gd_data.summary.keyInsights],
+            recommendation: [...itemData.data.es_data.summary.recommendations, ...itemData.data.gd_data.summary.recommendations],
+          }
+
+          return {
+            session_id: itemData.data.session.id,
+            session: itemData.data.session,
+            sessionDate: itemData.data.session.session_date,
+            sessionType: itemData.data.session.session_type,
+            participants: itemData.data.session.number_of_participants,
+            createdAt: itemData.data.session.created_at,
+            totalTime: itemData.data.total_time,
+            audioFileUrl: itemData.data.session.audio_file_url,
+            transcript: itemData.data.speaker_data,
+            user_id: user.id,
+            isBaseline: itemData.data.session.is_baseline || false,
+            scenario_scores, 
+            dialogue_scores,
+            scenario_analysis,
+            dialogue_analysis,
+            talk_time_data,
+            themes,
+            conclusions,
+            speaker_interactions,
+            speakers,
+            scenario_content,
+            final_summary,
+            es_summary: itemData.data.es_data.summary, 
+            gd_summary: itemData.data.gd_data.summary,
+          }
+        } catch (err) {
+          console.error('Error at item index:', err, itemData);
+          return null;
+        }
+      });
+
       return data;
     },
     enabled: !!user?.id,
@@ -229,7 +361,7 @@ export const useFinalReportData = () => {
     if (Array.isArray(rawInteractions) && rawInteractions.length > 0) {
       // If it's an array of objects with 'from' and 'interactions' keys, transform it
       if (rawInteractions[0]?.from !== undefined && rawInteractions[0]?.interactions !== undefined) {
-        const speakers = rawInteractions.map((s: any) => s.from);
+        const speakers = (latest.speakers as any[])?.map((s: any) => s.name || s.label) || [];
         const matrix = rawInteractions.map((speaker: any) => 
           speaker.interactions.map((interaction: any) => interaction.count || 0)
         );
