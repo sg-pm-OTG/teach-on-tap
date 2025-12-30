@@ -26,7 +26,7 @@ const BaselineSuccess = () => {
               Baseline Recorded!
             </h1>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
-              Congratulations! You've completed your first milestone. Your baseline recording will be used to measure your progress after completing the program.
+              Congratulations! You've completed your first milestone. Your baseline recording provides a helpful starting snapshot of your current practice, so that you can later see how it has shifted over the course of your FOP journey.
             </p>
           </div>
 
