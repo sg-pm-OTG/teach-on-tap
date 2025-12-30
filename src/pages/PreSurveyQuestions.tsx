@@ -14,6 +14,7 @@ const PreSurveyQuestions = () => {
   const [currentCategoryIndex, setCategoryIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [slideDirection, setSlideDirection] = useState<"left" | "right">("left");
+  const [manuallyNavigatedBack, setManuallyNavigatedBack] = useState(false);
   const autoAdvanceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -43,7 +44,8 @@ const PreSurveyQuestions = () => {
 
   // Auto-advance when all questions in category are answered
   useEffect(() => {
-    if (allQuestionsAnswered && !isLastCategory && !isTransitioning) {
+    // Don't auto-advance if user manually navigated back to review
+    if (allQuestionsAnswered && !isLastCategory && !isTransitioning && !manuallyNavigatedBack) {
       autoAdvanceTimerRef.current = setTimeout(() => {
         goToNextCategory();
       }, 600);
@@ -54,12 +56,13 @@ const PreSurveyQuestions = () => {
         clearTimeout(autoAdvanceTimerRef.current);
       }
     };
-  }, [allQuestionsAnswered, isLastCategory, isTransitioning, currentCategoryIndex]);
+  }, [allQuestionsAnswered, isLastCategory, isTransitioning, currentCategoryIndex, manuallyNavigatedBack]);
 
   const handleResponse = (questionIndex: number, value: number) => {
     const question = currentCategory.questions.find(q => q.questionIndex === questionIndex);
     if (question) {
       setResponse(question.categoryCode, questionIndex, value);
+      setManuallyNavigatedBack(false); // Reset flag - user is actively answering
     }
   };
 
@@ -81,6 +84,7 @@ const PreSurveyQuestions = () => {
       clearTimeout(autoAdvanceTimerRef.current);
     }
     
+    setManuallyNavigatedBack(true); // Prevent auto-advance when reviewing
     setSlideDirection("right");
     setIsTransitioning(true);
     
