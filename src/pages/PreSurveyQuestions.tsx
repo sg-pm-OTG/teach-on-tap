@@ -15,6 +15,7 @@ const PreSurveyQuestions = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [slideDirection, setSlideDirection] = useState<"left" | "right">("left");
   const autoAdvanceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const currentCategory = preSurveyCategories[currentCategoryIndex];
   const totalCategories = preSurveyCategories.length;
@@ -32,6 +33,13 @@ const PreSurveyQuestions = () => {
 
   const questionsAnswered = categoryResponses.size;
   const allQuestionsAnswered = questionsAnswered === currentCategory.questions.length;
+
+  // Scroll to top when category changes
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTop = 0;
+    }
+  }, [currentCategoryIndex]);
 
   // Auto-advance when all questions in category are answered
   useEffect(() => {
@@ -102,6 +110,7 @@ const PreSurveyQuestions = () => {
       {/* Content with slide animation */}
       <div className="flex-1 overflow-hidden relative">
         <div
+          ref={contentRef}
           className={cn(
             "absolute inset-0 px-6 py-6 overflow-y-auto transition-all duration-300 ease-out",
             isTransitioning && slideDirection === "left" && "translate-x-[-100%] opacity-0",

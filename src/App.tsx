@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { ScrollToTop } from "./components/ScrollToTop";
 import { AuthProvider } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminAuthProvider } from "./components/admin/AdminAuthProvider";
@@ -47,6 +48,7 @@ const App = () => (
       <Sonner />
       <div className="min-h-screen bg-background">
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             {/* Admin Routes - Single AdminAuthProvider for all admin routes */}
             <Route element={<AdminRouteWrapper />}>
