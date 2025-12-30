@@ -227,7 +227,6 @@ export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabPr
                   <TableHead>Date</TableHead>
                   <TableHead>Course</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead>Participants</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Baseline</TableHead>
                   <TableHead>Report</TableHead>
@@ -242,7 +241,6 @@ export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabPr
                     </TableCell>
                     <TableCell>{session.use_site}</TableCell>
                     <TableCell>{session.session_type}</TableCell>
-                    <TableCell>{session.number_of_participants}</TableCell>
                     <TableCell>{getStatusBadge(session.status)}</TableCell>
                     <TableCell>
                       {session.is_baseline ? (
