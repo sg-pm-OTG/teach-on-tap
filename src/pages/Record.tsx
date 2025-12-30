@@ -7,9 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
 import { Waveform } from "@/components/Waveform";
-import { Mic, Square, CheckCircle, ArrowRight, ArrowLeft, AlertCircle, Sparkles, Target } from "lucide-react";
+import { Mic, Square, CheckCircle, ArrowRight, ArrowLeft, AlertCircle, Sparkles, Target, Upload, FileAudio, X, Play, Pause, Loader2 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -25,14 +25,36 @@ const SESSION_TYPES = [
   "Online Lesson",
 ] as const;
 
-type Step = "details" | "recording" | "confirm";
+const ACCEPTED_AUDIO_TYPES = [
+  "audio/mp3",
+  "audio/mpeg",
+  "audio/x-mpeg",
+  "audio/wav",
+  "audio/wave",
+  "audio/x-wav",
+  "audio/m4a",
+  "audio/x-m4a",
+  "audio/mp4",
+  "audio/x-mp4",
+  "audio/aac",
+  "",
+];
+
+const ACCEPTED_AUDIO_EXTENSIONS = [".mp3", ".wav", ".m4a"];
+const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
+
+type Step = "details" | "mode-select" | "recording" | "upload" | "confirm";
+type InputMode = "record" | "upload" | null;
 
 const Record = () => {
   const [step, setStep] = useState<Step>("details");
+  const [inputMode, setInputMode] = useState<InputMode>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { profile } = useProfile();
   const presetBaseline = (location.state as { presetBaseline?: boolean })?.presetBaseline ?? false;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   
   // Auto-force baseline if not completed yet
   const isBaseline = !profile?.baseline_completed || presetBaseline;
@@ -48,6 +70,12 @@ const Record = () => {
     resetRecording,
   } = useAudioRecorder();
 
+  // Upload file state
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioDuration, setAudioDuration] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
   // Session details state
   const [useSite, setUseSite] = useState("");
   const [numberOfParticipants, setNumberOfParticipants] = useState(1);
@@ -56,7 +84,7 @@ const Record = () => {
   const [sessionType, setSessionType] = useState("");
   const [sessionDate, setSessionDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const sessionRef = useRef(null)
+  const sessionRef = useRef<any>(null);
 
   const isFormValid =
     useSite.trim() !== "" &&
@@ -65,12 +93,107 @@ const Record = () => {
     (hasEmergentScenario === false || emergentScenario.trim() !== "") &&
     sessionType !== "";
 
-  const handleStartRecording = () => {
+  const handleContinueToModeSelect = () => {
     if (isFormValid) {
-      setStep("recording");
+      setStep("mode-select");
     }
   };
 
+  const handleSelectRecordMode = () => {
+    setInputMode("record");
+    setStep("recording");
+  };
+
+  const handleSelectUploadMode = () => {
+    setInputMode("upload");
+    setStep("upload");
+  };
+
+  // File upload handlers
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const fileExtension = '.' + (file.name.split('.').pop()?.toLowerCase() || '');
+    const isValidMimeType = ACCEPTED_AUDIO_TYPES.includes(file.type);
+    const isValidExtension = ACCEPTED_AUDIO_EXTENSIONS.includes(fileExtension);
+    
+    if (!isValidMimeType && !isValidExtension) {
+      toast.error("Please select a valid audio file (MP3, WAV, or M4A)");
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("File size must be less than 500MB");
+      return;
+    }
+
+    setAudioFile(file);
+    const url = URL.createObjectURL(file);
+    setAudioUrl(url);
+
+    const audio = new Audio(url);
+    audio.onloadedmetadata = () => {
+      setAudioDuration(audio.duration);
+    };
+  };
+
+  const handleRemoveFile = () => {
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+    }
+    setAudioUrl(null);
+    setAudioFile(null);
+    setAudioDuration(null);
+    setIsPlaying(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const togglePlayback = async () => {
+    if (!audioRef.current) return;
+    
+    try {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        await audioRef.current.play();
+        setIsPlaying(true);
+      }
+    } catch (error) {
+      console.error("Playback error:", error);
+      toast.error("Unable to play audio preview");
+      setIsPlaying(false);
+    }
+  };
+
+  const handleContinueToConfirmFromUpload = () => {
+    if (audioFile) {
+      setStep("confirm");
+    }
+  };
+
+  const formatDuration = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    
+    if (hrs > 0) {
+      return `${hrs}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    }
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024 * 1024) {
+      return `${(bytes / 1024).toFixed(1)} KB`;
+    }
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  // Recording handlers
   const handleRecord = async () => {
     if (!isRecording) {
       const { data: { user } } = await supabase.auth.getUser();
@@ -95,7 +218,7 @@ const Record = () => {
         .select()
         .single();
   
-      sessionRef.current = session
+      sessionRef.current = session;
       await startRecording(session.id);
     }
   };
@@ -116,6 +239,9 @@ const Record = () => {
 
   const handleSubmit = async () => {
     if (!isFormValid || isSubmitting) return;
+    
+    // For upload mode, check audio file
+    if (inputMode === "upload" && !audioFile) return;
 
     setIsSubmitting(true);
 
@@ -127,17 +253,94 @@ const Record = () => {
         return;
       }
 
-      let audioFileUrl: string | null = null;
+      // For recording mode, session is already created - just navigate
+      if (inputMode === "record") {
+        navigate("/processing", {
+          state: {
+            sessionId: sessionRef.current.id,
+            isBaseline,
+            sessionDetails: {
+              use_site: useSite.trim(),
+              number_of_participants: numberOfParticipants,
+              session_type: sessionType,
+              session_date: sessionDate,
+              emergent_scenario: hasEmergentScenario === false ? "AUTO_DETECT" : (emergentScenario.trim() || null),
+            },
+          },
+        });
+        return;
+      }
+
+      // For upload mode, create session and upload file
+      const getAccessToken = async (): Promise<string> => {
+        const { data, error } = await supabase.auth.getSession();
+        if (error || !data.session?.access_token) {
+          throw new Error("Not authenticated");
+        }
+        return data.session.access_token;
+      };
+
+      const accessToken = await getAccessToken();
+      
+      const { data: session, error } = await supabase
+        .from("sessions")
+        .insert({
+          user_id: user.id,
+          use_site: useSite.trim(),
+          number_of_participants: numberOfParticipants,
+          session_type: sessionType,
+          session_date: sessionDate,
+          emergent_scenario: hasEmergentScenario === false ? "AUTO_DETECT" : (emergentScenario.trim() || null),
+          status: "pending",
+          is_baseline: isBaseline,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Upload audio file to analysis API
+      const formData = new FormData();
+      formData.append("session_id", session.id);
+      formData.append("is_final", "1");
+
+      const ext = (audioFile!.name.split(".").pop() || "webm").toLowerCase();
+      formData.append("audio_chunk_file", audioFile!, `chunk-${session.id}-0.${ext}`);
+      formData.append("upload_mode", "segment");
+      formData.append("session", JSON.stringify(session));
+
+      try {
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/v1/analyze/upload`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+      } catch (uploadError) {
+        console.error("Error triggering analysis:", uploadError);
+        await supabase
+          .from("sessions")
+          .update({ status: "failed" })
+          .eq("id", session.id);
+
+        const statusCode = axios.isAxiosError(uploadError) ? uploadError.response?.status : undefined;
+        toast.error(statusCode ? `Failed to start analysis (${statusCode}). Please try again.` : "Failed to start analysis. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
 
       navigate("/processing", {
         state: {
-          sessionId: sessionRef.current.id,
+          sessionId: session.id,
           isBaseline,
           sessionDetails: {
             use_site: useSite.trim(),
             number_of_participants: numberOfParticipants,
             session_type: sessionType,
-          session_date: sessionDate,
+            session_date: sessionDate,
             emergent_scenario: hasEmergentScenario === false ? "AUTO_DETECT" : (emergentScenario.trim() || null),
           },
         },
@@ -168,10 +371,10 @@ const Record = () => {
         <main className="container max-w-md mx-auto px-4 py-6 flex-1 overflow-y-auto">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-foreground">
-              {isBaseline ? "Record Your Baseline Session" : "Tell Us About Your Session"}
+              {isBaseline ? "Submit Your Baseline Session" : "Tell Us About Your Session"}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Fill in these details before recording
+              Fill in these details before submitting
             </p>
           </div>
 
@@ -183,9 +386,9 @@ const Record = () => {
                   <Target className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">Baseline Recording</p>
+                  <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">Baseline Session</p>
                   <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
-                    This recording captures your current teaching style before FOP training. It will be used for comparison in your Final Report.
+                    This captures your current teaching style before FOP training. It will be used for comparison in your Final Report.
                   </p>
                 </div>
               </div>
@@ -315,15 +518,15 @@ const Record = () => {
               )}
             </div>
 
-            {/* Continue to Recording Button */}
+            {/* Continue Button */}
             <Button
               variant="record"
               size="lg"
               className="w-full mt-6"
-              onClick={handleStartRecording}
+              onClick={handleContinueToModeSelect}
               disabled={!isFormValid}
             >
-              Continue to Recording
+              Continue
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
           </div>
@@ -334,7 +537,82 @@ const Record = () => {
     );
   }
 
-  // Step 2: Recording
+  // Step 2: Mode Selection
+  if (step === "mode-select") {
+    return (
+      <div className="min-h-screen min-h-[100dvh] bg-background flex flex-col pb-24">
+        <TopBar />
+
+        <main className="container max-w-md mx-auto px-4 py-6 flex-1">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-foreground">
+              How would you like to submit?
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Choose to record now or upload an existing file
+            </p>
+          </div>
+
+          {isBaseline && (
+            <div className="mb-6 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0">
+                <Target className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">Baseline Session</p>
+                <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                  This will be your baseline for comparison.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            {/* Record Option */}
+            <button
+              onClick={handleSelectRecordMode}
+              className="p-6 rounded-xl border-2 border-border hover:border-primary bg-card text-left transition-all group"
+            >
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                <Mic className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="font-semibold text-foreground mb-1">Record Live</h3>
+              <p className="text-xs text-muted-foreground">
+                Record directly in the app
+              </p>
+            </button>
+
+            {/* Upload Option */}
+            <button
+              onClick={handleSelectUploadMode}
+              className="p-6 rounded-xl border-2 border-border hover:border-primary bg-card text-left transition-all group"
+            >
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                <Upload className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="font-semibold text-foreground mb-1">Upload File</h3>
+              <p className="text-xs text-muted-foreground">
+                Select existing recording
+              </p>
+            </button>
+          </div>
+
+          <Button
+            variant="ghost"
+            onClick={() => setStep("details")}
+            className="text-muted-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Details
+          </Button>
+        </main>
+
+        <BottomNav />
+      </div>
+    );
+  }
+
+  // Step 3a: Recording
   if (step === "recording") {
     return (
       <div className="min-h-screen min-h-[100dvh] bg-background pb-24">
@@ -433,12 +711,12 @@ const Record = () => {
                 variant="ghost"
                 onClick={() => {
                   resetRecording();
-                  setStep("details");
+                  setStep("mode-select");
                 }}
                 className="text-muted-foreground"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Details
+                Back
               </Button>
             )}
           </div>
@@ -449,7 +727,161 @@ const Record = () => {
     );
   }
 
-  // Step 3: Confirm Details
+  // Step 3b: Upload
+  if (step === "upload") {
+    return (
+      <div className="min-h-screen min-h-[100dvh] bg-background pb-24">
+        <TopBar />
+
+        <main className="container max-w-md mx-auto px-4 py-8">
+          <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] space-y-8">
+            {/* Baseline Badge */}
+            {isBaseline && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 rounded-full border border-amber-200 dark:border-amber-700 animate-slide-in-up">
+                <Target className="h-3.5 w-3.5" />
+                <span className="text-xs font-medium">Baseline Upload</span>
+              </div>
+            )}
+            
+            {/* Header */}
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-foreground mb-2">
+                {isBaseline ? "Upload Baseline Audio" : "Upload Audio File"}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Select an audio recording of your session
+              </p>
+            </div>
+
+            {/* File Upload Area */}
+            {!audioFile ? (
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full max-w-xs border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center gap-4 cursor-pointer hover:border-primary hover:bg-muted/30 transition-colors"
+              >
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Upload className="h-8 w-8 text-primary" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-medium text-foreground mb-1">
+                    Tap to select audio file
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    MP3, WAV, M4A • Max 500MB
+                  </p>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="audio/*,.mp3,.wav,.m4a"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+              </div>
+            ) : (
+              <div className="w-full max-w-xs bg-card border border-border rounded-xl p-4 space-y-4 animate-slide-in-up">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center flex-shrink-0">
+                    <FileAudio className="h-5 w-5 text-success" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {audioFile.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {audioDuration ? formatDuration(audioDuration) : "Loading..."} • {formatFileSize(audioFile.size)}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleRemoveFile}
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Audio Preview */}
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={togglePlayback}
+                    className="flex-1"
+                  >
+                    {isPlaying ? (
+                      <>
+                        <Pause className="h-4 w-4 mr-2" />
+                        Pause Preview
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-4 w-4 mr-2" />
+                        Play Preview
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                <audio
+                  ref={audioRef}
+                  src={audioUrl || undefined}
+                  onEnded={() => setIsPlaying(false)}
+                  className="hidden"
+                />
+              </div>
+            )}
+
+            {/* Tips */}
+            <div className="w-full max-w-xs bg-muted/30 rounded-xl p-4 border border-border animate-slide-in-up">
+              <div className="flex items-start gap-2">
+                <CheckCircle className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-foreground mb-1">Upload Tips</p>
+                  <ul className="text-xs text-muted-foreground space-y-1">
+                    <li>• Recommended length: 45 minutes – 2 hours</li>
+                    <li>• Ensure audio quality is clear</li>
+                    <li>• Supported formats: MP3, WAV, M4A</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Continue Button */}
+            {audioFile && (
+              <Button
+                variant="record"
+                size="lg"
+                className="w-full max-w-xs"
+                onClick={handleContinueToConfirmFromUpload}
+              >
+                Continue to Confirm
+                <ArrowRight className="h-5 w-5 ml-2" />
+              </Button>
+            )}
+
+            {/* Back Button */}
+            <Button
+              variant="ghost"
+              onClick={() => {
+                handleRemoveFile();
+                setStep("mode-select");
+              }}
+              className="text-muted-foreground"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+          </div>
+        </main>
+
+        <BottomNav />
+      </div>
+    );
+  }
+
+  // Step 4: Confirm Details
   return (
     <div className="min-h-screen min-h-[100dvh] bg-background flex flex-col pb-24">
       <TopBar />
@@ -459,7 +891,9 @@ const Record = () => {
           <div className="flex items-center gap-2 flex-wrap mb-4">
             <div className="flex items-center gap-2 px-3 py-1.5 bg-success/10 text-success rounded-full border border-success/20 w-fit">
               <CheckCircle className="h-4 w-4" />
-              <span className="text-sm font-medium">Recording Complete</span>
+              <span className="text-sm font-medium">
+                {inputMode === "record" ? "Recording Complete" : "File Ready"}
+              </span>
             </div>
             {isBaseline && (
               <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 rounded-full border border-amber-200 dark:border-amber-700">
@@ -484,9 +918,11 @@ const Record = () => {
                 <Target className="h-4 w-4 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">Baseline Recording</p>
+                <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                  {inputMode === "record" ? "Baseline Recording" : "Baseline Upload"}
+                </p>
                 <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
-                  This recording captures your current teaching style before FOP training.
+                  This captures your current teaching style before FOP training.
                 </p>
               </div>
             </div>
@@ -623,10 +1059,19 @@ const Record = () => {
             size="lg"
             className="w-full mt-6"
             onClick={handleSubmit}
-            disabled={!isFormValid || isSubmitting}
+            disabled={!isFormValid || isSubmitting || (inputMode === "upload" && !audioFile)}
           >
-            {isSubmitting ? "Creating Session..." : "Submit for Analysis"}
-            <ArrowRight className="h-5 w-5 ml-2" />
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              <>
+                Submit for Analysis
+                <ArrowRight className="h-5 w-5 ml-2" />
+              </>
+            )}
           </Button>
         </div>
       </main>
