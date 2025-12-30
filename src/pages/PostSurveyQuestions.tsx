@@ -123,6 +123,8 @@ const PostSurveyQuestions = () => {
             questions={currentCategory.questions}
             responses={categoryResponses}
             onResponse={handleResponse}
+            section="A"
+            sectionName="Learning Beliefs"
           />
         </div>
       </div>

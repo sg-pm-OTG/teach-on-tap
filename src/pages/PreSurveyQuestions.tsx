@@ -123,6 +123,8 @@ const PreSurveyQuestions = () => {
             questions={currentCategory.questions}
             responses={categoryResponses}
             onResponse={handleResponse}
+            section={currentCategory.section}
+            sectionName={currentCategory.sectionName}
           />
         </div>
       </div>

@@ -7,16 +7,50 @@ interface CategoryQuestionGroupProps {
   questions: PreSurveyQuestion[];
   responses: Map<number, number>;
   onResponse: (questionIndex: number, value: number) => void;
+  section?: string;
+  sectionName?: string;
 }
+
+const getSectionInstruction = (section: string): string => {
+  switch (section) {
+    case "A":
+      return "Reflecting on how you approach learning design and facilitation, to what extent do you agree with the following statements?";
+    case "B":
+      return "Thinking about your personal approach to learning, to what extent do the following statements apply to you?";
+    case "C":
+      return "Considering your current work environment and professional context, please rate the following aspects.";
+    default:
+      return "Please rate the following statements.";
+  }
+};
 
 export const CategoryQuestionGroup = ({
   categoryName,
   questions,
   responses,
   onResponse,
+  section,
+  sectionName,
 }: CategoryQuestionGroupProps) => {
   return (
     <div className="space-y-6">
+      {/* Section Header */}
+      {section && sectionName && (
+        <div className="space-y-3 mb-6">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+              {section}
+            </span>
+            <span className="text-sm font-medium text-primary">{sectionName}</span>
+          </div>
+          <h2 className="text-lg font-semibold text-foreground">{categoryName}</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {getSectionInstruction(section)}
+          </p>
+        </div>
+      )}
+
+      {/* Questions */}
       <div className="space-y-8">
         {questions.map((question, idx) => {
           const currentValue = responses.get(question.questionIndex);
