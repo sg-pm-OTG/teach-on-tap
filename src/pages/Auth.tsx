@@ -153,17 +153,19 @@ const Auth = () => {
   return (
     <div className="min-h-screen min-h-[100dvh] bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex flex-col items-center justify-center p-6 pt-[max(env(safe-area-inset-top),24px)] pb-[env(safe-area-inset-bottom)]">
       <div className="w-full max-w-md space-y-8">
-        {/* Logo */}
-        <div className="text-center space-y-3">
-          <div className="flex items-center justify-center gap-2">
-            <img 
-              src={alcLogo} 
-              alt="Adult Learning Collaboratory" 
-              className="h-8 w-auto"
-            />
-            <span className="text-xl font-semibold text-foreground">FOP Companion</span>
-          </div>
-          <p className="text-muted-foreground">Track your teaching excellence</p>
+        {/* Header - App Name First */}
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            FOP Companion
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Track your teaching journey
+          </p>
+          <img 
+            src={alcLogo} 
+            alt="Adult Learning Collaboratory" 
+            className="h-8 w-auto mx-auto opacity-70"
+          />
         </div>
 
         {/* Form Container */}
