@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
-import { Upload as UploadIcon, CheckCircle, ArrowRight, ArrowLeft, FileAudio, X, Play, Pause, Sparkles, Loader2 } from "lucide-react";
+import { Upload as UploadIcon, CheckCircle, ArrowRight, ArrowLeft, FileAudio, X, Play, Pause, Sparkles, Loader2, Target } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useProfile } from "@/hooks/useProfile";
 import axios from "axios";
 
 const SESSION_TYPES = [
@@ -46,9 +47,13 @@ const Upload = () => {
   const [step, setStep] = useState<Step>("details");
   const navigate = useNavigate();
   const location = useLocation();
+  const { profile } = useProfile();
   const presetBaseline = (location.state as { presetBaseline?: boolean })?.presetBaseline ?? false;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  
+  // Auto-force baseline if not completed yet
+  const isBaseline = !profile?.baseline_completed || presetBaseline;
 
   // Audio file state
   const [audioFile, setAudioFile] = useState<File | null>(null);
@@ -63,7 +68,6 @@ const Upload = () => {
   const [hasEmergentScenario, setHasEmergentScenario] = useState<boolean | null>(null);
   const [sessionType, setSessionType] = useState("");
   const [sessionDate, setSessionDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
-  const [isBaseline] = useState(presetBaseline);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitProgress, setSubmitProgress] = useState<number>(0);
 
@@ -285,13 +289,29 @@ const Upload = () => {
 
         <main className="container max-w-md mx-auto px-4 py-6 flex-1 overflow-y-auto">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-foreground">Tell Us About Your Session</h1>
+            <h1 className="text-2xl font-bold text-foreground">
+              {isBaseline ? "Upload Your Baseline Session" : "Tell Us About Your Session"}
+            </h1>
             <p className="text-sm text-muted-foreground mt-1">
               Fill in these details before uploading
             </p>
           </div>
 
           <div className="space-y-5">
+            {/* Baseline Recording Indicator */}
+            {isBaseline && (
+              <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0">
+                  <Target className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">Baseline Recording</p>
+                  <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                    This upload captures your current teaching style before FOP training. It will be used for comparison in your Final Report.
+                  </p>
+                </div>
+              </div>
+            )}
             {/* Course */}
             <div className="space-y-2">
               <Label htmlFor="useSite">Course</Label>
@@ -444,9 +464,19 @@ const Upload = () => {
 
         <main className="container max-w-md mx-auto px-4 py-8">
           <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] space-y-8">
+            {/* Baseline Badge */}
+            {isBaseline && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 rounded-full border border-amber-200 dark:border-amber-700 animate-slide-in-up">
+                <Target className="h-3.5 w-3.5" />
+                <span className="text-xs font-medium">Baseline Upload</span>
+              </div>
+            )}
+            
             {/* Header */}
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-foreground mb-2">Upload Audio File</h1>
+              <h1 className="text-2xl font-bold text-foreground mb-2">
+                {isBaseline ? "Upload Baseline Audio" : "Upload Audio File"}
+              </h1>
               <p className="text-sm text-muted-foreground">
                 Select an audio recording of your session
               </p>
@@ -587,17 +617,42 @@ const Upload = () => {
 
       <main className="container max-w-md mx-auto px-4 py-6 flex-1 overflow-y-auto">
         <div className="mb-6">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-success/10 text-success rounded-full border border-success/20 w-fit mb-4">
-            <CheckCircle className="h-4 w-4" />
-            <span className="text-sm font-medium">File Ready</span>
+          <div className="flex items-center gap-2 flex-wrap mb-4">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-success/10 text-success rounded-full border border-success/20 w-fit">
+              <CheckCircle className="h-4 w-4" />
+              <span className="text-sm font-medium">File Ready</span>
+            </div>
+            {isBaseline && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 rounded-full border border-amber-200 dark:border-amber-700">
+                <Target className="h-3.5 w-3.5" />
+                <span className="text-xs font-medium">Baseline</span>
+              </div>
+            )}
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Confirm Details</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            {isBaseline ? "Confirm Baseline Details" : "Confirm Details"}
+          </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Review and edit your session details before submitting
           </p>
         </div>
 
         <div className="space-y-5">
+          {/* Baseline Recording Indicator */}
+          {isBaseline && (
+            <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0">
+                <Target className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">Baseline Upload</p>
+                <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                  This upload captures your current teaching style before FOP training.
+                </p>
+              </div>
+            </div>
+          )}
+          
           {/* Audio File Info */}
           {audioFile && (
             <div className="bg-muted/30 rounded-lg p-3 flex items-center gap-3">
