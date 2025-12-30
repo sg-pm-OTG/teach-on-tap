@@ -62,7 +62,7 @@ const getEncouragementContent = (
   return {
     icon: Heart,
     title: "Welcome to your FOP journey!",
-    message: "Every great teacher started exactly where you are. Let's begin with your baseline recording.",
+    message: "Let's begin with your baseline recording.",
     emoji: "🌱",
   };
 };
