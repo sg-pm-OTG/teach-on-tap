@@ -34,16 +34,9 @@ export const CategoryQuestionGroup = ({
 }: CategoryQuestionGroupProps) => {
   return (
     <div className="space-y-6">
-      {/* Section Header */}
-      {section && sectionName && (
-        <div className="space-y-3 mb-6">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold">
-              {section}
-            </span>
-            <span className="text-sm font-medium text-primary">{sectionName}</span>
-          </div>
-          <h2 className="text-lg font-semibold text-foreground">{categoryName}</h2>
+      {/* Section Instruction */}
+      {section && (
+        <div className="mb-6">
           <p className="text-sm text-muted-foreground leading-relaxed">
             {getSectionInstruction(section)}
           </p>
