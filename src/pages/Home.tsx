@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
-import { Mic, Upload, FileText, Sparkles } from "lucide-react";
+import { Mic, FileText, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
 import { useSessionReports } from "@/hooks/useSessionReports";
@@ -115,17 +115,7 @@ const Home = () => {
             onClick={() => navigate("/record")}
           >
             <Mic className="h-5 w-5" />
-            <span>{profile?.baseline_completed ? "Record New Session" : "Record Baseline Session"}</span>
-          </Button>
-
-          <Button
-            variant="action"
-            size="touch"
-            className="w-full justify-start"
-            onClick={() => navigate("/upload")}
-          >
-            <Upload className="h-5 w-5" />
-            <span>{profile?.baseline_completed ? "Upload Audio File" : "Upload Baseline Audio"}</span>
+            <span>{profile?.baseline_completed ? "Submit Session" : "Submit Baseline Session"}</span>
           </Button>
 
           {hasData && (
