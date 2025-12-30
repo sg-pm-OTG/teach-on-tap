@@ -182,7 +182,7 @@ export const preSurveyCategories: PreSurveyCategory[] = [
   // Section C: Good Job Framework
   {
     code: 'C1',
-    name: 'TAE knowledge',
+    name: 'Adult training knowledge',
     section: 'C',
     sectionName: 'Good Job Framework',
     maxScore: 6,
@@ -241,7 +241,7 @@ export const preSurveyCategories: PreSurveyCategory[] = [
         id: 'C3_1',
         categoryCode: 'C3',
         questionIndex: 0,
-        text: 'In your job/work, how often does your TAE related job/work present new or complex problems that take at least 30 minutes to find a good solution? Only consider the time needed to THINK of a solution, not the time needed to carry it out.',
+        text: 'In your job/work, how often does your adult training related job/work present new or complex problems that take at least 30 minutes to find a good solution? Only consider the time needed to THINK of a solution, not the time needed to carry it out.',
         scaleType: 6,
         scaleLabels: { low: 'Not at all', high: 'Always' },
       },
