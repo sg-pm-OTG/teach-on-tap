@@ -34,7 +34,7 @@ const SessionDetails = () => {
   const presetBaseline = (location.state as { presetBaseline?: boolean })?.presetBaseline ?? false;
   
   const [useSite, setUseSite] = useState("");
-  const [numberOfParticipants, setNumberOfParticipants] = useState(1);
+  const [numberOfParticipants, setNumberOfParticipants] = useState<number | string>(1);
   const [emergentScenario, setEmergentScenario] = useState("");
   const [hasEmergentScenario, setHasEmergentScenario] = useState<boolean | null>(null);
   const [sessionType, setSessionType] = useState("");
@@ -44,7 +44,8 @@ const SessionDetails = () => {
 
   const isFormValid =
     useSite.trim() !== "" &&
-    numberOfParticipants >= 1 &&
+    numberOfParticipants !== "" &&
+    Number(numberOfParticipants) >= 1 &&
     hasEmergentScenario !== null &&
     (hasEmergentScenario === false || emergentScenario.trim() !== "") &&
     sessionType !== "";
@@ -69,7 +70,7 @@ const SessionDetails = () => {
         .insert({
           user_id: user.id,
           use_site: useSite.trim(),
-          number_of_participants: numberOfParticipants,
+          number_of_participants: Number(numberOfParticipants) || 1,
           session_type: sessionType,
             session_date: sessionDate,
             emergent_scenario: hasEmergentScenario === false ? "AUTO_DETECT" : (emergentScenario.trim() || null),
@@ -103,7 +104,8 @@ const SessionDetails = () => {
   };
 
   const handleParticipantChange = (delta: number) => {
-    setNumberOfParticipants((prev) => Math.max(1, prev + delta));
+    const current = typeof numberOfParticipants === "number" ? numberOfParticipants : (parseInt(String(numberOfParticipants)) || 1);
+    setNumberOfParticipants(Math.max(1, current + delta));
   };
 
   return (
@@ -139,7 +141,7 @@ const SessionDetails = () => {
                 variant="outline"
                 size="icon"
                 onClick={() => handleParticipantChange(-1)}
-                disabled={numberOfParticipants <= 1}
+                disabled={numberOfParticipants === "" || Number(numberOfParticipants) <= 1}
               >
                 −
               </Button>
@@ -147,9 +149,22 @@ const SessionDetails = () => {
                 type="number"
                 min={1}
                 value={numberOfParticipants}
-                onChange={(e) =>
-                  setNumberOfParticipants(Math.max(1, parseInt(e.target.value) || 1))
-                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === "") {
+                    setNumberOfParticipants("");
+                  } else {
+                    const num = parseInt(value);
+                    if (!isNaN(num)) {
+                      setNumberOfParticipants(num);
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  if (numberOfParticipants === "" || Number(numberOfParticipants) < 1) {
+                    setNumberOfParticipants(1);
+                  }
+                }}
                 className="w-20 text-center"
               />
               <Button
@@ -160,14 +175,14 @@ const SessionDetails = () => {
               >
                 +
               </Button>
-              </div>
-              {numberOfParticipants >= 40 && (
-                <p className="text-xs text-amber-600 flex items-center gap-1.5 mt-1.5">
-                  <span className="inline-block w-4 h-4 rounded-full bg-amber-100 text-amber-600 text-[10px] flex items-center justify-center font-bold">!</span>
-                  That's quite a large group! Just double-checking this number is correct.
-                </p>
-              )}
             </div>
+            {Number(numberOfParticipants) >= 40 && (
+              <p className="text-xs text-amber-600 flex items-center gap-1.5 mt-1.5">
+                <span className="inline-block w-4 h-4 rounded-full bg-amber-100 text-amber-600 text-[10px] flex items-center justify-center font-bold">!</span>
+                That's quite a large group! Just double-checking this number is correct.
+              </p>
+            )}
+          </div>
 
             {/* Type of Session */}
           <div className="space-y-2">
