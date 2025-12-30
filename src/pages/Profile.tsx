@@ -3,6 +3,7 @@ import { ChevronLeft, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/AuthProvider";
 import { useProfile } from "@/hooks/useProfile";
+import { BottomNav } from "@/components/BottomNav";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const Profile = () => {
       </header>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto pb-24">
         <div className="px-6 py-6 space-y-6">
           {/* User Info */}
           <div className="flex items-center gap-4">
@@ -72,6 +73,8 @@ const Profile = () => {
           </Button>
         </div>
       </div>
+
+      <BottomNav />
     </div>
   );
 };
