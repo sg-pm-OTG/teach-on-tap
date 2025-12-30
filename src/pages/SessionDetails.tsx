@@ -21,7 +21,6 @@ const SESSION_TYPES = [
 
 export interface SessionDetailsData {
   useSite: string;
-  numberOfParticipants: number;
   emergentScenario: string;
   sessionType: string;
   sessionDate: Date;
@@ -34,7 +33,6 @@ const SessionDetails = () => {
   const presetBaseline = (location.state as { presetBaseline?: boolean })?.presetBaseline ?? false;
   
   const [useSite, setUseSite] = useState("");
-  const [numberOfParticipants, setNumberOfParticipants] = useState<number | string>(1);
   const [emergentScenario, setEmergentScenario] = useState("");
   const [hasEmergentScenario, setHasEmergentScenario] = useState<boolean | null>(null);
   const [sessionType, setSessionType] = useState("");
@@ -44,8 +42,6 @@ const SessionDetails = () => {
 
   const isFormValid =
     useSite.trim() !== "" &&
-    numberOfParticipants !== "" &&
-    Number(numberOfParticipants) >= 1 &&
     hasEmergentScenario !== null &&
     (hasEmergentScenario === false || emergentScenario.trim() !== "") &&
     sessionType !== "";
@@ -70,10 +66,10 @@ const SessionDetails = () => {
         .insert({
           user_id: user.id,
           use_site: useSite.trim(),
-          number_of_participants: Number(numberOfParticipants) || 1,
+          number_of_participants: 1,
           session_type: sessionType,
-            session_date: sessionDate,
-            emergent_scenario: hasEmergentScenario === false ? "AUTO_DETECT" : (emergentScenario.trim() || null),
+          session_date: sessionDate,
+          emergent_scenario: hasEmergentScenario === false ? "AUTO_DETECT" : (emergentScenario.trim() || null),
           status: "pending",
           is_baseline: isBaseline,
         })
@@ -89,10 +85,9 @@ const SessionDetails = () => {
           isBaseline,
           sessionDetails: {
             use_site: useSite.trim(),
-            number_of_participants: numberOfParticipants,
             session_type: sessionType,
-          session_date: sessionDate,
-          emergent_scenario: hasEmergentScenario === false ? "AUTO_DETECT" : (emergentScenario.trim() || null),
+            session_date: sessionDate,
+            emergent_scenario: hasEmergentScenario === false ? "AUTO_DETECT" : (emergentScenario.trim() || null),
           },
         },
       });
@@ -101,11 +96,6 @@ const SessionDetails = () => {
       toast.error("Failed to create session. Please try again.");
       setIsSubmitting(false);
     }
-  };
-
-  const handleParticipantChange = (delta: number) => {
-    const current = typeof numberOfParticipants === "number" ? numberOfParticipants : (parseInt(String(numberOfParticipants)) || 1);
-    setNumberOfParticipants(Math.max(1, current + delta));
   };
 
   return (
@@ -132,59 +122,7 @@ const SessionDetails = () => {
             />
           </div>
 
-          {/* Number of Participants */}
-          <div className="space-y-2">
-            <Label>Number of Participants</Label>
-            <div className="flex items-center gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => handleParticipantChange(-1)}
-                disabled={numberOfParticipants === "" || Number(numberOfParticipants) <= 1}
-              >
-                −
-              </Button>
-              <Input
-                type="number"
-                min={1}
-                value={numberOfParticipants}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value === "") {
-                    setNumberOfParticipants("");
-                  } else {
-                    const num = parseInt(value);
-                    if (!isNaN(num)) {
-                      setNumberOfParticipants(num);
-                    }
-                  }
-                }}
-                onBlur={() => {
-                  if (numberOfParticipants === "" || Number(numberOfParticipants) < 1) {
-                    setNumberOfParticipants(1);
-                  }
-                }}
-                className="w-20 text-center"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => handleParticipantChange(1)}
-              >
-                +
-              </Button>
-            </div>
-            {Number(numberOfParticipants) >= 40 && (
-              <p className="text-xs text-amber-600 flex items-center gap-1.5 mt-1.5">
-                <span className="inline-block w-4 h-4 rounded-full bg-amber-100 text-amber-600 text-[10px] flex items-center justify-center font-bold">!</span>
-                That's quite a large group! Just double-checking this number is correct.
-              </p>
-            )}
-          </div>
-
-            {/* Type of Session */}
+          {/* Type of Session */}
           <div className="space-y-2">
             <Label htmlFor="sessionType">Type</Label>
             <select
