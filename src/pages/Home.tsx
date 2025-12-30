@@ -115,7 +115,7 @@ const Home = () => {
             onClick={() => navigate("/record")}
           >
             <Mic className="h-5 w-5" />
-            <span>Record New Session</span>
+            <span>{profile?.baseline_completed ? "Record New Session" : "Record Baseline Session"}</span>
           </Button>
 
           <Button
@@ -125,7 +125,7 @@ const Home = () => {
             onClick={() => navigate("/upload")}
           >
             <Upload className="h-5 w-5" />
-            <span>Upload Audio File</span>
+            <span>{profile?.baseline_completed ? "Upload Audio File" : "Upload Baseline Audio"}</span>
           </Button>
 
           {hasData && (
