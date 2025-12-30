@@ -154,18 +154,13 @@ const Auth = () => {
     <div className="min-h-screen min-h-[100dvh] bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex flex-col items-center justify-center p-6 pt-[max(env(safe-area-inset-top),24px)] pb-[env(safe-area-inset-bottom)]">
       <div className="w-full max-w-md space-y-8">
         {/* Header - App Name First */}
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             FOP Companion
           </h1>
           <p className="text-muted-foreground text-sm">
             Track your teaching journey
           </p>
-          <img 
-            src={alcLogo} 
-            alt="Adult Learning Collaboratory" 
-            className="h-8 w-auto mx-auto opacity-70"
-          />
         </div>
 
         {/* Form Container */}
@@ -375,6 +370,13 @@ const Auth = () => {
             </form>
           )}
         </div>
+
+        {/* ALC Logo - Bottom affiliation */}
+        <img 
+          src={alcLogo} 
+          alt="Adult Learning Collaboratory" 
+          className="h-8 w-auto mx-auto opacity-60 mt-6"
+        />
       </div>
     </div>
   );
