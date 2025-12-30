@@ -23,6 +23,15 @@ const PreSurveyQuestions = () => {
   const isLastCategory = currentCategoryIndex === totalCategories - 1;
   const isFirstCategory = currentCategoryIndex === 0;
 
+  // Calculate the global question offset for current category
+  const getQuestionOffset = (categoryIndex: number): number => {
+    let offset = 0;
+    for (let i = 0; i < categoryIndex; i++) {
+      offset += preSurveyCategories[i].questions.length;
+    }
+    return offset;
+  };
+
   // Build responses map for current category
   const categoryResponses = new Map<number, number>();
   currentCategory.questions.forEach((q) => {
@@ -129,6 +138,7 @@ const PreSurveyQuestions = () => {
             onResponse={handleResponse}
             section={currentCategory.section}
             sectionName={currentCategory.sectionName}
+            questionOffset={getQuestionOffset(currentCategoryIndex)}
           />
         </div>
       </div>

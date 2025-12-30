@@ -9,6 +9,7 @@ interface CategoryQuestionGroupProps {
   onResponse: (questionIndex: number, value: number) => void;
   section?: string;
   sectionName?: string;
+  questionOffset?: number;
 }
 
 const getSectionInstruction = (section: string): string => {
@@ -31,6 +32,7 @@ export const CategoryQuestionGroup = ({
   onResponse,
   section,
   sectionName,
+  questionOffset = 0,
 }: CategoryQuestionGroupProps) => {
   return (
     <div className="space-y-6">
@@ -70,7 +72,7 @@ export const CategoryQuestionGroup = ({
                   {isAnswered ? (
                     <Check className="w-3 h-3" />
                   ) : (
-                    <span className="text-xs">{idx + 1}</span>
+                    <span className="text-xs">{questionOffset + idx + 1}</span>
                   )}
                 </div>
                 <p className="text-sm text-foreground leading-relaxed flex-1">
