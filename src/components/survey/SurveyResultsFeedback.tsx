@@ -5,9 +5,10 @@ import type { SurveyData } from "@/types/survey";
 interface SurveyResultsFeedbackProps {
   surveyData: SurveyData;
   onContinue: () => void;
+  isProcessing?: boolean;
 }
 
-export const SurveyResultsFeedback = ({ surveyData, onContinue }: SurveyResultsFeedbackProps) => {
+export const SurveyResultsFeedback = ({ surveyData, onContinue, isProcessing = false }: SurveyResultsFeedbackProps) => {
   return (
     <div className="bg-card rounded-xl border border-border p-6 animate-fade-in">
       <div className="flex items-center justify-center mb-6">
@@ -31,8 +32,8 @@ export const SurveyResultsFeedback = ({ surveyData, onContinue }: SurveyResultsF
         </div>
       )}
 
-      <Button onClick={onContinue} className="w-full" size="lg">
-        View My Report
+      <Button onClick={onContinue} className="w-full" size="lg" disabled={isProcessing}>
+        {isProcessing ? "Processing..." : "View My Report"}
       </Button>
     </div>
   );

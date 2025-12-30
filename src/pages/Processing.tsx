@@ -308,6 +308,7 @@ const Processing = () => {
           <SurveyResultsFeedback 
             surveyData={surveyData} 
             onContinue={handleContinueToReport}
+            isProcessing={isProcessing}
           />
         )}
 
