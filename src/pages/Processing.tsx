@@ -314,9 +314,9 @@ const Processing = () => {
         {/* Survey Section - Only show for non-baseline sessions before completion */}
         {!isBaseline && !showSurveyResults && (
           <div className="bg-card rounded-xl border border-border p-4">
-            <h2 className="text-xl font-bold text-foreground mb-4">
-              Weekly Progress Check
-            </h2>
+              <h2 className="text-xl font-bold text-foreground mb-4">
+                Session Reflection
+              </h2>
             <p className="text-sm text-muted-foreground mb-6">
               Quick check-in while we process your session.
             </p>
