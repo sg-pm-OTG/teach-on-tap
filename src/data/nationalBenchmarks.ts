@@ -12,7 +12,7 @@ export const nationalBenchmarks: Record<string, number> = {
   B3: 4.4, // Deep learning
 
   // Section C: Good Job Framework (max 6)
-  C1: 5.0, // TAE knowledge
+  C1: 5.0, // Adult training knowledge
   C2: 4.9, // Social Context (Teamwork)
   C3: 3.8, // Task complexity
   C4: 4.2, // Work autonomy
