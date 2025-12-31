@@ -36,7 +36,7 @@ const CustomTooltip = ({ active, payload }: any) => {
     const data = payload[0].payload;
     return (
       <div className="bg-card border border-border rounded-lg p-2 shadow-lg">
-        <p className="text-xs font-medium text-foreground">{data.speaker}</p>
+        <p className="text-xs font-medium text-foreground">{data.speaker ? data.speaker : "Inaudible or Silent"}</p>
         <p className="text-xs text-muted-foreground">
           {data.percentage}% • {formatTime(data.seconds)}
         </p>
@@ -49,7 +49,7 @@ const CustomTooltip = ({ active, payload }: any) => {
 export const TalkTimePieChart = ({ data, bare = false, compact = false }: TalkTimePieChartProps) => {
   const chartData = data.map((item, index) => ({
     ...item,
-    name: item.speaker,
+    name: item.speaker ? item.speaker : "Inaudible or Silent",
     value: item.percentage,
     fill: COLORS[index % COLORS.length],
   }));
