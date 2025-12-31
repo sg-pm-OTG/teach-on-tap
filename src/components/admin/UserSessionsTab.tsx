@@ -25,6 +25,8 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Play, Download, Trash2, Mic, Pause, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import axios from "axios";
+import { mapApiResultToSessionReport } from "@/utils/mapApiResultToSessionReport";
 
 interface UserSessionsTabProps {
   userId: string;
@@ -48,9 +50,38 @@ export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabPr
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+
+      const token = await getAccessToken();
+      const apiData = await Promise.all(
+        data.map(async (item: any) => {
+          const res = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/v1/analyze/admin-get-result?session_id=${item.id}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              timeout: 30_000,
+            }
+          );
+
+          return {
+            ...item,
+            data: mapApiResultToSessionReport(res.data.data), // raw result
+          };
+        })
+      )
+      console.log('API Data:', apiData);
+      return apiData;
     },
   });
+
+  const getAccessToken = async (): Promise<string> => {
+    const { data, error } = await supabase.auth.getSession();
+
+    if (error || !data.session?.access_token) {
+      throw new Error("Not authenticated");
+    }
+
+    return data.session.access_token;
+  };
 
   // Fetch session reports to know which sessions have reports
   const { data: sessionReportIds } = useQuery({
@@ -110,29 +141,40 @@ export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabPr
     }
   };
 
-  const handleDownloadAudio = async (audioUrl: string) => {
+  const handleDownloadTranscript = async (transcriptUrl: string, filename: string) => {
+    console.log("Download transcript for audio URL:", transcriptUrl);
     try {
-      const path = audioUrl.split("/").slice(-2).join("/");
-      const { data, error } = await supabase.storage
-        .from("session-recordings")
-        .createSignedUrl(path, 3600);
+      const token = await getAccessToken()
+      const res = await axios.get(
+        transcriptUrl,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          responseType: "blob", 
+          timeout: 60_000,
+        }
+      );
 
-      if (error) throw error;
+      // CSV MIME type
+      const blob = new Blob([res.data], {
+        type: "text/csv;charset=utf-8;",
+      });
 
-      const response = await fetch(data.signedUrl);
-      const blob = await response.blob();
       const url = URL.createObjectURL(blob);
+
       const a = document.createElement("a");
       a.href = url;
-      a.download = `session_${path.split("/").pop()}`;
+      a.download = `session-${filename}.csv`;
       document.body.appendChild(a);
       a.click();
+
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      toast.success("Download started");
-    } catch (error: any) {
-      toast.error("Failed to download audio");
-    }
+    } catch (err) {
+      console.error(err);
+      toast.error("Download failed");
+    } 
   };
 
   const handleDeleteSession = async () => {
@@ -234,7 +276,7 @@ export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabPr
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sessions.map((session) => (
+                {sessions?.map((session) => (
                   <TableRow key={session.id}>
                     <TableCell>
                       {format(new Date(session.session_date), "MMM d, yyyy")}
@@ -265,28 +307,35 @@ export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabPr
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-1">
-                        {session.audio_file_url && (
+                        {session.data.audioFileUrl && (
                           <>
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handlePlayAudio(session.audio_file_url!)}
+                              onClick={() => handlePlayAudio(session.data.audioFileUrl!)}
                             >
-                              {playingAudioUrl === session.audio_file_url ? (
+                              {playingAudioUrl === session.data.audioFileUrl ? (
                                 <Pause className="h-4 w-4" />
                               ) : (
                                 <Play className="h-4 w-4" />
                               )}
                             </Button>
+                          </>
+                        )}
+                        {session.data.csvFileUrl ?
+                          (
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleDownloadAudio(session.audio_file_url!)}
+                              onClick={() => handleDownloadTranscript(session.data.csvFileUrl!, session.data.filename)}
                             >
                               <Download className="h-4 w-4" />
                             </Button>
-                          </>
-                        )}
+                          ) : 
+                          (
+                            <Button variant="ghost" size="icon" disabled>—</Button>
+                          ) 
+                        }
                         <Button
                           variant="ghost"
                           size="icon"
