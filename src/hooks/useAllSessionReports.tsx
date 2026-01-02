@@ -521,7 +521,7 @@ export const useAllSessionReports = () => {
         id: report.session_id,
         sessionId: report.session_id,
         createdAt: session.created_at,
-        sessionDate: session.session_date,
+        sessionDate: report.sessionDate || session.session_date,
         useSite: session.use_site,
         sessionType: session.session_type,
         participants: session.number_of_participants,

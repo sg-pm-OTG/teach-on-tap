@@ -26,10 +26,11 @@ export const SessionChipSelector = ({
   canCompare,
 }: SessionChipSelectorProps) => {
   const formatDate = (dateStr: string) => {
+    if (!dateStr) return "No date";
     try {
       return format(parseISO(dateStr), "MMM d");
     } catch {
-      return dateStr;
+      return dateStr || "No date";
     }
   };
 
