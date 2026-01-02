@@ -8,15 +8,15 @@ const PreSurveyIntro = () => {
 
   return (
     <div className="min-h-screen min-h-[100dvh] flex flex-col bg-gradient-to-b from-primary/5 via-background to-background pt-[max(env(safe-area-inset-top),24px)] pb-[env(safe-area-inset-bottom)]">
-      {/* Header with Icon */}
+      {/* Header */}
       <div className="pt-8 pb-6 px-6 text-center">
-        {/* Visual Icon */}
-        <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center mx-auto mb-6">
-          <ClipboardList className="w-8 h-8 text-white" />
-        </div>
+        {/* App Identity - Top */}
+        <span className="text-lg font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          FOP Companion
+        </span>
         
         {/* Main Headline */}
-        <h1 className="text-2xl font-bold text-foreground mb-2">
+        <h1 className="text-2xl font-bold text-foreground mb-2 mt-6">
           A Few Questions Before We Start
         </h1>
         
@@ -50,15 +50,12 @@ const PreSurveyIntro = () => {
       {/* Footer */}
       <div className="p-6 border-t border-border">
         {/* Branding - Bottom */}
-        <div className="flex items-center justify-center gap-2 mb-4">
+        <div className="flex items-center justify-center mb-4">
           <img 
             src={alcLogo} 
             alt="Adult Learning Collaboratory" 
             className="h-6 w-auto opacity-60"
           />
-          <span className="text-sm font-medium bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            FOP Companion
-          </span>
         </div>
         
         <Button
