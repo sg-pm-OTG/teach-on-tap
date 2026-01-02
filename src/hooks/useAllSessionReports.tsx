@@ -388,6 +388,7 @@ export const useAllSessionReports = () => {
             audioFileUrl: itemData.data.session.audio_file_url,
             transcript: itemData.data.speaker_data,
             user_id: user.id,
+            isBaseline: itemData.data.session.is_baseline || false,
             scenario_scores, 
             dialogue_scores,
             scenario_analysis,
@@ -406,9 +407,8 @@ export const useAllSessionReports = () => {
           console.error('Error at item index:', err, itemData);
           return null;
         }
-      }) 
+      }).filter(item => item !== null && item.isBaseline === true); // Filter for baseline sessions only
 
-      // if (error) throw error;
       return data[0] ?? null;
     },
   });
