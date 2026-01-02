@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
 import { Waveform } from "@/components/Waveform";
-import { Mic, Square, CheckCircle, ArrowRight, ArrowLeft, AlertCircle, Sparkles, Target, Upload, FileAudio, X, Play, Pause, Loader2 } from "lucide-react";
+import { Mic, Square, CheckCircle, ArrowRight, ArrowLeft, AlertCircle, Sparkles, Target, Upload, FileAudio, X, Play, Pause, Loader2, BellOff } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -643,16 +643,34 @@ const Record = () => {
 
             {/* Tips */}
             {!isRecording && (
-              <div className="w-full max-w-xs bg-muted/30 rounded-xl p-4 border border-border animate-slide-in-up">
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-foreground mb-1">Recording Tips</p>
-                    <ul className="text-xs text-muted-foreground space-y-1">
-                      <li>• Place phone near you during the lesson</li>
-                      <li>• Ensure minimal background noise</li>
-                      <li>• Recommended: 45 minutes – 2 hours</li>
-                    </ul>
+              <div className="w-full max-w-xs space-y-3 animate-slide-in-up">
+                {/* Do Not Disturb Warning */}
+                <div className="bg-amber-50 dark:bg-amber-950/30 rounded-xl p-4 border border-amber-200 dark:border-amber-800">
+                  <div className="flex items-start gap-3">
+                    <BellOff className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                        Enable Do Not Disturb
+                      </p>
+                      <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                        Swipe down from the top of your screen and tap the Do Not Disturb icon to prevent interruptions.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recording Tips */}
+                <div className="bg-muted/30 rounded-xl p-4 border border-border">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-foreground mb-1">Recording Tips</p>
+                      <ul className="text-xs text-muted-foreground space-y-1">
+                        <li>• Place phone near you during the lesson</li>
+                        <li>• Ensure minimal background noise</li>
+                        <li>• Recommended: 45 minutes – 2 hours</li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
