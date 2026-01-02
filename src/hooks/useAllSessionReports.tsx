@@ -407,7 +407,7 @@ export const useAllSessionReports = () => {
           console.error('Error at item index:', err, itemData);
           return null;
         }
-      }).filter(item => item !== null && item.isBaseline === true); // Filter for baseline sessions only
+      }).filter(item => item !== null && item.isBaseline); // Filter for baseline sessions only
 
       return data[0] ?? null;
     },
@@ -521,7 +521,7 @@ export const useAllSessionReports = () => {
         id: report.session_id,
         sessionId: report.session_id,
         createdAt: session.created_at,
-        sessionDate: report.sessionDate || session.session_date,
+        sessionDate: report.sessionDate || session?.session_date || report.createdAt,
         useSite: session.use_site,
         sessionType: session.session_type,
         participants: session.number_of_participants,
