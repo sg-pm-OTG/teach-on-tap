@@ -56,21 +56,20 @@ const PreSurveyResults = () => {
   }, []);
 
   return (
-    <div className="min-h-screen min-h-[100dvh] flex flex-col bg-background pt-[max(env(safe-area-inset-top),24px)] pb-[env(safe-area-inset-bottom)]">
+    <div className="min-h-screen min-h-[100dvh] flex flex-col bg-gradient-to-b from-primary/5 via-background to-background pt-[max(env(safe-area-inset-top),24px)] pb-[env(safe-area-inset-bottom)]">
       {/* Header - Celebration */}
       <div className="pt-6 pb-4 px-6 text-center">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <img 
-            src={alcLogo} 
-            alt="Adult Learning Collaboratory" 
-            className="h-8 w-auto"
-          />
-          <span className="text-lg font-semibold text-foreground">FOP Companion</span>
-        </div>
-        <div className="w-14 h-14 bg-gradient-to-br from-success/20 to-primary/20 rounded-full flex items-center justify-center mx-auto mb-3 relative">
+        {/* App Identity - Top */}
+        <span className="text-lg font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          FOP Companion
+        </span>
+        
+        {/* Celebration Icon */}
+        <div className="w-14 h-14 bg-gradient-to-br from-success/20 to-primary/20 rounded-full flex items-center justify-center mx-auto mt-6 mb-3 relative">
           <CheckCircle2 className="w-7 h-7 text-success" />
           <Sparkles className="w-4 h-4 text-primary absolute -top-1 -right-1" />
         </div>
+        
         <h1 className="text-2xl font-bold text-foreground mb-2">Thank You!</h1>
         <p className="text-muted-foreground">
           You've completed your questionnaire
@@ -194,6 +193,15 @@ const PreSurveyResults = () => {
 
       {/* Footer */}
       <div className="p-6 border-t border-border">
+        {/* Branding - Bottom */}
+        <div className="flex items-center justify-center mb-4">
+          <img 
+            src={alcLogo} 
+            alt="Adult Learning Collaboratory" 
+            className="h-6 w-auto opacity-60"
+          />
+        </div>
+        
         <Button
           onClick={() => navigate("/")}
           className="w-full gradient-primary text-primary-foreground"
