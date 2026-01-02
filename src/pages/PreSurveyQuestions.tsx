@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PreSurveyProgress } from "@/components/pre-survey/PreSurveyProgress";
 import { CategoryQuestionGroup } from "@/components/pre-survey/CategoryQuestionGroup";
 import { usePreSurvey } from "@/hooks/usePreSurvey";
@@ -156,6 +156,18 @@ const PreSurveyQuestions = () => {
             Previous
           </Button>
           
+          {/* Show Next button when reviewing (navigated back) and all questions answered */}
+          {!isLastCategory && manuallyNavigatedBack && allQuestionsAnswered && (
+            <Button
+              onClick={goToNextCategory}
+              disabled={isTransitioning}
+              className="flex-1 gradient-primary text-primary-foreground"
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          )}
+          
           {isLastCategory && (
             <Button
               onClick={handleSubmit}
@@ -167,7 +179,7 @@ const PreSurveyQuestions = () => {
           )}
         </div>
         
-        {!isLastCategory && (
+        {!isLastCategory && !manuallyNavigatedBack && (
           <p className="text-xs text-muted-foreground text-center mt-3">
             Answer all questions to continue automatically
           </p>
