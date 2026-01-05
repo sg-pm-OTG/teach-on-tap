@@ -73,7 +73,7 @@ const Processing = () => {
       // Update session status to completed
       await supabase
         .from("sessions")
-        .update({ status: "completed", ...(audio_file_url && { audio_file_url }) })
+        .update({ status: "completed", audio_file_url: audio_file_url })
         .eq("id", sessionId);
 
       // If baseline, update profile to mark baseline completed
@@ -134,7 +134,7 @@ const Processing = () => {
           if (res.data.status === "completed" || currentProgress >= 100) {
             clearTimers();
             setProgress(100);
-            await handleCompleted(res.data.session?.audio_file_url || null);
+            await handleCompleted(res.data.data.session.audio_file_url);
           }
         } catch (err) {
           console.error("Polling error:", err);

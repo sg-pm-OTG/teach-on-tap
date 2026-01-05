@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica', 
     backgroundColor: '#fff' 
   },
-  logo: { width: 120, marginBottom: 15 },
+  logo: { width: 240, marginBottom: 15 },
   headerContainer: { alignItems: 'flex-start', marginBottom: 8 },
   mainTitle: { fontSize: 15, fontWeight: 'bold', color: '#000', marginBottom: 8, textAlign: 'left' },
   sectionTitle: { fontSize: 12, fontWeight: 'bold', color: '#000', marginBottom: 8, marginTop: 15, textTransform: 'uppercase' },
@@ -447,7 +447,7 @@ const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
-    const secs = Math.round(seconds % 60);
+    const secs = Math.round(seconds / 60);
     return `${mins}.${secs} minutes`;
   };
 
@@ -456,7 +456,7 @@ const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any
       {/* --- PAGE 1: SESSION & SPEAKERS --- */}
       <Page size="A4" style={styles.page} wrap>
         <View style={styles.headerContainer}>
-          <Image src="/src/assets/alc-logo.png" style={styles.logo} />
+          <Image src="/logo.png" style={styles.logo} />
           <Text style={styles.mainTitle}>FOP Analysis Session Report</Text>
         </View>
 
@@ -499,6 +499,7 @@ const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any
         {data.themes && data.themes.map((theme: any, index: number) => (
           <View key={index} style={[styles.themeContainer, {borderBottomWidth: 1, borderBottomColor: '#000'}]} wrap={false}>
             <Text style={styles.themeTitle}>{theme.title}</Text>
+            <Text style={{marginBottom: 5}}>{theme.description}</Text>
             {theme.bullets && theme.bullets.map((bullet: string, bIndex: number) => (
               <View key={bIndex} style={styles.bulletRow}>
                 <Text style={styles.bulletDot}>•</Text>
@@ -525,7 +526,7 @@ const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any
         <Text style={styles.footer} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} fixed />
       </Page>
 
-      // --- PAGE 3: PIE CHART (TIME PERCENTAGE) ---
+      {/* --- PAGE 3: PIE CHART (TIME PERCENTAGE) --- */}
       <Page size="A4" style={styles.page}>
         <View style={styles.headerContainer}>
           <Text style={styles.mainTitle}>Structural Analysis</Text>
@@ -571,7 +572,7 @@ const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any
         <Text style={styles.footer} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} fixed />
       </Page>
 
-      // --- PAGE 4: BAR CHART (TALK TIME SECONDS) ---
+      {/* --- PAGE 4: BAR CHART (TALK TIME SECONDS) --- */}
       <Page size="A4" style={styles.page}>
         <View style={{ marginTop: 50, paddingHorizontal: 10 }}>
           <BarChartView data={chartData} />
@@ -579,7 +580,7 @@ const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any
         <Text style={styles.footer} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} fixed />
       </Page>
 
-      // --- PAGE 5: INTERACTION CHORD DIAGRAM ---
+      {/* --- PAGE 5: INTERACTION CHORD DIAGRAM --- */}
       <Page size="A4" style={styles.page}>
         <View style={styles.headerContainer}>
           <Text style={styles.mainTitle}>Speaker Interaction Chord Diagram</Text>
@@ -599,7 +600,7 @@ const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any
         <Text style={styles.footer} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} fixed />
       </Page>
 
-      // --- PAGE 6: EMERGENT SCENARIOS ---
+      {/* --- PAGE 6: EMERGENT SCENARIOS --- */}
       <Page size="A4" style={styles.page}>
         <View style={styles.headerContainer}>
           <Text style={styles.mainTitle}>Emergent Scenarios Detailed Analysis</Text>
@@ -627,27 +628,27 @@ const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any
             borderRadius: 8,
             width: '100%' 
           }}>
-            {data.scenarioScores.map((item: any, i: number) => (
-              <View key={i} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#0d9488' }}>{item.score}</Text>
-                <Text style={{ fontSize: 8, color: '#64748b', marginLeft: 3 }}>- {item.label}</Text>
-              </View>
-            ))}
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#0d9488' }}>Score scale:</Text>
+              {[0, 1, 2, 3, 4].map((num) => (
+                <Text style={{ fontSize: 8, color: '#64748b', marginLeft: 3 }} key={num}>{num} - {getRating(num).text} </Text>
+              ))}
+            </View>
           </View>
         </View>
 
-        <View style={{ marginTop: 20 }}>
+        <View>
           <Text style={styles.sectionTitle}>Scores Summary</Text>
           
-          <View style={[styles.table, { marginBottom: 25 }]}>
+          <View style={[styles.table, { marginBottom: 20 }]}>
             <View style={[styles.tableRow, { backgroundColor: '#4990e2' }]}>
-              <View style={[{ width: '34%', padding: 6, borderRightWidth: 1, borderRightColor: '#000' }, styles.tableCell]}>
+              <View style={[{ width: '34%', padding: 5, borderRightWidth: 1, borderRightColor: '#000' }, styles.tableCell]}>
                 <Text style={{ fontWeight: 'bold' }}>Marker</Text>
               </View>
-              <View style={[{ width: '33%', padding: 6, borderRightWidth: 1, borderRightColor: '#000', textAlign: 'center' }, styles.tableCell]}>
+              <View style={[{ width: '33%', padding: 5, borderRightWidth: 1, borderRightColor: '#000', textAlign: 'center' }, styles.tableCell]}>
                 <Text style={{ fontWeight: 'bold' }}>Score</Text>
               </View>
-              <View style={[{ width: '33%', padding: 6, textAlign: 'center' }, styles.tableCell]}>
+              <View style={[{ width: '33%', padding: 5, textAlign: 'center' }, styles.tableCell]}>
                 <Text style={{ fontWeight: 'bold' }}>Rating</Text>
               </View>
             </View>
@@ -662,13 +663,13 @@ const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any
                   ]}
                   wrap={false}
                 >
-                  <View style={[{ width: '34%', padding: 6, borderRightWidth: 1, borderRightColor: '#000' }, styles.tableCell]}>
+                  <View style={[{ width: '34%', padding: 5, borderRightWidth: 1, borderRightColor: '#000' }, styles.tableCell]}>
                     <Text>{item.label}</Text>
                   </View>
-                  <View style={[{ width: '33%', padding: 6, borderRightWidth: 1, borderRightColor: '#000', alignItems: 'center' }, styles.tableCell]}>
+                  <View style={[{ width: '33%', padding: 5, borderRightWidth: 1, borderRightColor: '#000', alignItems: 'center' }, styles.tableCell]}>
                     <Text style={{ fontWeight: 'bold' }}>{item.score}</Text>
                   </View>
-                  <View style={[{ width: '33%', padding: 6, alignItems: 'center' }, styles.tableCell]}>
+                  <View style={[{ width: '33%', padding: 5, alignItems: 'center' }, styles.tableCell]}>
                     <Text style={{ fontWeight: 'bold', fontSize: 9 }}>
                       {rating.text}
                     </Text>
@@ -681,10 +682,10 @@ const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any
         <Text style={styles.footer} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} fixed />
       </Page>
 
-      // --- PAGE 7: DETAILED ANALYSIS ---
+      {/* --- PAGE 7: DETAILED ANALYSIS --- */}
       <Page size="A4" style={styles.page} wrap>
         <View style={styles.headerContainer}>
-          <Text style={styles.mainTitle}>Detailed Analysis</Text>
+          <Text style={styles.mainTitle}>Emergent Scenarios Detailed Analysis</Text>
         </View>
 
         {data.scenarioAnalysis && data.scenarioAnalysis.map((item: any, index: number) => (
@@ -740,7 +741,7 @@ const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any
         />
       </Page>
 
-      // --- PAGE 8: Generative Dialogue ---
+      {/* --- PAGE 8: Generative Dialogue --- */}
       <Page size="A4" style={styles.page}>
         <View style={styles.headerContainer}>
           <Text style={styles.mainTitle}>Generative Dialogue Detailed Analysis</Text>
@@ -763,28 +764,28 @@ const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any
             borderRadius: 8,
             width: '100%' 
           }}>
-            {data.dialogueScores.map((item: any, i: number) => (
-              <View key={i} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#0d9488' }}>{item.score}</Text>
-                <Text style={{ fontSize: 8, color: '#64748b', marginLeft: 3 }}>- {item.label}</Text>
-              </View>
-            ))}
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#0d9488' }}>Score scale:</Text>
+              {[0, 1, 2, 3, 4].map((num) => (
+                <Text style={{ fontSize: 8, color: '#64748b', marginLeft: 3 }} key={num}>{num} - {getRating(num).text} </Text>
+              ))}
+            </View>
           </View>
         </View>
 
-        <View style={{ marginTop: 20 }}>
+        <View>
           <Text style={styles.sectionTitle}>Scores Summary</Text>
           
-          <View style={[styles.table, { marginBottom: 25 }]}>
+          <View style={[styles.table, { marginBottom: 20 }]}>
             {/* Table Header */}
             <View style={[styles.tableRow, { backgroundColor: '#4990e2' }]}>
-              <View style={[{ width: '34%', padding: 6, borderRightWidth: 1, borderRightColor: '#000' }, styles.tableCell]}>
+              <View style={[{ width: '34%', padding: 5, borderRightWidth: 1, borderRightColor: '#000' }, styles.tableCell]}>
                 <Text style={{ fontWeight: 'bold' }}>Marker</Text>
               </View>
-              <View style={[{ width: '33%', padding: 6, borderRightWidth: 1, borderRightColor: '#000', textAlign: 'center' }, styles.tableCell]}>
+              <View style={[{ width: '33%', padding: 5, borderRightWidth: 1, borderRightColor: '#000', textAlign: 'center' }, styles.tableCell]}>
                 <Text style={{ fontWeight: 'bold' }}>Score</Text>
               </View>
-              <View style={[{ width: '33%', padding: 6, textAlign: 'center' }, styles.tableCell]}>
+              <View style={[{ width: '33%', padding: 5, textAlign: 'center' }, styles.tableCell]}>
                 <Text style={{ fontWeight: 'bold' }}>Rating</Text>
               </View>
             </View>
@@ -799,13 +800,13 @@ const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any
                   ]}
                   wrap={false}
                 >
-                  <View style={[{ width: '34%', padding: 6, borderRightWidth: 1, borderRightColor: '#000' }, styles.tableCell]}>
+                  <View style={[{ width: '34%', padding: 5, borderRightWidth: 1, borderRightColor: '#000' }, styles.tableCell]}>
                     <Text>{item.label}</Text>
                   </View>
-                  <View style={[{ width: '33%', padding: 6, borderRightWidth: 1, borderRightColor: '#000', alignItems: 'center' }, styles.tableCell]}>
+                  <View style={[{ width: '33%', padding: 5, borderRightWidth: 1, borderRightColor: '#000', alignItems: 'center' }, styles.tableCell]}>
                     <Text style={{ fontWeight: 'bold' }}>{item.score}</Text>
                   </View>
-                  <View style={[{ width: '33%', padding: 6, alignItems: 'center' }, styles.tableCell]}>
+                  <View style={[{ width: '33%', padding: 5, alignItems: 'center' }, styles.tableCell]}>
                     <Text style={{ fontWeight: 'bold', fontSize: 9 }}>
                       {rating.text}
                     </Text>
@@ -818,10 +819,10 @@ const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any
         <Text style={styles.footer} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} fixed />
       </Page>
 
-      // --- PAGE 9: DETAILED ANALYSIS ---
+      {/* --- PAGE 9: DETAILED ANALYSIS --- */}
       <Page size="A4" style={styles.page} wrap>
         <View style={styles.headerContainer}>
-          <Text style={styles.mainTitle}>Detailed Analysis</Text>
+          <Text style={styles.mainTitle}>Generative Dialogue Detailed Analysis</Text>
         </View>
 
         {data.dialogueAnalysis && data.dialogueAnalysis.map((item: any, index: number) => (
@@ -835,11 +836,38 @@ const ReportDocument = ({ data, labels, interactions }: { data: any, labels: any
               </Text>
             </View>
 
-            <View style={{paddingBottom: 30, marginBottom: 10, borderBottomWidth: 1}}>
+            <View style={{paddingBottom: 10, marginBottom: 10 }}>
               <Text style={{fontWeight: 'bold'}}>Analysis:</Text>
               <Text>
                 {item.content}
               </Text>
+            </View>
+
+            <View style={{paddingBottom: 30, marginBottom: 10, borderBottomWidth: 1 }}>
+              <Text style={{fontWeight: 'bold', fontSize: 12, marginBottom: 10, fontStyle: 'italic'}}>Opportunities:</Text>
+              {item?.opportunity.map((oppo: any) => (
+                <View style={{marginBottom: 10, flexWrap: 'wrap' }}>
+                  <Text>
+                    <Text style={{ fontWeight: '600' }}>Speaker: </Text>
+                    {oppo.speaker}
+                  </Text>
+
+                  <Text>
+                    <Text style={{ fontWeight: '600' }}>Quote: </Text>
+                    {oppo.quote}
+                  </Text>
+
+                  <Text>
+                    <Text style={{ fontWeight: '600' }}>Observation: </Text>
+                    {oppo.observation}
+                  </Text>
+
+                  <Text>
+                    <Text style={{ fontWeight: '600' }}>Opportunity: </Text>
+                    {oppo.opportunity}
+                  </Text>                 
+                </View>
+              ))}
             </View>
           </View>
         ))}
