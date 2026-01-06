@@ -828,8 +828,8 @@ export const PdfExportFinalReport = ({ exportData, user, journeyTimeline, diffic
   return (
     <PDFDownloadLink className='block' document={<ReportDocument data={finalData} />} fileName={`Final report ${user}.pdf`}>
       {({ loading }) => (
-        <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground">
-          <FileDown className="h-4 w-4 mr-3" />
+        <Button variant="outline" className="w-full">
+          <FileDown className="h-5 w-5 mr-2" />
           <span>{loading ? "Generating PDF..." : "Download PDF Final Report"}</span>
         </Button>
       )}
