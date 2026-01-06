@@ -9,6 +9,7 @@ import { Button } from '../ui/button';
 import { FileDown } from 'lucide-react';
 import colors from 'tailwindcss/colors';
 import { descending } from 'd3-array';
+import { path as d3Path } from "d3-path";
 
 const styles = StyleSheet.create({
 
@@ -260,9 +261,8 @@ const BarChartView = ({ data }: { data: any[] }) => {
 };
 
 const InteractionChordPdf = ({ interactions, labels, colors }: { interactions: number[][], labels: string[], colors: string[] }) => {
-  const size = 300;
   const outerRadius = 110;
-  const innerRadius =  outerRadius - 12;
+  const innerRadius = outerRadius - 12;
 
   const chordGenerator = chord()
     .padAngle(0.05)
@@ -273,17 +273,47 @@ const InteractionChordPdf = ({ interactions, labels, colors }: { interactions: n
     .innerRadius(innerRadius)
     .outerRadius(outerRadius);
 
-  const ribbonGenerator = ribbon().radius(innerRadius);
+  const polar = (r: number, a: number) => [
+    Math.sin(a) * r,
+    -Math.cos(a) * r,
+  ];
+
+  const ribbonWithArrow = (c: any, r0: number) => {
+    const { source, target } = c;
+    const arrowLength = 12; 
+    const rBase = r0 - arrowLength; 
+
+    const sa0 = source.startAngle, sa1 = source.endAngle;
+    const ta0 = target.startAngle, ta1 = target.endAngle;
+    const taMid = (ta0 + ta1) / 2;
+
+    const [sx0, sy0] = polar(r0, sa0);
+    const [sx1, sy1] = polar(r0, sa1);
+
+    const [tb0x, tb0y] = polar(rBase, ta0);
+    const [tb1x, tb1y] = polar(rBase, ta1);
+    const [tipX, tipY] = polar(r0, taMid);
+
+    return `
+      M ${sx0},${sy0}
+      A ${r0},${r0} 0 0,1 ${sx1},${sy1}
+      Q 0,0 ${tb0x},${tb0y}
+      L ${tipX},${tipY}
+      L ${tb1x},${tb1y}
+      Q 0,0 ${sx0},${sy0}
+      Z
+    `;
+  };
 
   return (
-    <Svg viewBox="-150 -150 300 300" style={{ width: 300, height: 300 }}>
+    <Svg viewBox="-150 -150 300 300" style={{ width: 320, height: 320 }}>
       {chords.map((c, i) => {
-        const pathData = ribbonGenerator(c as any) as unknown as string;
+        const pathData = ribbonWithArrow(c, innerRadius);
         const color = colors[c.source.index]; 
         return (
           <Path
             key={`ribbon-${i}`}
-            d={pathData || ""}
+            d={pathData}
             fill={color}
             opacity={0.6}
             stroke={color}
@@ -294,21 +324,20 @@ const InteractionChordPdf = ({ interactions, labels, colors }: { interactions: n
 
       {chords.groups.map((group, i) => {
         const pathData = arcGenerator(group);
-        
         const angle = (group.startAngle + group.endAngle) / 2;
-        const labelR = outerRadius + 15;
-        const x = Math.sin(angle) * labelR;
-        const y = -Math.cos(angle) * labelR;
+        const [lx, ly] = polar(outerRadius + 15, angle);
 
         return (
           <G key={`group-${i}`}>
             <Path
               d={pathData || ""}
               fill={colors[i]}
+              stroke="#fff"
+              strokeWidth={1}
             />
             <Text
-              x={x}
-              y={y}
+              x={lx}
+              y={ly}
               style={{ fontSize: 8, fill: "#333", textAnchor: "middle" }}
             >
               {labels[i]}
