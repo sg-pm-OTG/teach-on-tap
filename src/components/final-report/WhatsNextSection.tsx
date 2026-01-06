@@ -3,9 +3,10 @@ import { Calendar, MapPin, Rocket, BookOpen, Users } from "lucide-react";
 interface WhatsNextSectionProps {
   launchHuddleDate?: string | null;
   launchHuddleLocation?: string | null;
+  content: string[]
 }
 
-export const WhatsNextSection = ({ launchHuddleDate, launchHuddleLocation }: WhatsNextSectionProps) => {
+export const WhatsNextSection = ({ launchHuddleDate, launchHuddleLocation, content }: WhatsNextSectionProps) => {
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -62,12 +63,8 @@ export const WhatsNextSection = ({ launchHuddleDate, launchHuddleLocation }: Wha
               <Rocket className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <h5 className="font-medium text-foreground text-sm">
-                Keep Practicing FOP
-              </h5>
               <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                Continue recording sessions to track your ongoing growth. 
-                Each session builds on your skills and deepens your practice.
+                {content && content[0]}
               </p>
             </div>
           </div>
@@ -79,12 +76,8 @@ export const WhatsNextSection = ({ launchHuddleDate, launchHuddleLocation }: Wha
               <BookOpen className="h-4 w-4 text-secondary" />
             </div>
             <div>
-              <h5 className="font-medium text-foreground text-sm">
-                Explore Advanced Resources
-              </h5>
               <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                Dive deeper into FOP principles with additional readings, 
-                case studies, and facilitation guides.
+                {content && content[1]}
               </p>
             </div>
           </div>

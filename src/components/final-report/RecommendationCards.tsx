@@ -1,13 +1,13 @@
 import { Lightbulb, Target, TrendingUp, Users } from "lucide-react";
 
 interface Recommendation {
-  title: string;
-  description: string;
-  icon: "lightbulb" | "target" | "trending" | "users";
+  title?: string;
+  description?: string;
+  icon?: "lightbulb" | "target" | "trending" | "users";
 }
 
 interface RecommendationCardsProps {
-  recommendations: Recommendation[];
+  recommendations: Recommendation[] | String[];
   sectionTitle?: string;
 }
 
@@ -52,7 +52,7 @@ export const RecommendationCards = ({
       
       <div className="grid grid-cols-1 gap-3">
         {recommendations.map((rec, index) => {
-          const Icon = iconMap[rec.icon];
+          const Icon = iconMap[defaultRecommendations[index % 4].icon];
           return (
             <div
               key={index}
@@ -69,10 +69,10 @@ export const RecommendationCards = ({
                     </div>
                     <div className="flex-1 min-w-0">
                       <h5 className="font-medium text-foreground text-sm mb-1">
-                        {rec.title}
+                        {rec?.title || ''}
                       </h5>
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        {rec.description}
+                        {rec?.description || rec}
                       </p>
                     </div>
                   </div>

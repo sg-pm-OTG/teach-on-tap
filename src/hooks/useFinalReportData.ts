@@ -65,7 +65,8 @@ export const useFinalReportData = () => {
         .select("*")
         .eq("user_id", user?.id)
         .eq("status", "completed")
-        .order("session_date", { ascending: true });
+        .order("session_date", { ascending: true })
+        .limit(4);
 
       if (error) throw error;
       return data;
@@ -78,24 +79,17 @@ export const useFinalReportData = () => {
     queryKey: ["final-report-reports", user?.id],
     queryFn: async () => {
       const token = await getAccessToken();
-      const allSession = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/v1/analyze/sessions`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          timeout: 30_000,
-        }
-      );
-
       const rawData = await Promise.all(
-        allSession.data.data.map(async (item: any) => {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/v1/analyze/result?session_id=${item.session_id}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-            timeout: 30_000,
-          }
-        );
-        return res.data;
+        sessions.filter((item: any) => !item.is_baseline)
+          .map(async (item: any) => {
+          const res = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/v1/analyze/result?session_id=${item.id}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              timeout: 30_000,
+            }
+          );
+          return res.data
       }));
 
       const data = rawData.map((itemData: any) => {
@@ -220,7 +214,8 @@ export const useFinalReportData = () => {
         .from("session_surveys")
         .select("*, sessions!inner(session_date, is_baseline)")
         .eq("user_id", user?.id)
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: true })
+        .limit(3);
 
       if (error) throw error;
       return data;
@@ -265,17 +260,17 @@ export const useFinalReportData = () => {
     let regularSessionNumber = 0;
     return sessions.map((session) => {
       if (!session.is_baseline) regularSessionNumber++;
-      
+      const duration = sessionReports?.find(item => item.session_id === session.id)?.totalTime / 60;
       return {
         sessionNumber: session.is_baseline ? 0 : regularSessionNumber,
         course: session.use_site || "Session",
         date: session.session_date,
         format: session.session_type === "Online Lesson" ? "Virtual" : "In-person",
-        durationMinutes: 45, // Default, could be calculated from audio if available
+        durationMinutes: Number.isFinite(duration) ? Number(duration.toFixed(2)) : 0, // Ensure number type
         isBaseline: session.is_baseline,
       };
     });
-  }, [sessions]);
+  }, [sessions, sessionReports]);
 
   // Process scenario scores across sessions
   const scenarioScoreProgression = useMemo<ScoreDataPoint[]>(() => {
@@ -375,6 +370,43 @@ export const useFinalReportData = () => {
     }
 
     return null;
+  }, [sessionReports]);
+
+  // All interactions
+  const allSpeakerInteractions = useMemo(() => {
+    if (!sessionReports || sessionReports.length === 0) return null;
+
+    const nonBaselineReports = sessionReports.filter(
+      (r: any) => !r.sessions?.is_baseline
+    );
+
+    const all = nonBaselineReports?.map((nonBaselineReport) => {
+      const item = nonBaselineReport;
+
+      if (!item?.speaker_interactions) return null;
+
+      const rawInteractions = item.speaker_interactions as any[];
+      
+      // Check if it's already a 2D matrix or needs transformation
+      if (Array.isArray(rawInteractions) && rawInteractions.length > 0) {
+        // If it's an array of objects with 'from' and 'interactions' keys, transform it
+        if (rawInteractions[0]?.from !== undefined && rawInteractions[0]?.interactions !== undefined) {
+          const speakers = (item.speakers as any[])?.map((s: any) => s.name || s.label) || [];
+          const matrix = rawInteractions.map((speaker: any) => 
+            speaker.interactions.map((interaction: any) => interaction.count || 0)
+          );
+          return { interactions: matrix, speakers };
+        }
+        // If it's already a 2D matrix, use as-is
+        if (Array.isArray(rawInteractions[0])) {
+          const speakers = (item.speakers as any[])?.map((s: any) => s.name || s.label) || [];
+          return { interactions: rawInteractions as number[][], speakers };
+        }
+      }
+
+      return null;
+    })
+    return all;
   }, [sessionReports]);
 
   // Process survey comparisons (Learning Beliefs only for post-survey)
@@ -491,7 +523,87 @@ export const useFinalReportData = () => {
     };
   }, [sessions, sessionReports]);
 
-  const isLoading = sessionsLoading || reportsLoading || surveysLoading || preLoading || postLoading;
+  // fetch data from API
+  const { data: finalReportApi, isLoading: finalReportApiLoading } = useQuery({
+    queryKey: ["final-report", user?.id],
+    queryFn: async () => {
+      const token = await getAccessToken();
+      try {
+        // 1️⃣ GET report
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/v1/analyze/final-report`,
+          {
+            params: { report_id: user.id },
+            headers: { Authorization: `Bearer ${token}` },
+            timeout: 30_000,
+          }
+        );
+
+        return res.data;
+      } catch (error: any) {
+        // Mock data body
+        try {
+          if (axios.isAxiosError(error) && error.response?.status === 404) {
+            await axios.post(
+              `${import.meta.env.VITE_API_URL}/api/v1/analyze/final-report`,
+              {
+                "user_profile": {
+                  "name": user.user_metadata.name, 
+                  "job_context": {
+                    "autonomy_level": "Low", 
+                    "support_level": "High",
+                    "description": ""
+                  },
+  
+                  "pedagogical_beliefs": {
+                    "pre_survey": {
+                      "acquisition": 	2.67, 
+                      "participation": 200
+                    },
+                    "post_survey": {
+                      "acquisition": 4.5,
+                      "participation": 5.0
+                    }
+                  },
+  
+                  "learning_profile": {
+                    "deep_learning": 5.0,
+                    "skills_mastery": 5.0,
+                    "internal_motivation": 5.0
+                  }
+                },
+                "session_ids": sessions.filter(item => !item.is_baseline).map(item => item.id)
+              },
+              {
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: 30_000,
+              }
+            );
+  
+            return { status: "processing" };
+          }
+          
+        } catch (error) {
+          console.log(error)
+          throw error;
+        }
+      }
+    },
+
+    enabled: !!user?.id,
+
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      return status === "processing" ? 2000 : false;
+    },
+
+    retry: false,
+  });
+  
+  const finalReportData = finalReportApi?.data;
+  const processFinalReport = finalReportApi?.status;
+
+  const isLoading = sessionsLoading || reportsLoading || surveysLoading || preLoading || postLoading || finalReportApiLoading || processFinalReport === 'processing';
 
   return {
     isLoading,
@@ -505,5 +617,8 @@ export const useFinalReportData = () => {
     difficultyProgression,
     summaryStats,
     sessionReports,
+    finalReportData,
+    allSpeakerInteractions,
+    processFinalReport,
   };
 };
