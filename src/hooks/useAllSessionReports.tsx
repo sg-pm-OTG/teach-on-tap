@@ -25,6 +25,7 @@ interface Theme {
   icon: string;
   accentColor: string;
   bullets: string[];
+  description: string;
 }
 
 interface AnalysisItem {
@@ -36,7 +37,7 @@ interface AnalysisItem {
     quote: string;
     observation: string;
     opportunity: string;
-  };
+  }[];
 }
 
 interface ScenarioContent {
@@ -60,6 +61,7 @@ interface RawSpeaker {
 interface RawTheme {
   title: string;
   description: string;
+  keyPoints: string[];
 }
 
 interface RawScenarioContent {
@@ -73,6 +75,12 @@ interface RawAnalysisItem {
   rating: number;
   summary: string;
   details: string;
+  opportunity?: {
+    speaker: string;
+    quote: string;
+    observation: string;
+    opportunity: string;
+  }[];
 }
 
 interface RawFinalSummary {
@@ -183,6 +191,12 @@ export const useAllSessionReports = () => {
           marker: item.markerTitle,
           rating: item.score,
           details: item.detailedReasoning?.analysis,
+          opportunity: item.missed_oppo.map((oppo) => ({
+            speaker: oppo.speaker,
+            quote: oppo.context,
+            observation: oppo.opportunity,
+            opportunity: oppo.suggested_intervention,
+          }))
         }));
 
         // const speaker_map = itemData.data.speaker_map.map((item: any) => );
@@ -203,7 +217,8 @@ export const useAllSessionReports = () => {
 
         const themes = itemData.data.trainer_check_parsed.lesson_analysis.main_discussion_themes.map(item => ({
           title: item.theme,
-          description: item.description
+          description: item.description,
+          keyPoints: item.key_points,
         }));
 
         const conclusions = itemData.data.trainer_check_parsed.lesson_analysis.overall_conclusions;
@@ -325,6 +340,12 @@ export const useAllSessionReports = () => {
             marker: item.markerTitle,
             rating: item.score,
             details: item.detailedReasoning?.analysis,
+            opportunity: item.missed_oppo.map((oppo) => ({
+              speaker: oppo.speaker,
+              quote: oppo.context,
+              observation: oppo.opportunity,
+              opportunity: oppo.suggested_intervention,
+            }))
           }));
 
           let participant = 1;
@@ -461,7 +482,8 @@ export const useAllSessionReports = () => {
         title: t.title,
         icon: themeIcons[index % themeIcons.length],
         accentColor: themeColors[index % themeColors.length],
-        bullets: [t.description],
+        bullets: t.keyPoints,
+        description: t.description
       }));
 
       // Conclusions is already string[]
@@ -504,6 +526,7 @@ export const useAllSessionReports = () => {
         title: a.marker,
         score: a.rating,
         content: `${a.details}`,
+        opportunity: a.opportunity,
       }));
 
       // Transform final summary: object -> string[]
@@ -611,7 +634,8 @@ export const useAllSessionReports = () => {
       title: t.title,
       icon: themeIcons[index % themeIcons.length],
       accentColor: themeColors[index % themeColors.length],
-      bullets: [t.description],
+      bullets: t.keyPoints,
+      description: t.description,
     }));
 
     const conclusions = rawBaselineReport.conclusions as unknown as string[];
@@ -657,6 +681,7 @@ export const useAllSessionReports = () => {
       title: a.marker,
       score: a.rating,
       content: `${a.details}`,
+      opportunity: a.opportunity
     }));
 
     // Transform final summary

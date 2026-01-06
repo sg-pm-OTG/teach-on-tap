@@ -449,14 +449,14 @@ const Reports = () => {
                 <CollapsibleSection key={item.title} title={item.title} score={item.score}>
                   <div className="space-y-3">
                     <p className="text-sm text-muted-foreground leading-relaxed">{item.content}</p>
-                    {item.opportunity && (
+                    {item.opportunity ? item.opportunity.map((oppo: any) => (
                       <OpportunityCallout
-                        speaker={item.opportunity.speaker}
-                        quote={item.opportunity.quote}
-                        observation={item.opportunity.observation}
-                        opportunity={item.opportunity.opportunity}
+                        speaker={oppo.speaker}
+                        quote={oppo.quote}
+                        observation={oppo.observation}
+                        opportunity={oppo.opportunity}
                       />
-                    )}
+                    )) : ''}
                   </div>
                 </CollapsibleSection>
               ))}
