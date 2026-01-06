@@ -32,6 +32,8 @@ import { EaseOfUseSection } from "@/components/final-report/EaseOfUseSection";
 import { BeliefsShiftSection } from "@/components/final-report/BeliefsShiftSection";
 import { LearningOrientationSection } from "@/components/final-report/LearningOrientationSection";
 import { WhatsNextSection } from "@/components/final-report/WhatsNextSection";
+import PdfExportFinalReport from "@/components/final-report/TemplateExportFinalReport";
+import { useAuth } from "@/components/AuthProvider";
 
 const FinalReport = () => {
   const navigate = useNavigate();
@@ -47,7 +49,10 @@ const FinalReport = () => {
     orientationComparisons,
     difficultyProgression,
     summaryStats,
+    finalReportData,
+    allSpeakerInteractions,
   } = useFinalReportData();
+  const { user } = useAuth();
 
   if (isLoading) {
     return (
@@ -136,18 +141,7 @@ const FinalReport = () => {
               <div className="mt-4">
                 <RecommendationCards 
                   sectionTitle="Scenario Recommendations"
-                  recommendations={[
-                    {
-                      title: "Leverage Complex Scenarios",
-                      description: "Your progress shows readiness for more challenging scenario designs that push learners to consider multiple futures.",
-                      icon: "lightbulb",
-                    },
-                    {
-                      title: "Build on Strengths",
-                      description: "Continue developing the markers where you've shown the most growth for even deeper impact.",
-                      icon: "trending",
-                    },
-                  ]}
+                  recommendations={finalReportData?.marker_level_insights?.emergent_scenarios}
                 />
               </div>
             </AccordionContent>
@@ -176,18 +170,7 @@ const FinalReport = () => {
               <div className="mt-4">
                 <RecommendationCards 
                   sectionTitle="Dialogue Recommendations"
-                  recommendations={[
-                    {
-                      title: "Deepen Question Quality",
-                      description: "Focus on asking questions that invite deeper reflection and exploration of possibilities.",
-                      icon: "target",
-                    },
-                    {
-                      title: "Foster Peer Learning",
-                      description: "Create more opportunities for participants to build on each other's ideas.",
-                      icon: "users",
-                    },
-                  ]}
+                  recommendations={finalReportData?.marker_level_insights?.generative_dialogue}
                 />
               </div>
             </AccordionContent>
@@ -264,6 +247,7 @@ const FinalReport = () => {
               <WhatsNextSection 
                 launchHuddleDate={progress.launchHuddleDate}
                 launchHuddleLocation={progress.launchHuddleLocation}
+                content={finalReportData?.recommendations}
               />
             </AccordionContent>
           </AccordionItem>
@@ -271,6 +255,19 @@ const FinalReport = () => {
 
         {/* Actions */}
         <div className="space-y-3 pt-2">
+          {
+            !isLoading &&        
+            <PdfExportFinalReport
+              user={user.user_metadata.name}
+              exportData={finalReportData}
+              journeyTimeline={journeyTimeline.filter(item => !item.isBaseline)}
+              talkTimeBySession={talkTimeBySession}
+              scenarioScoreProgression={scenarioScoreProgression}
+              dialogueScoreProgression={dialogueScoreProgression}
+              allSpeakerInteractions={allSpeakerInteractions}
+              difficultyProgression={difficultyProgression}
+            />
+          }
           <Button
             variant="outline"
             className="w-full"
