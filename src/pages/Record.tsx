@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
 import { Waveform } from "@/components/Waveform";
-import { Mic, Square, CheckCircle, ArrowRight, ArrowLeft, AlertCircle, Sparkles, Target, Upload, FileAudio, X, Play, Pause, Loader2, BellOff } from "lucide-react";
+import { Mic, Square, CheckCircle, ArrowRight, ArrowLeft, AlertCircle, Sparkles, Target, Upload, FileAudio, X, Play, Pause, Loader2, BellOff, AlertTriangle } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -655,6 +655,25 @@ const Record = () => {
                       <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
                         Swipe down from the top of your screen and tap the Do Not Disturb icon to prevent interruptions.
                       </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Avoid Disruptions Warning */}
+                <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 border border-red-200 dark:border-red-800/50">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-red-800 dark:text-red-200 mb-1">
+                        Avoid During Recording
+                      </p>
+                      <ul className="text-xs text-red-700 dark:text-red-300 space-y-1">
+                        <li>• Do not switch away from this app</li>
+                        <li>• Do not lock your screen or let it sleep</li>
+                        <li>• Do not answer phone calls</li>
+                        <li>• Do not close or kill the browser/app</li>
+                        <li>• Keep your device plugged in if possible</li>
+                      </ul>
                     </div>
                   </div>
                 </div>
