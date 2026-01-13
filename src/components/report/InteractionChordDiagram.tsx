@@ -66,6 +66,38 @@ export const InteractionChordDiagram = ({ interactions, labels, bare = false }: 
     return { x, y, angle };
   };
 
+  const polar = (r: number, a: number) => [
+    Math.sin(a) * r,
+    -Math.cos(a) * r,
+  ];
+
+  const ribbonWithArrow = (c: any, r0: number) => {
+    const { source, target } = c;
+    const arrowLength = 5; 
+    const rBase = r0 - arrowLength; 
+
+    const sa0 = source.startAngle, sa1 = source.endAngle;
+    const ta0 = target.startAngle, ta1 = target.endAngle;
+    const taMid = (ta0 + ta1) / 2;
+
+    const [sx0, sy0] = polar(r0, sa0);
+    const [sx1, sy1] = polar(r0, sa1);
+
+    const [tb0x, tb0y] = polar(rBase, ta0);
+    const [tb1x, tb1y] = polar(rBase, ta1);
+    const [tipX, tipY] = polar(r0, taMid);
+
+    return `
+      M ${sx0},${sy0}
+      A ${r0},${r0} 0 0,1 ${sx1},${sy1}
+      Q 0,0 ${tb0x},${tb0y}
+      L ${tipX},${tipY}
+      L ${tb1x},${tb1y}
+      Q 0,0 ${sx0},${sy0}
+      Z
+    `;
+  };
+
   const svgContent = (
     <div className="flex justify-center">
       <svg width={size} height={size} viewBox={`${-size/2} ${-size/2} ${size} ${size}`}>
@@ -146,7 +178,7 @@ export const InteractionChordDiagram = ({ interactions, labels, bare = false }: 
           return (
             <path
               key={`ribbon-${i}`}
-              d={pathData}
+              d={ribbonWithArrow(chordItem, innerRadius)}
               fill={sourceColor}
               stroke={sourceColor}
               strokeWidth={isHighlighted ? 0.5 : 0}
