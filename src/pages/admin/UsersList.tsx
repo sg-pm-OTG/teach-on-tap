@@ -28,6 +28,7 @@ interface UserProfile {
   id: string;
   user_id: string;
   name: string;
+  email?: string;
   date_of_birth: string;
   gender: string;
   years_teaching_experience: number;
@@ -51,30 +52,14 @@ const UsersList = () => {
   const { data: users, isLoading } = useQuery({
     queryKey: ["admin-users-list"],
     queryFn: async () => {
-      const { data: profiles, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      // Get session counts for each user
-      const profilesWithCounts = await Promise.all(
-        (profiles || []).map(async (profile) => {
-          const { count } = await supabase
-            .from("sessions")
-            .select("*", { count: "exact", head: true })
-            .eq("user_id", profile.user_id)
-            .eq("is_baseline", false);
-
-          return {
-            ...profile,
-            sessions_count: count || 0,
-          };
-        })
-      );
-
-      return profilesWithCounts as UserProfile[];
+      const { data: session } = await supabase.auth.getSession();
+      const response = await supabase.functions.invoke("admin-list-all-users", {
+        headers: {
+          Authorization: `Bearer ${session?.session?.access_token}`,
+        },
+      });
+      if (response.error) throw response.error;
+      return response.data.users as UserProfile[];
     },
   });
 
@@ -84,7 +69,8 @@ const UsersList = () => {
       const searchLower = search.toLowerCase();
       if (
         !user.name.toLowerCase().includes(searchLower) &&
-        !user.user_id.toLowerCase().includes(searchLower)
+        !user.user_id.toLowerCase().includes(searchLower) &&
+        !(user.email?.toLowerCase().includes(searchLower))
       ) {
         return false;
       }
@@ -182,6 +168,7 @@ const UsersList = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
                     <TableHead>Experience</TableHead>
                     <TableHead>Sessions</TableHead>
                     <TableHead>Progress</TableHead>
@@ -198,6 +185,9 @@ const UsersList = () => {
                     >
                       <TableCell>
                         <div className="font-medium">{user.name}</div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-sm">
+                        {user.email || "—"}
                       </TableCell>
                       <TableCell>
                         {user.years_teaching_experience} years
@@ -239,7 +229,7 @@ const UsersList = () => {
                   ))}
                   {filteredUsers?.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                         No users found
                       </TableCell>
                     </TableRow>
