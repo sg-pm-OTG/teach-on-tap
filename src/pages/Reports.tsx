@@ -5,7 +5,7 @@ import { HeroSessionCard } from "@/components/report/HeroSessionCard";
 import { ThemeCard } from "@/components/report/ThemeCard";
 import { ConclusionCard } from "@/components/report/ConclusionCard";
 import { TalkTimeBar } from "@/components/report/TalkTimeBar";
-import { TalkTimePieChart } from "@/components/report/TalkTimePieChart";
+
 import { InteractionChordDiagram } from "@/components/report/InteractionChordDiagram";
 import { ScenarioCard } from "@/components/report/ScenarioCard";
 import { ScoreRadarChart } from "@/components/report/ScoreRadarChart";
@@ -316,10 +316,6 @@ const Reports = () => {
 
           <SectionDivider title="Structural Analysis" />
 
-          {/* Talk Time Distribution - Pie Chart */}
-          <div className="animate-slide-in-up">
-            <TalkTimePieChart data={transformedTalkTimeData} />
-          </div>
 
           {/* Talk Time Bars */}
           <div className="bg-card rounded-xl border border-border p-4 space-y-3 animate-slide-in-up">
