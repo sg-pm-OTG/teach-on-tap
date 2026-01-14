@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Save, Trash2, Key, Mail } from "lucide-react";
+import { Loader2, Save, Trash2, Key, Mail, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -41,6 +41,10 @@ export const UserProfileTab = ({ profile, userId }: UserProfileTabProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showSetPasswordDialog, setShowSetPasswordDialog] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isSettingPassword, setIsSettingPassword] = useState(false);
 
   // Fetch user email from auth
   const { data: authData, isLoading: isLoadingEmail } = useQuery({
@@ -115,7 +119,38 @@ export const UserProfileTab = ({ profile, userId }: UserProfileTabProps) => {
     } catch (error: any) {
       toast.error(error.message || "Failed to send reset email");
     } finally {
-      setIsResetting(false);
+    setIsResetting(false);
+    }
+  };
+
+  const handleSetPassword = async () => {
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    setIsSettingPassword(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-set-password", {
+        body: { userId, newPassword },
+      });
+
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+
+      toast.success("Password updated successfully");
+      setShowSetPasswordDialog(false);
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to set password");
+    } finally {
+      setIsSettingPassword(false);
     }
   };
 
@@ -248,6 +283,15 @@ export const UserProfileTab = ({ profile, userId }: UserProfileTabProps) => {
             </Button>
 
             <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => setShowSetPasswordDialog(true)}
+            >
+              <Lock className="h-4 w-4 mr-2" />
+              Set New Password
+            </Button>
+
+            <Button
               variant="destructive"
               className="w-full justify-start"
               onClick={() => setShowDeleteDialog(true)}
@@ -283,6 +327,63 @@ export const UserProfileTab = ({ profile, userId }: UserProfileTabProps) => {
                 </>
               ) : (
                 "Delete User"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showSetPasswordDialog} onOpenChange={setShowSetPasswordDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Set New Password</AlertDialogTitle>
+            <AlertDialogDescription>
+              Enter a new password for this user. The password must be at least 6 characters.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="new-password">New Password</Label>
+              <Input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm Password</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new password"
+              />
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel 
+              disabled={isSettingPassword}
+              onClick={() => {
+                setNewPassword("");
+                setConfirmPassword("");
+              }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleSetPassword}
+              disabled={isSettingPassword || !newPassword || !confirmPassword}
+            >
+              {isSettingPassword ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Setting...
+                </>
+              ) : (
+                "Set Password"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

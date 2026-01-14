@@ -17,3 +17,12 @@ verify_jwt = true
 
 [functions.admin-bootstrap]
 verify_jwt = false
+
+[functions.admin-set-password]
+verify_jwt = true
+
+[functions.admin-get-user-email]
+verify_jwt = true
+
+[functions.admin-list-all-users]
+verify_jwt = true
