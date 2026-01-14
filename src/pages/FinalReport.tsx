@@ -258,7 +258,7 @@ const FinalReport = () => {
           {
             !isLoading &&        
             <PdfExportFinalReport
-              user={user.user_metadata.name}
+              user={user?.user_metadata?.name || "User"}
               exportData={finalReportData}
               journeyTimeline={journeyTimeline.filter(item => !item.isBaseline)}
               talkTimeBySession={talkTimeBySession}

@@ -76,8 +76,10 @@ export const useFinalReportData = () => {
 
   // Fetch all session reports
   const { data: sessionReports, isLoading: reportsLoading } = useQuery({
-    queryKey: ["final-report-reports", user?.id],
+    queryKey: ["final-report-reports", user?.id, sessions?.length],
     queryFn: async () => {
+      if (!sessions || sessions.length === 0) return [];
+      
       const token = await getAccessToken();
       const rawData = await Promise.all(
         sessions.filter((item: any) => !item.is_baseline)
@@ -94,35 +96,37 @@ export const useFinalReportData = () => {
 
       const data = rawData.map((itemData: any) => {
         try{
-          const scenario_scores = itemData.data.es_data.markers.map(item => ({
+          if (!itemData?.data) return null;
+          
+          const scenario_scores = itemData.data.es_data?.markers?.map(item => ({
             label: item.markerTitle,
             score: item.score
-          }));
+          })) || [];
 
-          const dialogue_scores = itemData.data.gd_data.markers.map(item => ({
+          const dialogue_scores = itemData.data.gd_data?.markers?.map(item => ({
             label: item.markerTitle,
             score: item.score
-          }));
+          })) || [];
 
-          const scenario_analysis = itemData.data.es_data.markers.map(item => ({
+          const scenario_analysis = itemData.data.es_data?.markers?.map(item => ({
             marker: item.markerTitle,
             rating: item.score,
             details: item.detailedReasoning?.analysis,
-          }));
+          })) || [];
 
-          const dialogue_analysis = itemData.data.gd_data.markers.map(item => ({
+          const dialogue_analysis = itemData.data.gd_data?.markers?.map(item => ({
             marker: item.markerTitle,
             rating: item.score,
             details: item.detailedReasoning?.analysis,
-          }));
+          })) || [];
 
           // const speaker_map = itemData.data.speaker_map.map((item: any) => );
           let participant = 1;
-          const speaker_map = Object.fromEntries(Object.entries(itemData.data.speaker_map).map(
+          const speaker_map = Object.fromEntries(Object.entries(itemData.data.speaker_map || {}).map(
             ([key, value]) => [key, value === 'Facilitator' ? value : `Participant ${participant++}`]
           ));
 
-          const talk_time_data = itemData.data.talk_time_data.map(item => {
+          const talk_time_data = (itemData.data.talk_time_data || []).map(item => {
             const speakerName = speaker_map[item.speaker];
 
 
@@ -132,14 +136,14 @@ export const useFinalReportData = () => {
             };
           });
 
-          const themes = itemData.data.trainer_check_parsed.lesson_analysis.main_discussion_themes.map(item => ({
+          const themes = (itemData.data.trainer_check_parsed?.lesson_analysis?.main_discussion_themes || []).map(item => ({
             title: item.theme,
             description: item.description
           }));
 
-          const conclusions = itemData.data.trainer_check_parsed.lesson_analysis.overall_conclusions;
+          const conclusions = itemData.data.trainer_check_parsed?.lesson_analysis?.overall_conclusions || [];
 
-          const speaker_interactions = itemData.data.speaker_interaction_matrix.map((row: any, index: number) => {
+          const speaker_interactions = (itemData.data.speaker_interaction_matrix || []).map((row: any, index: number) => {
             const keys = Object.keys(row);
             const fromKey = keys[index];
 
@@ -153,34 +157,34 @@ export const useFinalReportData = () => {
             };
           });
 
-          const speakers = itemData.data.trainer_check_parsed.lesson_analysis.speaker_details.map(item => ({
+          const speakers = (itemData.data.trainer_check_parsed?.lesson_analysis?.speaker_details || []).map(item => ({
             name: speaker_map[item.speaker_id],
             description: item.ai_description,
           }))      
 
           const scenario_content = {
-            title: itemData.data.session.use_site,
-            description: itemData.data.es_data.summary.keyInsights,
+            title: itemData.data.session?.use_site,
+            description: itemData.data.es_data?.summary?.keyInsights || [],
             // context: itemData.data.session.emergent_scenario,
           }
 
           const final_summary = {
-            keyInsights: [...itemData.data.es_data.summary.keyInsights, ...itemData.data.gd_data.summary.keyInsights],
-            recommendation: [...itemData.data.es_data.summary.recommendations, ...itemData.data.gd_data.summary.recommendations],
+            keyInsights: [...(itemData.data.es_data?.summary?.keyInsights || []), ...(itemData.data.gd_data?.summary?.keyInsights || [])],
+            recommendation: [...(itemData.data.es_data?.summary?.recommendations || []), ...(itemData.data.gd_data?.summary?.recommendations || [])],
           }
 
           return {
-            session_id: itemData.data.session.id,
+            session_id: itemData.data.session?.id,
             session: itemData.data.session,
-            sessionDate: itemData.data.session.session_date,
-            sessionType: itemData.data.session.session_type,
-            participants: itemData.data.session.number_of_participants,
-            createdAt: itemData.data.session.created_at,
+            sessionDate: itemData.data.session?.session_date,
+            sessionType: itemData.data.session?.session_type,
+            participants: itemData.data.session?.number_of_participants,
+            createdAt: itemData.data.session?.created_at,
             totalTime: itemData.data.total_time,
-            audioFileUrl: itemData.data.session.audio_file_url,
+            audioFileUrl: itemData.data.session?.audio_file_url,
             transcript: itemData.data.speaker_data,
-            user_id: user.id,
-            isBaseline: itemData.data.session.is_baseline || false,
+            user_id: user?.id,
+            isBaseline: itemData.data.session?.is_baseline || false,
             scenario_scores, 
             dialogue_scores,
             scenario_analysis,
@@ -192,18 +196,18 @@ export const useFinalReportData = () => {
             speakers,
             scenario_content,
             final_summary,
-            es_summary: itemData.data.es_data.summary, 
-            gd_summary: itemData.data.gd_data.summary,
+            es_summary: itemData.data.es_data?.summary, 
+            gd_summary: itemData.data.gd_data?.summary,
           }
         } catch (err) {
           console.error('Error at item index:', err, itemData);
           return null;
         }
-      });
+      }).filter(Boolean);
 
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!sessions && sessions.length > 0,
   });
 
   // Fetch session surveys for difficulty data
@@ -525,15 +529,17 @@ export const useFinalReportData = () => {
 
   // fetch data from API
   const { data: finalReportApi, isLoading: finalReportApiLoading } = useQuery({
-    queryKey: ["final-report", user?.id],
+    queryKey: ["final-report", user?.id, sessions?.length],
     queryFn: async () => {
+      if (!sessions || sessions.length === 0) return null;
+      
       const token = await getAccessToken();
       try {
         // 1️⃣ GET report
         const res = await axios.get(
           `${import.meta.env.VITE_API_URL}/api/v1/analyze/final-report`,
           {
-            params: { report_id: user.id },
+            params: { report_id: user?.id },
             headers: { Authorization: `Bearer ${token}` },
             timeout: 30_000,
           }
@@ -548,7 +554,7 @@ export const useFinalReportData = () => {
               `${import.meta.env.VITE_API_URL}/api/v1/analyze/final-report`,
               {
                 "user_profile": {
-                  "name": user.user_metadata.name, 
+                  "name": user?.user_metadata?.name || "User", 
                   "job_context": {
                     "autonomy_level": "Low", 
                     "support_level": "High",
@@ -572,7 +578,7 @@ export const useFinalReportData = () => {
                     "internal_motivation": 5.0
                   }
                 },
-                "session_ids": sessions.filter(item => !item.is_baseline).map(item => item.id)
+                "session_ids": sessions?.filter(item => !item.is_baseline).map(item => item.id) || []
               },
               {
                 headers: { Authorization: `Bearer ${token}` },
@@ -590,7 +596,7 @@ export const useFinalReportData = () => {
       }
     },
 
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!sessions && sessions.length > 0,
 
     refetchInterval: (query) => {
       const status = query.state.data?.status;
