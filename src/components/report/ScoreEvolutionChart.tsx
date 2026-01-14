@@ -246,8 +246,8 @@ export const ScoreEvolutionChart = ({
       {/* Tab switcher */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "scenario" | "dialogue")} className="mb-3">
         <TabsList className="grid w-full grid-cols-2 h-8">
-          <TabsTrigger value="scenario" className="text-xs">Scenario</TabsTrigger>
-          <TabsTrigger value="dialogue" className="text-xs">Dialogue</TabsTrigger>
+          <TabsTrigger value="scenario" className="text-xs">Emergent Scenario</TabsTrigger>
+          <TabsTrigger value="dialogue" className="text-xs">Generative Dialogue</TabsTrigger>
         </TabsList>
       </Tabs>
 

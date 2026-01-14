@@ -139,6 +139,7 @@ const PreSurveyQuestions = () => {
             section={currentCategory.section}
             sectionName={currentCategory.sectionName}
             questionOffset={getQuestionOffset(currentCategoryIndex)}
+            categoryCode={currentCategory.code}
           />
         </div>
       </div>

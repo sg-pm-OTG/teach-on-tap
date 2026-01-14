@@ -10,9 +10,22 @@ interface CategoryQuestionGroupProps {
   section?: string;
   sectionName?: string;
   questionOffset?: number;
+  categoryCode?: string;
 }
 
-const getSectionInstruction = (section: string): string => {
+const getSectionInstruction = (section: string, categoryCode?: string): string => {
+  // Category-specific instructions for Section C
+  if (categoryCode === "C4") {
+    return "In my adult training job/work, I personally have influence on …";
+  }
+  if (categoryCode === "C5") {
+    return "For the professional development activities you participated in during the last 12 months, to what extent do you agree with the following statements?";
+  }
+  if (categoryCode === "C6") {
+    return "How do you expect your career in relation to adult training to progress in the next 1-3 years?";
+  }
+  
+  // Default section-level instructions
   switch (section) {
     case "A":
       return "Reflecting on how you approach learning design and facilitation, to what extent do you agree with the following statements?";
@@ -33,6 +46,7 @@ export const CategoryQuestionGroup = ({
   section,
   sectionName,
   questionOffset = 0,
+  categoryCode,
 }: CategoryQuestionGroupProps) => {
   return (
     <div className="space-y-6">
@@ -40,7 +54,7 @@ export const CategoryQuestionGroup = ({
       {section && (
         <div className="mb-6">
           <p className="text-sm text-muted-foreground leading-relaxed">
-            {getSectionInstruction(section)}
+            {getSectionInstruction(section, categoryCode)}
           </p>
         </div>
       )}

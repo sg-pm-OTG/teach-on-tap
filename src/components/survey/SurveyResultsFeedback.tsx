@@ -21,7 +21,7 @@ export const SurveyResultsFeedback = ({ surveyData, onContinue, isProcessing = f
         Thank You!
       </h2>
       <p className="text-muted-foreground text-center mb-6">
-        Your feedback has been recorded.
+        Your session reflection has been noted.
       </p>
 
       {surveyData.practiceDifficulty && (
