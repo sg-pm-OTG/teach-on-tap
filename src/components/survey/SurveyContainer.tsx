@@ -27,7 +27,7 @@ export const SurveyContainer = ({ onComplete, sessionId }: SurveyContainerProps)
   return (
     <div className="w-full space-y-6 pb-6">
       <DifficultyScale
-        title="How difficult was it to practice FOP?"
+        title="How easy or difficult was it to practise FOP in the session you just submitted for analysis?"
         options={DIFFICULTY_SCALE}
         selected={surveyData.practiceDifficulty}
         onChange={(value) => updateSurveyData({ practiceDifficulty: value })}
