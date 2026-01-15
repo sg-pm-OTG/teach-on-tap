@@ -2,13 +2,15 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CheckCircle2, Sparkles, FileText, Users, Heart, PartyPopper } from "lucide-react";
+import { CheckCircle2, Sparkles, FileText, Users, Heart, PartyPopper, Loader2 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import alcLogo from "@/assets/alc-logo.png";
+import { useFinalReportData } from "@/hooks/useFinalReportData";
 
 const PostSurveyResults = () => {
   const navigate = useNavigate();
   const { refetch: refetchProfile } = useProfile();
+  const {isLoading, processFinalReport} = useFinalReportData();  
 
   useEffect(() => {
     // Refetch profile to get updated post_survey_completed status
@@ -16,6 +18,11 @@ const PostSurveyResults = () => {
   }, []);
 
   return (
+    isLoading || processFinalReport === 'processing' ? (
+      <div className="fixed inset-0 flex items-center justify-center z-50">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    ) :
     <div className="min-h-screen min-h-[100dvh] flex flex-col bg-gradient-to-b from-secondary/10 via-primary/5 to-background pt-[max(env(safe-area-inset-top),24px)] pb-[env(safe-area-inset-bottom)]">
       {/* Header - Celebration */}
       <div className="pt-6 pb-4 px-6 text-center">
