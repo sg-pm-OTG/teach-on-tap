@@ -32,6 +32,7 @@ export const useAudioRecorder = (): UseAudioRecorderReturn => {
   const isStoppingRef = useRef<boolean>(false);
   const tempIdRef = useRef<string | null>(null);
   const finalChunkSentRef = useRef(false);
+  const sessionSentRef = useRef(false);
 
   const getAccessToken = async (): Promise<string> => {
     const { data, error } = await supabase.auth.getSession();
@@ -44,17 +45,19 @@ export const useAudioRecorder = (): UseAudioRecorderReturn => {
   };
 
   const uploadChunk = async (blob: Blob, index: number, sessionId: string, isFinal: boolean) => {
+
     const formData = new FormData();
     formData.append("session_id", sessionId);
     formData.append("index", String(index));
     formData.append("is_final", isFinal ? '1' : '0');
     formData.append("audio_chunk_file", blob, `chunk-${sessionId}-${index}.webm`);
-    formData.append('upload_mode', 'stream')
+    formData.append("upload_mode", 'stream')
 
-    if (tempIdRef.current) {
+    if (!sessionSentRef.current) {
       formData.append("temp_id", tempIdRef.current);
       const { data, error } = await supabase.from("sessions").select("*").eq("id", sessionId).single();
       formData.append("session", JSON.stringify(data));
+      sessionSentRef.current = true;
 
       if (error) {
         console.error("Error fetching session:", error);
@@ -104,6 +107,8 @@ export const useAudioRecorder = (): UseAudioRecorderReturn => {
 
         if (isFinal) {
           finalChunkSentRef.current = true;
+          streamRef.current?.getTracks().forEach(t => t.stop());
+          streamRef.current = null;
         }
 
         uploadQueueRef.current.shift();
@@ -152,6 +157,10 @@ export const useAudioRecorder = (): UseAudioRecorderReturn => {
         }
       };
 
+      mediaRecorder.onstop = () => {
+        processQueue(sessionId);
+      };
+
       // Start recording
       mediaRecorder.start(CHUNK_DURATION_MS); // Collect data every second
       setIsRecording(true);
@@ -182,14 +191,17 @@ export const useAudioRecorder = (): UseAudioRecorderReturn => {
     finalChunkSentRef.current = false;
 
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.requestData(); 
       mediaRecorderRef.current.stop();
     }
 
     // Stop all tracks
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
+    setTimeout(() => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+      }
+    }, 100);
 
     // Clear timer
     if (timerRef.current) {

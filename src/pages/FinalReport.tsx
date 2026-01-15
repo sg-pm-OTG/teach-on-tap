@@ -21,6 +21,7 @@ import {
   Compass,
   Rocket,
   FileText,
+  FileDown,
 } from "lucide-react";
 
 import { FinalReportCover } from "@/components/final-report/FinalReportCover";
@@ -255,19 +256,25 @@ const FinalReport = () => {
 
         {/* Actions */}
         <div className="space-y-3 pt-2">
-          {
-            !isLoading &&        
-            <PdfExportFinalReport
-              user={user?.user_metadata?.name || "User"}
-              exportData={finalReportData}
-              journeyTimeline={journeyTimeline.filter(item => !item.isBaseline)}
-              talkTimeBySession={talkTimeBySession}
-              scenarioScoreProgression={scenarioScoreProgression}
-              dialogueScoreProgression={dialogueScoreProgression}
-              allSpeakerInteractions={allSpeakerInteractions}
-              difficultyProgression={difficultyProgression}
-            />
-          }
+          <Button
+            variant="outline"
+            className="w-full relative"
+          >
+            <FileDown className="h-5 w-5 absolute left-32" />
+            {
+              !isLoading &&        
+              <PdfExportFinalReport
+                user={user.user_metadata.name}
+                exportData={finalReportData}
+                journeyTimeline={journeyTimeline.filter(item => !item.isBaseline)}
+                talkTimeBySession={talkTimeBySession}
+                scenarioScoreProgression={scenarioScoreProgression}
+                dialogueScoreProgression={dialogueScoreProgression}
+                allSpeakerInteractions={allSpeakerInteractions}
+                difficultyProgression={difficultyProgression}
+              />
+            }
+          </Button>
           <Button
             variant="outline"
             className="w-full"

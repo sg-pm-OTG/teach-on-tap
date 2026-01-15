@@ -15,8 +15,8 @@ export const ScenarioCard = ({ title, content }: ScenarioCardProps) => {
         <h3 className="font-semibold text-foreground">{title}</h3>
       </div>
       <div className="space-y-3">
-        {content.map((paragraph, index) => (
-          <p key={index} className="text-sm text-foreground leading-relaxed">
+        {content.flat().map((paragraph, index) => (
+          <p key={index} className="text-sm text-foreground leading-relaxed list-item ml-5">
             {paragraph}
           </p>
         ))}

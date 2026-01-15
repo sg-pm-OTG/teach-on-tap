@@ -45,8 +45,9 @@ interface DifficultyProgression {
   designDifficulty: string | null;
 }
 
-export const useFinalReportData = () => {
+export const useFinalReportData = (userId?: string) => {
   const { user } = useAuth();
+
   const getAccessToken = async (): Promise<string> => {
     const { data, error } = await supabase.auth.getSession();
 
@@ -58,12 +59,12 @@ export const useFinalReportData = () => {
   };
   // Fetch all sessions (including baseline)
   const { data: sessions, isLoading: sessionsLoading } = useQuery({
-    queryKey: ["final-report-sessions", user?.id],
+    queryKey: ["final-report-sessions", !userId ? user?.id : userId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sessions")
         .select("*")
-        .eq("user_id", user?.id)
+        .eq("user_id", !userId ? user?.id : userId)
         .eq("status", "completed")
         .order("session_date", { ascending: true })
         .limit(4);
@@ -71,12 +72,12 @@ export const useFinalReportData = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !userId ? !!user?.id : !!userId,
   });
 
   // Fetch all session reports
   const { data: sessionReports, isLoading: reportsLoading } = useQuery({
-    queryKey: ["final-report-reports", user?.id, sessions?.length],
+    queryKey: ["final-report-reports", !userId ? user?.id : userId],
     queryFn: async () => {
       if (!sessions || sessions.length === 0) return [];
       
@@ -84,8 +85,9 @@ export const useFinalReportData = () => {
       const rawData = await Promise.all(
         sessions.filter((item: any) => !item.is_baseline)
           .map(async (item: any) => {
+          const url = !userId ? `${import.meta.env.VITE_API_URL}/api/v1/analyze/result?session_id=${item.id}` : `${import.meta.env.VITE_API_URL}/api/v1/analyze/admin-get-result?session_id=${item.id}`;
           const res = await axios.get(
-            `${import.meta.env.VITE_API_URL}/api/v1/analyze/result?session_id=${item.id}`,
+            url,
             {
               headers: { Authorization: `Bearer ${token}` },
               timeout: 30_000,
@@ -176,15 +178,15 @@ export const useFinalReportData = () => {
           return {
             session_id: itemData.data.session?.id,
             session: itemData.data.session,
-            sessionDate: itemData.data.session?.session_date,
-            sessionType: itemData.data.session?.session_type,
-            participants: itemData.data.session?.number_of_participants,
-            createdAt: itemData.data.session?.created_at,
+            sessionDate: itemData.data.session.session_date,
+            sessionType: itemData.data.session.session_type,
+            participants: itemData.data.num_participants,
+            createdAt: itemData.data.session.created_at,
             totalTime: itemData.data.total_time,
             audioFileUrl: itemData.data.session?.audio_file_url,
             transcript: itemData.data.speaker_data,
-            user_id: user?.id,
-            isBaseline: itemData.data.session?.is_baseline || false,
+            user_id: !userId ? user.id : userId,
+            isBaseline: itemData.data.session.is_baseline || false,
             scenario_scores, 
             dialogue_scores,
             scenario_analysis,
@@ -207,54 +209,56 @@ export const useFinalReportData = () => {
 
       return data;
     },
-    enabled: !!user?.id && !!sessions && sessions.length > 0,
+    enabled: (!userId ? !!user?.id : !!userId) && !sessionsLoading &&
+      Array.isArray(sessions) &&
+      sessions.length > 0,
   });
 
   // Fetch session surveys for difficulty data
   const { data: sessionSurveys, isLoading: surveysLoading } = useQuery({
-    queryKey: ["final-report-surveys", user?.id],
+    queryKey: ["final-report-surveys", !userId ? user?.id : userId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("session_surveys")
         .select("*, sessions!inner(session_date, is_baseline)")
-        .eq("user_id", user?.id)
+        .eq("user_id", !userId ? user?.id : userId)
         .order("created_at", { ascending: true })
         .limit(3);
 
       if (error) throw error;
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !userId ? !!user?.id : !!userId,
   });
 
   // Fetch pre-survey results
   const { data: preSurveyResults, isLoading: preLoading } = useQuery({
-    queryKey: ["final-report-pre-survey", user?.id],
+    queryKey: ["final-report-pre-survey", !userId ? user?.id : userId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("pre_survey_results")
         .select("*")
-        .eq("user_id", user?.id);
+        .eq("user_id", !userId ? user?.id : userId);
 
       if (error) throw error;
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !userId ? !!user?.id : !!userId,
   });
 
   // Fetch post-survey results
   const { data: postSurveyResults, isLoading: postLoading } = useQuery({
-    queryKey: ["final-report-post-survey", user?.id],
+    queryKey: ["final-report-post-survey", !userId ? user?.id : userId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("post_survey_results")
         .select("*")
-        .eq("user_id", user?.id);
+        .eq("user_id", !userId ? user?.id : userId);
 
       if (error) throw error;
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !userId ? !!user?.id : !!userId,
   });
 
   // Process journey timeline data
@@ -529,7 +533,7 @@ export const useFinalReportData = () => {
 
   // fetch data from API
   const { data: finalReportApi, isLoading: finalReportApiLoading } = useQuery({
-    queryKey: ["final-report", user?.id, sessions?.length],
+    queryKey: ["final-report", !userId ? user?.id : userId],
     queryFn: async () => {
       if (!sessions || sessions.length === 0) return null;
       
@@ -539,7 +543,7 @@ export const useFinalReportData = () => {
         const res = await axios.get(
           `${import.meta.env.VITE_API_URL}/api/v1/analyze/final-report`,
           {
-            params: { report_id: user?.id },
+            params: { report_id: !userId ? user.id : userId},
             headers: { Authorization: `Bearer ${token}` },
             timeout: 30_000,
           }
@@ -595,9 +599,12 @@ export const useFinalReportData = () => {
         }
       }
     },
-
-    enabled: !!user?.id && !!sessions && sessions.length > 0,
-
+    refetchOnMount: "always",
+    refetchOnWindowFocus: false,
+    enabled: (!userId ? !!user?.id : !!userId) &&
+      !sessionsLoading &&
+      Array.isArray(sessions) &&
+      sessions.length > 0,
     refetchInterval: (query) => {
       const status = query.state.data?.status;
       return status === "processing" ? 2000 : false;
