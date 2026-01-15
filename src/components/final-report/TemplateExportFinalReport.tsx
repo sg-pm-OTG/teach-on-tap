@@ -10,7 +10,7 @@ import {
 import { chord, ribbon, ChordGroup } from "d3-chord";
 import { arc } from "d3-shape";
 import { Button } from '../ui/button';
-import { FileDown } from 'lucide-react';
+import { Download, FileDown } from 'lucide-react';
 import { descending } from 'd3-array';
 
 const styles = StyleSheet.create({
@@ -530,7 +530,7 @@ const ReportDocument = ({ data }: { data: any }) => {
   const rows = chunkArray(data.journeyTimeline || [], 3);
   const latestPieData = processPieData(data.pieDataRaw || []);
   const colorsChord = ['#1e40af', '#3b82f6', '#60a5fa', '#93c5fd', '#cbd5e1'];
-
+  
   return (
     <Document>
       <Page size="A4" style={coverStyles.page}>
@@ -636,19 +636,19 @@ const ReportDocument = ({ data }: { data: any }) => {
             </Text>
             <View style={styles.comparisonRow}>
               <View style={styles.pieColumn}>
-                <PieChartSvg width={70} data={data.talkTimeBySession[0].data} />
+                <PieChartSvg width={70} data={data.talkTimeBySession[0]?.data || []} />
                 <Text style={styles.chartTitle}>Session 1</Text>
               </View>
               <View style={styles.pieColumn}>
-                <PieChartSvg width={70} data={data.talkTimeBySession[1].data} />
-                <Text style={styles.chartTitle}>Session 2</Text>
+                <PieChartSvg width={70} data={data.talkTimeBySession[1]?.data || []} />
+                <Text style={styles.chartTitle}>Session 22</Text>
               </View>
             </View>
           </View>
           <View style={{width: '50%', alignItems: 'center'}}>
             <View style={styles.pieColumn}>
               <Text style={styles.chartTitle}>Session 3</Text>
-              <PieChartSvg width={180} data={data.talkTimeBySession[2].data} />
+              <PieChartSvg width={180} data={data.talkTimeBySession[2]?.data || []} />
             </View>
           </View>
         </View>
@@ -667,8 +667,8 @@ const ReportDocument = ({ data }: { data: any }) => {
             <View style={styles.comparisonRow}>
               <View style={styles.pieColumn}>
                 <InteractionChordPdf 
-                  interactions={data.allSpeakerInteractions[0]?.interactions || [[0,0],[0,0]]} 
-                  labels={data.allSpeakerInteractions[0]?.speakers || []} 
+                  interactions={(data.allSpeakerInteractions && data.allSpeakerInteractions[0]?.interactions) || [[0,0],[0,0]]} 
+                  labels={(data.allSpeakerInteractions && data.allSpeakerInteractions[0]?.speakers) || []} 
                   colors={colorsChord}
                   width={90}
                 />
@@ -676,8 +676,8 @@ const ReportDocument = ({ data }: { data: any }) => {
               </View>
               <View style={styles.pieColumn}>
                 <InteractionChordPdf 
-                  interactions={data.allSpeakerInteractions[1]?.interactions || [[0,0],[0,0]]} 
-                  labels={data.allSpeakerInteractions[1]?.speakers || []} 
+                  interactions={(data.allSpeakerInteractions && data.allSpeakerInteractions[1]?.interactions) || [[0,0],[0,0]]} 
+                  labels={(data.allSpeakerInteractions && data.allSpeakerInteractions[1]?.speakers) || []} 
                   colors={colorsChord}
                   width={90}
                 />
@@ -689,8 +689,8 @@ const ReportDocument = ({ data }: { data: any }) => {
             <View style={styles.pieColumn}>
               <Text style={[styles.chartTitle, {textAlign: 'center'}]}>Session 3</Text>
               <InteractionChordPdf 
-                interactions={data.allSpeakerInteractions[2]?.interactions || [[0,0],[0,0]]} 
-                labels={data.allSpeakerInteractions[2]?.speakers || []} 
+                  interactions={(data.allSpeakerInteractions && data.allSpeakerInteractions[2]?.interactions) || [[0,0],[0,0]]} 
+                  labels={(data.allSpeakerInteractions && data.allSpeakerInteractions[2]?.speakers) || []} 
                 colors={colorsChord}
                 width={240}
               />
@@ -825,13 +825,12 @@ export const PdfExportFinalReport = ({ exportData, user, journeyTimeline, diffic
     scenarioScoreProgression,
     talkTimeBySession
   }
+  console.log("finalData", finalData);
+  
   return (
-    <PDFDownloadLink className='block' document={<ReportDocument data={finalData} />} fileName={`Final report ${user}.pdf`}>
+    <PDFDownloadLink className='block w-full' document={<ReportDocument data={finalData} />} fileName={`Final report ${user}.pdf`}>
       {({ loading }) => (
-        <Button variant="outline" className="w-full">
-          <FileDown className="h-5 w-5 mr-2" />
-          <span>{loading ? "Generating PDF..." : "Download PDF Final Report"}</span>
-        </Button>
+        <span className='block'>{loading ? "Generating PDF..." : "Download PDF"}</span>
       )}
     </PDFDownloadLink>
   );

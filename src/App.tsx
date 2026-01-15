@@ -56,7 +56,7 @@ const App = () => (
               <Route path="/admin" element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
                 <Route path="staff" element={<StaffManagement />} />
                 <Route path="users" element={<UsersList />} />
-                <Route path="users/:userId" element={<UserDetail />} />
+                <Route path="users/:userId" element={<AuthProvider><UserDetail /></AuthProvider>} />
               </Route>
             </Route>
 

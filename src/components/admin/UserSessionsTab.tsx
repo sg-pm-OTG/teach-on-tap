@@ -27,6 +27,8 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import axios from "axios";
 import { mapApiResultToSessionReport } from "@/utils/mapApiResultToSessionReport";
+import { useFinalReportData } from "@/hooks/useFinalReportData";
+import PdfExportFinalReport from "../final-report/TemplateExportFinalReport";
 
 interface UserSessionsTabProps {
   userId: string;
@@ -39,8 +41,32 @@ export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabPr
   const [isDeleting, setIsDeleting] = useState(false);
   const [playingAudioUrl, setPlayingAudioUrl] = useState<string | null>(null);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  const {
+    isLoading,
+    journeyTimeline,
+    scenarioScoreProgression,
+    dialogueScoreProgression,
+    talkTimeBySession,
+    latestSpeakerInteractions,
+    beliefComparisons,
+    orientationComparisons,
+    difficultyProgression,
+    summaryStats,
+    allSpeakerInteractions,
+    sessionReports,
+  } = useFinalReportData(userId);
 
-  const { data: sessions, isLoading } = useQuery({
+  const { data: user, isLoading: isLoadingUser } = useQuery({
+    queryKey: ["user-name", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const {data, error} = await supabase.from("profiles").select('name').eq('user_id', userId);
+      if (error) throw error;
+      return data[0];
+    },
+  })
+
+  const { data: sessions, isLoading: isLoadingSession } = useQuery({
     queryKey: ["admin-user-sessions", userId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -73,6 +99,36 @@ export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabPr
     },
   });
 
+  const {data: finalReport, isLoading: isLoadingFinalReport} = useQuery({
+    queryKey: ["admin-user-final-report", userId],
+    enabled: !!userId,
+    retry: false,
+    queryFn: async () => {
+      try {
+        const token = await getAccessToken();
+
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/v1/analyze/admin-get-final-report`,
+          {
+            params: { final_report_user_id: userId },
+            headers: { Authorization: `Bearer ${token}` },
+            timeout: 30_000,
+          }
+        );
+
+        return res.data;
+      } catch (error: any) {
+        if (error?.response?.status === 404) {
+          return null;
+        }
+
+        throw error;
+      }
+    },
+  });
+
+  console.log('final:', finalReport)
+
   const getAccessToken = async (): Promise<string> => {
     const { data, error } = await supabase.auth.getSession();
 
@@ -103,12 +159,6 @@ export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabPr
     // Placeholder - will be implemented via GitHub
     toast.info("Session PDF download - to be implemented");
     console.log("Download session PDF for:", sessionId);
-  };
-
-  const handleDownloadFinalReportPdf = () => {
-    // Placeholder - will be implemented via GitHub
-    toast.info("Final Report PDF download - to be implemented");
-    console.log("Download final report PDF for user:", userId);
   };
 
   const handlePlayAudio = async (audioUrl: string) => {
@@ -242,6 +292,7 @@ export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabPr
   };
 
   return (
+    isLoading && isLoadingFinalReport ? <span>Loading...</span> :
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -253,7 +304,7 @@ export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabPr
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {isLoading ? (
+        {isLoadingSession ? (
           <div className="flex justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
@@ -354,7 +405,7 @@ export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabPr
         )}
 
         {/* Final Report Download Section */}
-        {finalReportStatus === "generated" && (
+        {finalReportStatus === "generated" && !isLoadingFinalReport && !isLoading && finalReport.data !== undefined && (
           <div className="rounded-lg border bg-muted/30 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -366,10 +417,23 @@ export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabPr
                   </p>
                 </div>
               </div>
-              <Button onClick={handleDownloadFinalReportPdf}>
-                <Download className="h-4 w-4 mr-2" />
-                Download PDF
-              </Button>
+                <Button>
+                  <Download className="h-4 w-4 mr-2" />
+                  {
+                  !isLoading && !isLoadingFinalReport ?         
+                    <PdfExportFinalReport
+                      user={user.name}
+                      exportData={finalReport?.data}
+                      journeyTimeline={journeyTimeline.filter(item => !item.isBaseline)}
+                      talkTimeBySession={talkTimeBySession}
+                      scenarioScoreProgression={scenarioScoreProgression}
+                      dialogueScoreProgression={dialogueScoreProgression}
+                      allSpeakerInteractions={allSpeakerInteractions}
+                      difficultyProgression={difficultyProgression}
+                    />
+                    : 'Generate PDF...'
+                  }
+                </Button>
             </div>
           </div>
         )}
