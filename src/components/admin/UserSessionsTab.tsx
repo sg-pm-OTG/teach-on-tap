@@ -94,7 +94,6 @@ export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabPr
           };
         })
       )
-      console.log('API Data:', apiData);
       return apiData;
     },
   });
@@ -126,8 +125,6 @@ export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabPr
       }
     },
   });
-
-  console.log('final:', finalReport)
 
   const getAccessToken = async (): Promise<string> => {
     const { data, error } = await supabase.auth.getSession();
@@ -192,7 +189,6 @@ export const UserSessionsTab = ({ userId, finalReportStatus }: UserSessionsTabPr
   };
 
   const handleDownloadTranscript = async (transcriptUrl: string, filename: string) => {
-    console.log("Download transcript for audio URL:", transcriptUrl);
     try {
       const token = await getAccessToken()
       const res = await axios.get(
