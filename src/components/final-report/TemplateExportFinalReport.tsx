@@ -825,7 +825,6 @@ export const PdfExportFinalReport = ({ exportData, user, journeyTimeline, diffic
     scenarioScoreProgression,
     talkTimeBySession
   }
-  console.log("finalData", finalData);
   
   return (
     <PDFDownloadLink className='block w-full' document={<ReportDocument data={finalData} />} fileName={`Final report ${user}.pdf`}>
